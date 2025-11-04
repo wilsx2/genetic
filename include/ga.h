@@ -7,6 +7,9 @@
 template <typename T>
 class Genetic {
     private:
+        std::random_device rd_;
+        std::mt19937 gen_ = std::mt19937(rd());
+
         std::vector<T> population_;
         std::vector<float> fitness_scores_;
         float total_fitness_;
@@ -17,7 +20,6 @@ class Genetic {
         const std::function<void(T&,T&)> crossover_;
 
         const float mutation_rate_;
-        const float crossover_rate_;
         const float elitism_rate_;      
         
     public:
@@ -28,10 +30,9 @@ class Genetic {
             std::function<void(T&)> mutate,
             std::function<void(T&,T&)> crossover,
             float mutation_rate,
-            float crossover_rate,
             float elitism_rate
         );
-        evolve();
+        void evolve();
 };
 
 #endif
