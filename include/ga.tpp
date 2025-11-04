@@ -1,5 +1,6 @@
 #include "ga.h"
 #include <random>
+#include <algorithm>
 #include <cassert>
 #include <ctime>
 
@@ -23,8 +24,12 @@ Genetic<T>::Genetic(
     population_.reserve(population_size);
     for (int i = 0; i < population_size; ++i)
     {
-        population_.emplace_back(birth(), 0.f);
+        auto child = birth();
+        population_.emplace_back(child, fitness_(child));
     }
+    std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
+        return a.second < b.second;
+    });
 }
 
 template <typename T>
@@ -61,21 +66,15 @@ T& Genetic<T>::tournamentSelect()
 template <typename T>
 void Genetic<T>::evolve()
 {
-    // Evaluate fitness
-    total_fitness_ = 0.f;
-    for(auto& member : population_)
-    {
-        member.second = fitness_(member.first);
-        total_fitness_ += member.second;
-    }
-
-    // Create new population
     std::vector<std::pair<T, float>> new_population;
 
-    /// Apply Elitism
-    // TOOD
+    // Apply Elitism
+    for(int i = 0; i < population_.size() * elitism_rate_; ++i)
+    {
+        new_population.push_back(population_[i]);
+    }
     
-    /// Populate
+    // Populate with children
     while (new_population.size() < population_.size())
     {
         // Select
@@ -89,10 +88,13 @@ void Genetic<T>::evolve()
         std::uniform_real_distribution<float> chance(0.f, 1.f);
         if(chance(gen_) < mutation_rate_)
             mutate_(offspring);
-        new_population.emplace_back(offspring, 0.f);
+        new_population.emplace_back(offspring, fitness_(offspring));
     }
 
     population_ = new_population;
+    std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
+        return a.second < b.second;
+    });
 }
 
 template <typename T>

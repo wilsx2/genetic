@@ -9,7 +9,7 @@ int main()
         1000,
         [](){return rand();},
         [](int& n){return -abs(1000 - n); },
-        [](int& n){return n += (1 - 2*(rand()%2)) * 10000; },
+        [](int& n){return n += (rand()%20000) - 10000; },
         [](int& a, int& b){return a/2 + b/2; },
         .2f,
         .1
