@@ -23,6 +23,7 @@ class Genetic {
     public:
         Genetic(
             std::size_t population_size,
+            std::function<T()> birth,
             std::function<float(T&)> fitness,
             std::function<void(T&)> mutate,
             std::function<void(T&,T&)> crossover,
