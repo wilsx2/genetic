@@ -11,12 +11,10 @@ Genetic<T>::Genetic(
     std::function<float(T&)> fitness,
     std::function<void(T&)> mutate,
     std::function<T(T&,T&)> crossover,
-    float mutation_rate,
     float elitism_rate
 )   : fitness_(fitness)
     , mutate_(mutate)
     , crossover_(crossover)
-    , mutation_rate_(mutation_rate)
     , elitism_rate_(elitism_rate)
 {
     gen_.seed(std::time(0));
@@ -27,23 +25,15 @@ Genetic<T>::Genetic(
         auto child = birth();
         population_.emplace_back(child, fitness_(child));
     }
-    std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
-        return a.second < b.second;
-    });
+    sortPopulation();
 }
 
 template <typename T>
-T& Genetic<T>::rouletteSelect()
+void Genetic<T>::sortPopulation()
 {
-    std::uniform_real_distribution<float> wheel(0.f, total_fitness_);
-    float spin = wheel(gen_);
-    int i = 0;
-    while(spin > population_[i].second)
-    {
-        spin -= population_[i].second;
-        ++i;
-    }
-    return population_[i].first;
+    std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
+        return a.second < b.second;
+    });
 }
 
 template <typename T>
@@ -85,16 +75,14 @@ void Genetic<T>::evolve()
         T offspring = crossover_(parent_a, parent_b);
 
         // Mutate
-        std::uniform_real_distribution<float> chance(0.f, 1.f);
-        if(chance(gen_) < mutation_rate_)
-            mutate_(offspring);
+        mutate_(offspring);
+        
         new_population.emplace_back(offspring, fitness_(offspring));
     }
 
+    // Overwrite old population
     population_ = new_population;
-    std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
-        return a.second < b.second;
-    });
+    sortPopulation();
 }
 
 template <typename T>

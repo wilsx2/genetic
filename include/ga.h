@@ -11,18 +11,15 @@ class Genetic {
         std::mt19937 gen_;
 
         std::vector<std::pair<T, float>> population_;
-        float total_fitness_;
         std::size_t generation_;
         
         const std::function<float(T&)> fitness_;
         const std::function<void(T&)> mutate_;
         const std::function<T(T&,T&)> crossover_;
-
-        const float mutation_rate_;
         const float elitism_rate_;     
         
-        T& rouletteSelect();
         template<std::size_t N> T& tournamentSelect();
+        void sortPopulation();
         
     public:
         Genetic(
@@ -31,7 +28,6 @@ class Genetic {
             std::function<float(T&)> fitness,
             std::function<void(T&)> mutate,
             std::function<T(T&,T&)> crossover,
-            float mutation_rate,
             float elitism_rate
         );
         void evolve();
