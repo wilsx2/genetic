@@ -6,7 +6,7 @@
 int main()
 {
     Genetic<int> ga (
-        10000,
+        1000,
         [](){return rand();},
         [](int& n){return -abs(1000 - n); },
         [](int& n){return n += (1 - 2*(rand()%2)) * 10000; },
@@ -19,7 +19,7 @@ int main()
         std::cout << pair.first << " | " << pair.second << "\n";
     }
     std::cout << " evolve";
-    for(int i = 0; i < 100; ++i)
+    for(int i = 0; i < 1000; ++i)
         ga.evolve();
     for(auto& pair : ga.getPopulation())
     {

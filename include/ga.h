@@ -10,8 +10,7 @@ class Genetic {
     private:
         std::mt19937 gen_;
 
-        std::vector<T> population_;
-        std::vector<float> fitness_scores_;
+        std::vector<std::pair<T, float>> population_;
         float total_fitness_;
         std::size_t generation_;
         
@@ -23,8 +22,7 @@ class Genetic {
         const float elitism_rate_;     
         
         T& rouletteSelect();
-        template<std::size_t N>
-        T& tournamentSelect();
+        template<std::size_t N> T& tournamentSelect();
         
     public:
         Genetic(
@@ -37,7 +35,7 @@ class Genetic {
             float elitism_rate
         );
         void evolve();
-        std::vector<std::pair<T,float>> getPopulation();
+        const std::vector<std::pair<T,float>>& getPopulation();
 };
 
 #include "ga.tpp"
