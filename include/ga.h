@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <functional>
+#include <random>
 
 template <typename T>
 class Genetic {
     private:
-        std::random_device rd_;
-        std::mt19937 gen_ = std::mt19937(rd());
+        std::mt19937 gen_;
 
         std::vector<T> population_;
         std::vector<float> fitness_scores_;
@@ -17,10 +17,14 @@ class Genetic {
         
         const std::function<float(T&)> fitness_;
         const std::function<void(T&)> mutate_;
-        const std::function<void(T&,T&)> crossover_;
+        const std::function<T(T&,T&)> crossover_;
 
         const float mutation_rate_;
-        const float elitism_rate_;      
+        const float elitism_rate_;     
+        
+        T& rouletteSelect();
+        template<std::size_t N>
+        T& tournamentSelect();
         
     public:
         Genetic(
@@ -28,11 +32,13 @@ class Genetic {
             std::function<T()> birth,
             std::function<float(T&)> fitness,
             std::function<void(T&)> mutate,
-            std::function<void(T&,T&)> crossover,
+            std::function<T(T&,T&)> crossover,
             float mutation_rate,
             float elitism_rate
         );
         void evolve();
+        std::vector<std::pair<T,float>> getPopulation();
 };
 
+#include "ga.tpp"
 #endif
