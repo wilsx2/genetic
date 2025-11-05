@@ -26,7 +26,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     for (int i = 0; i < population_size; ++i)
     {
         auto child = birth();
-        population_.emplace_back(child, fitness_(child)); // Note: Assumes copy constructor
+        population_.emplace_back(child, fitness_(child));
     }
     sortPopulation();
 }
@@ -156,7 +156,7 @@ bool GeneticAlgorithm<T>::load_population(std::string filepath)
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
 
     // Population
-    population_.resize(size); // NOTE: Assumes default constructor, could be implemented with a for loop
+    population_.resize(size);
     input.read(reinterpret_cast<char*>(population_.data()), sizeof(T)*population_.size()); 
 
     input.close();
