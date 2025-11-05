@@ -5,12 +5,12 @@
 
 void print_pop(GeneticAlgorithm<int>& ga)
 {
-    std::cout << "Generation " << ga.getGeneration() << "\n";
     const auto& pop = ga.getPopulation();
-    for(int i = 0; i < 10 && i < pop.size(); ++i)
+    std::cout << "Generation " << pop.generation << "\n";
+    for(int i = 0; i < 5 && i < pop.size(); ++i)
     {
-        auto& pair = pop[i];
-        std::cout << pair.first << " | " << pair.second << "\n";
+        auto member = pop[i];
+        std::cout << (member.value) << " | " << member.fitness << "\n";
     }
 }
 

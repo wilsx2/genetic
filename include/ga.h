@@ -1,17 +1,16 @@
 #ifndef GA_H
 #define GA_H
 
+#include "population.h"
+
 #include <vector>
 #include <functional>
 #include <string>
 
 template <typename T>
 class GeneticAlgorithm {
-    static_assert(std::is_trivially_copyable_v<T> == true);
-
     private:
-        std::vector<std::pair<T, float>> population_;
-        std::size_t generation_;
+        Population<T> population_;
         
         const std::function<float(T&)> fitness_;
         const std::function<void(T&)> mutate_;
@@ -19,7 +18,6 @@ class GeneticAlgorithm {
         const float elitism_rate_;     
         
         template<std::size_t N> T& tournamentSelect();
-        void sortPopulation();
         
     public:
         GeneticAlgorithm(
@@ -33,8 +31,7 @@ class GeneticAlgorithm {
         void evolve();
         void evolve(std::size_t n);
         void evolve_until_fitness(float target);
-        const std::vector<std::pair<T,float>>& getPopulation();
-        std::size_t getGeneration();
+        const Population<T>& getPopulation() const;
 
         bool save_population(std::string filepath);
         bool load_population(std::string filepath);

@@ -7,12 +7,12 @@
 
 void print_pop(GeneticAlgorithm<BinaryEncoding<int>>& ga)
 {
-    std::cout << "Generation " << ga.getGeneration() << "\n";
     const auto& pop = ga.getPopulation();
-    for(int i = 0; i < 10 && i < pop.size(); ++i)
+    std::cout << "Generation " << pop.generation << "\n";
+    for(int i = 0; i < 5 && i < pop.size(); ++i)
     {
-        auto& pair = pop[i];
-        std::cout << (pair.first.data().to_ulong()) << " | " << pair.second << "\n";
+        auto member = pop[i];
+        std::cout << (member.value.data().to_ulong()) << " | " << member.fitness << "\n";
     }
 }
 
