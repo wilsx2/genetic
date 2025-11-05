@@ -5,15 +5,21 @@
 
 template <typename T>
 class BinaryEncoding {
-    std::bitset<sizeof(T)*8> data_;
+    private:
+        std::bitset<sizeof(T)*8> data_;
 
-    BinaryEncoding(T value);
-    T get();
-    void set(T value);
+    public:
+        BinaryEncoding();
+        BinaryEncoding(T value);
+        T get() const;
+        void set(T value);
+        const std::bitset<sizeof(T)*8>& data() const;
 
-    static BinaryEncoding birth();
-    static BinaryEncoding crossover(BinaryEncoding& a, BinaryEncoding& b);
-    static void mutate(BinaryEncoding& bin);
+        static BinaryEncoding birth();
+        static BinaryEncoding crossover(BinaryEncoding& a, BinaryEncoding& b);
+        template <int R> static void mutate(BinaryEncoding& bin);
 };
+
+#include "binary_encoding.tpp"
 
 #endif

@@ -17,7 +17,7 @@ void print_pop(Genetic<int>& ga)
 int main()
 {
     Genetic<int> ga (
-        1000,
+        10000,
         [](){return rand();},
         [](int& n){return -abs(1000 - n); },
         [](int& n){return n += (rand()%20000) - 10000; },
