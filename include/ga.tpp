@@ -1,8 +1,8 @@
 #include "ga.h"
-#include <random>
 #include <algorithm>
 #include <cassert>
 #include <ctime>
+#include <cstdlib>
 
 template <typename T>
 Genetic<T>::Genetic(
@@ -18,7 +18,7 @@ Genetic<T>::Genetic(
     , elitism_rate_(elitism_rate)
     , generation_(1)
 {
-    gen_.seed(std::time(0));
+    srand(std::time(0));
 
     population_.reserve(population_size);
     for (int i = 0; i < population_size; ++i)
@@ -41,13 +41,12 @@ template <typename T>
 template <std::size_t N>
 T& Genetic<T>::tournamentSelect()
 {
-    std::uniform_int_distribution<int> rand_i(0, population_.size() - 1);
-    int i = rand_i(gen_);
+    int i = rand() % population_.size();
 
     std::pair<T&, float> fittest = {population_[i].first, population_[i].second};
     for (int k = 1; k < N; ++k)
     {
-        int j = rand_i(gen_);
+        int j = rand() % population_.size();
         if (population_[j].second > fittest.second)
             fittest = population_[j];
     }

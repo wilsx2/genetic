@@ -3,13 +3,10 @@
 
 #include <vector>
 #include <functional>
-#include <random>
 
 template <typename T>
 class Genetic {
     private:
-        std::mt19937 gen_;
-
         std::vector<std::pair<T, float>> population_;
         std::size_t generation_;
         
