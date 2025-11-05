@@ -3,7 +3,7 @@
 #include <climits>
 #include <iostream>
 
-void print_pop(Genetic<int>& ga)
+void print_pop(GeneticAlgorithm<int>& ga)
 {
     std::cout << "Generation " << ga.getGeneration() << "\n";
     const auto& pop = ga.getPopulation();
@@ -16,7 +16,7 @@ void print_pop(Genetic<int>& ga)
 
 int main()
 {
-    Genetic<int> ga (
+    GeneticAlgorithm<int> ga (
         10000,
         [](){return rand();},
         [](int& n){return -abs(1000 - n); },

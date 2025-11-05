@@ -5,7 +5,7 @@
 #include <climits>
 #include <iostream>
 
-void print_pop(Genetic<BinaryEncoding<int>>& ga)
+void print_pop(GeneticAlgorithm<BinaryEncoding<int>>& ga)
 {
     std::cout << "Generation " << ga.getGeneration() << "\n";
     const auto& pop = ga.getPopulation();
@@ -26,7 +26,7 @@ float fitness(BinaryEncoding<int> a, BinaryEncoding<int> b)
 
 int main()
 {
-    Genetic<BinaryEncoding<int>> ga (
+    GeneticAlgorithm<BinaryEncoding<int>> ga (
         100,
         BinaryEncoding<int>::birth,
         [](BinaryEncoding<int>& bin){return fitness(bin, BinaryEncoding<int>(1000)); },

@@ -5,7 +5,7 @@
 #include <functional>
 
 template <typename T>
-class Genetic {
+class GeneticAlgorithm {
     private:
         std::vector<std::pair<T, float>> population_;
         std::size_t generation_;
@@ -19,7 +19,7 @@ class Genetic {
         void sortPopulation();
         
     public:
-        Genetic(
+        GeneticAlgorithm(
             std::size_t population_size,
             std::function<T()> birth,
             std::function<float(T&)> fitness,

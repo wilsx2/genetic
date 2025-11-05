@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 template <typename T>
-Genetic<T>::Genetic(
+GeneticAlgorithm<T>::GeneticAlgorithm(
     std::size_t population_size,
     std::function<T()> birth,
     std::function<float(T&)> fitness,
@@ -30,7 +30,7 @@ Genetic<T>::Genetic(
 }
 
 template <typename T>
-void Genetic<T>::sortPopulation()
+void GeneticAlgorithm<T>::sortPopulation()
 {
     std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
         return a.second > b.second;
@@ -39,7 +39,7 @@ void Genetic<T>::sortPopulation()
 
 template <typename T>
 template <std::size_t N>
-T& Genetic<T>::tournamentSelect()
+T& GeneticAlgorithm<T>::tournamentSelect()
 {
     int i = rand() % population_.size();
 
@@ -54,7 +54,7 @@ T& Genetic<T>::tournamentSelect()
 }
 
 template <typename T>
-void Genetic<T>::evolve()
+void GeneticAlgorithm<T>::evolve()
 {
     std::vector<std::pair<T, float>> new_population;
 
@@ -87,25 +87,25 @@ void Genetic<T>::evolve()
 }
 
 template <typename T>
-void Genetic<T>::evolve(std::size_t n)
+void GeneticAlgorithm<T>::evolve(std::size_t n)
 {
     for (int i = 0; i < n; ++i) evolve();
 }
 
 template <typename T>
-void Genetic<T>::evolve_until_fitness(float target)
+void GeneticAlgorithm<T>::evolve_until_fitness(float target)
 {
     while(population_[0].second < target) evolve();
 }
 
 template <typename T>
-const std::vector<std::pair<T,float>>& Genetic<T>::getPopulation()
+const std::vector<std::pair<T,float>>& GeneticAlgorithm<T>::getPopulation()
 {
     return population_;
 }
 
 template <typename T>
-std::size_t Genetic<T>::getGeneration()
+std::size_t GeneticAlgorithm<T>::getGeneration()
 {
     return generation_;
 }
