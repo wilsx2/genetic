@@ -3,6 +3,8 @@
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
 
 template <typename T>
 GeneticAlgorithm<T>::GeneticAlgorithm(
@@ -24,7 +26,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     for (int i = 0; i < population_size; ++i)
     {
         auto child = birth();
-        population_.emplace_back(child, fitness_(child));
+        population_.emplace_back(child, fitness_(child)); // Note: Assumes copy constructor
     }
     sortPopulation();
 }
@@ -68,7 +70,7 @@ void GeneticAlgorithm<T>::evolve()
     while (new_population.size() < population_.size())
     {
         // Select
-        T& parent_a = tournamentSelect<10>();
+        T& parent_a = tournamentSelect<10>(); //TODO: parameterize
         T& parent_b = tournamentSelect<10>();
 
         // Crossover
@@ -108,4 +110,55 @@ template <typename T>
 std::size_t GeneticAlgorithm<T>::getGeneration()
 {
     return generation_;
+}
+
+template <typename T>
+bool GeneticAlgorithm<T>::save_population(std::string filepath)
+{
+    /*
+        NOTE: In the future should not take filepath as a parameter. Should instead output with the format of:
+            Description of data in plaintext, retrieved from source type ideally.
+            Identifier (hash) of the population, generated when first created and stored in GAs using that population
+            Current generation of that population
+    */
+    std::ofstream output (filepath);
+    
+    if (!output.is_open())
+        return false;
+    
+    // Current Generation
+    output.write(reinterpret_cast<char*>(&generation_), sizeof(std::size_t));
+
+    // Population Size
+    auto size = population_.size();
+    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+
+    // Population
+    output.write(reinterpret_cast<char*>(population_.data()), sizeof(T)*population_.size());
+
+    output.close();
+    return true;
+}
+
+template <typename T>
+bool GeneticAlgorithm<T>::load_population(std::string filepath)
+{
+    std::ifstream input (filepath);
+    
+    if (!input.is_open())
+        return false;
+
+    // Current Generation
+    input.read(reinterpret_cast<char*>(&generation_), sizeof(std::size_t)); 
+
+    // Population Size
+    std::size_t size;
+    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
+
+    // Population
+    population_.resize(size); // NOTE: Assumes default constructor, could be implemented with a for loop
+    input.read(reinterpret_cast<char*>(population_.data()), sizeof(T)*population_.size()); 
+
+    input.close();
+    return true;
 }

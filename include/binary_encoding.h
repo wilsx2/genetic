@@ -5,6 +5,8 @@
 
 template <typename T>
 class BinaryEncoding {
+    static_assert(std::is_trivially_copyable_v<T> == true);
+
     private:
         std::bitset<sizeof(T)*8> data_;
 

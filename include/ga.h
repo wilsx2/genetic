@@ -3,9 +3,12 @@
 
 #include <vector>
 #include <functional>
+#include <string>
 
 template <typename T>
 class GeneticAlgorithm {
+    static_assert(std::is_trivially_copyable_v<T> == true);
+
     private:
         std::vector<std::pair<T, float>> population_;
         std::size_t generation_;
@@ -32,6 +35,9 @@ class GeneticAlgorithm {
         void evolve_until_fitness(float target);
         const std::vector<std::pair<T,float>>& getPopulation();
         std::size_t getGeneration();
+
+        bool save_population(std::string filepath);
+        bool load_population(std::string filepath);
 };
 
 #include "ga.tpp"
