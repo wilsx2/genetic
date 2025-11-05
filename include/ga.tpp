@@ -16,6 +16,7 @@ Genetic<T>::Genetic(
     , mutate_(mutate)
     , crossover_(crossover)
     , elitism_rate_(elitism_rate)
+    , generation_(1)
 {
     gen_.seed(std::time(0));
 
@@ -32,7 +33,7 @@ template <typename T>
 void Genetic<T>::sortPopulation()
 {
     std::sort(population_.begin(), population_.end(), [](const std::pair<T, float>& a, const std::pair<T, float>& b) {
-        return a.second < b.second;
+        return a.second > b.second;
     });
 }
 
@@ -83,10 +84,29 @@ void Genetic<T>::evolve()
     // Overwrite old population
     population_ = new_population;
     sortPopulation();
+    ++generation_;
+}
+
+template <typename T>
+void Genetic<T>::evolve(std::size_t n)
+{
+    for (int i = 0; i < n; ++i) evolve();
+}
+
+template <typename T>
+void Genetic<T>::evolve_until_fitness(float target)
+{
+    while(population_[0].second < target) evolve();
 }
 
 template <typename T>
 const std::vector<std::pair<T,float>>& Genetic<T>::getPopulation()
 {
     return population_;
+}
+
+template <typename T>
+std::size_t Genetic<T>::getGeneration()
+{
+    return generation_;
 }

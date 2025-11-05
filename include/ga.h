@@ -31,7 +31,10 @@ class Genetic {
             float elitism_rate
         );
         void evolve();
+        void evolve(std::size_t n);
+        void evolve_until_fitness(float target);
         const std::vector<std::pair<T,float>>& getPopulation();
+        std::size_t getGeneration();
 };
 
 #include "ga.tpp"
