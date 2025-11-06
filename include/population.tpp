@@ -3,9 +3,14 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <format>
 
 template <typename T>
-Population<T>::Population(): generation(1), total_fitness(0.f) {}
+Population<T>::Population()
+    : identifier(rand())
+    , generation(1)
+    , total_fitness(0.f) 
+{}
 
 template <typename T>
 Member<T>& Population<T>::operator[](std::size_t idx)
@@ -47,16 +52,15 @@ void Population<T>::sort()
 }
 
 template <typename T>
-bool Population<T>::save(std::string filepath)
+bool Population<T>::save(std::string label)
 {
-    /*
-        NOTE: In the future should not take filepath as a parameter. Should instead output with the format of:
-            Description of data in plaintext, retrieved from source type ideally.
-            Identifier (hash) of the population, generated when first created and stored in GAs using that population
-            Current generation of that population
-    */
 
-    std::ofstream output (filepath);
+    std::ofstream output (
+        "populations/" + label
+        + "_P" + std::format("{:x}", identifier)
+        + "_G" + std::to_string(generation)
+        + "_F" + std::to_string(fittest().fitness)
+    );
     
     if (!output.is_open())
         return false;
@@ -76,9 +80,9 @@ bool Population<T>::save(std::string filepath)
 }
 
 template <typename T>
-bool Population<T>::load(std::string filepath)
+bool Population<T>::load(std::string filename)
 {
-    std::ifstream input (filepath);
+    std::ifstream input ("populations/"+filename);
     
     if (!input.is_open())
         return false;

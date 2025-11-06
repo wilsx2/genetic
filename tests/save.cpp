@@ -5,6 +5,8 @@
 
 int main()
 {
+    srand(std::time(0));
+    
     GeneticAlgorithm<int> ga (
         10,
         [](){return rand();},
@@ -17,5 +19,5 @@ int main()
 
     ga.evolve(rand() % 91 + 10);
     printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
-    ga.savePopulation("populations/saveload");
+    ga.savePopulation("saveload");
 }

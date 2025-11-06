@@ -22,8 +22,6 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , select_(select)
     , population_()
 {
-    srand(std::time(0));
-
     population_.members.reserve(population_size);
     for (int i = 0; i < population_size; ++i)
     {
@@ -108,13 +106,13 @@ const Population<T>& GeneticAlgorithm<T>::getPopulation() const
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::savePopulation(std::string filepath)
+bool GeneticAlgorithm<T>::savePopulation(std::string label)
 {
-    return population_.save(filepath);
+    return population_.save(label);
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::loadPopulation(std::string filepath)
+bool GeneticAlgorithm<T>::loadPopulation(std::string filename)
 {
-    return population_.load(filepath);
+    return population_.load(filename);
 }

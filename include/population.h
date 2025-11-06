@@ -18,6 +18,7 @@ struct Population
 
     Population();
     
+    const u_int32_t identifier;
     std::vector<Member<T>> members;
     std::size_t generation;
     float total_fitness;
@@ -28,8 +29,8 @@ struct Population
     const Member<T>& fittest() const;
     std::size_t size() const;
     void sort();
-    bool save(std::string filepath);
-    bool load(std::string filepath);
+    bool save(std::string label);
+    bool load(std::string filename);
 };
 
 #include "population.tpp"

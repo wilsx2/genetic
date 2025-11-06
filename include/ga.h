@@ -37,8 +37,8 @@ class GeneticAlgorithm {
         void evolveUntilFitness(float target);
         const Population<T>& getPopulation() const;
 
-        bool savePopulation(std::string filepath);
-        bool loadPopulation(std::string filepath);
+        bool savePopulation(std::string label);
+        bool loadPopulation(std::string filename);
 };
 
 #include "ga.tpp"

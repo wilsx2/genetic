@@ -12,7 +12,7 @@ EXES := $(foreach exe, $(TESTS:%.cpp=%.exe), $(BUILD_DIR)/$(notdir $(exe))) # Cr
 
 # Compiler settings
 CC := g++
-CFLAGS := -I$(INC_DIR)
+CFLAGS := -std=c++20 -I$(INC_DIR)
 
 # Targets
 all: $(EXES)
