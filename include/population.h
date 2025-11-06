@@ -18,7 +18,7 @@ struct Population
 
     Population();
     
-    const u_int32_t identifier;
+    u_int32_t identifier;
     std::vector<Member<T>> members;
     std::size_t generation;
     float total_fitness;

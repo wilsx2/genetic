@@ -64,6 +64,9 @@ bool Population<T>::save(std::string label)
     
     if (!output.is_open())
         return false;
+
+    // Identifier
+    output.write(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));
     
     // Current Generation
     output.write(reinterpret_cast<char*>(&generation), sizeof(std::size_t));
@@ -87,6 +90,9 @@ bool Population<T>::load(std::string filename)
     if (!input.is_open())
         return false;
     // TODO: Validate that save file is of the same type
+
+    // Identifier
+    input.read(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));
 
     // Current Generation
     input.read(reinterpret_cast<char*>(&generation), sizeof(std::size_t)); 

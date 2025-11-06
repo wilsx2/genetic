@@ -6,7 +6,7 @@
 int main()
 {
     srand(std::time(0));
-    
+
     GeneticAlgorithm<int> ga (
         10,
         [](){return rand();},
