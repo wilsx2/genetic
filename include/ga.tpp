@@ -76,7 +76,7 @@ void GeneticAlgorithm<T>::evolve()
         // Mutate
         mutate_(offspring);
         
-        new_members.push_back({offspring, fitness_(offspring)});
+        new_members.push_back({offspring, 0.f});
     }
 
     // Overwrite old population
