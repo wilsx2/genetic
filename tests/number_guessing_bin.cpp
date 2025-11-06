@@ -1,20 +1,11 @@
+#include "test_util.hpp"
 #include "ga.h"
 #include "binary_encoding.h"
+
 #include <string>
 #include <cstdlib>
 #include <climits>
 #include <iostream>
-
-void print_pop(GeneticAlgorithm<BinaryEncoding<int>>& ga)
-{
-    const auto& pop = ga.getPopulation();
-    std::cout << "Generation " << pop.generation << "\n";
-    for(int i = 0; i < 5 && i < pop.size(); ++i)
-    {
-        auto member = pop[i];
-        std::cout << (member.value.data().to_ulong()) << " | " << member.fitness << "\n";
-    }
-}
 
 float fitness(BinaryEncoding<int> a, BinaryEncoding<int> b)
 {
@@ -35,7 +26,7 @@ int main()
         .1f
     );
 
-    print_pop(ga);
+    print_pop<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
     ga.evolve_until_fitness(32.f);
-    print_pop(ga);
+    print_pop<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
 }

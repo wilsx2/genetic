@@ -1,17 +1,7 @@
+#include "test_util.hpp"
 #include "ga.h"
 #include <cstdlib>
 #include <iostream>
-
-void print_pop(GeneticAlgorithm<int>& ga)
-{
-    const auto& pop = ga.getPopulation();
-    std::cout << "Saving: Generation " << pop.generation << "\n";
-    for(int i = 0; i < 5 && i < pop.size(); ++i)
-    {
-        auto member = pop[i];
-        std::cout << (member.value) << " | " << member.fitness << "\n";
-    }
-}
 
 int main()
 {
@@ -25,6 +15,6 @@ int main()
     );
 
     ga.evolve(rand() % 91 + 10);
-    print_pop(ga);
+    print_pop<int>(ga, 5, [](int n){ return std::to_string(n); });
     ga.save_population("populations/saveload");
 }
