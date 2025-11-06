@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <format>
+#include <typeinfo>
 
 template <typename T>
 Population<T>::Population()
@@ -65,6 +66,10 @@ bool Population<T>::save(std::string label)
     if (!output.is_open())
         return false;
 
+    // Tag With Type ID
+    std::size_t typeHash = typeid(T).hash_code();
+    output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
+
     // Identifier
     output.write(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));
     
@@ -89,7 +94,12 @@ bool Population<T>::load(std::string filename)
     
     if (!input.is_open())
         return false;
-    // TODO: Validate that save file is of the same type
+    
+    // Check Type ID tag
+    std::size_t inputTypeHash;
+    input.read(reinterpret_cast<char*>(&inputTypeHash), sizeof(std::size_t));
+    if (inputTypeHash != typeid(T).hash_code())
+        return false;
 
     // Identifier
     input.read(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     std::string filename (argv[1]);
     bool success = ga.loadPopulation(filename);
     if (!success) {
-        std::cerr << "File name \"" << filename << "\" could not be opened.";
+        std::cerr << "File name \"" << filename << "\" could not be opened or contained the wrong type.";
         return 1;
     }
     printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
