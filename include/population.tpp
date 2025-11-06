@@ -5,7 +5,7 @@
 #include <fstream>
 
 template <typename T>
-Population<T>::Population(): generation(1) {}
+Population<T>::Population(): generation(1), total_fitness(0.f) {}
 
 template <typename T>
 Member<T>& Population<T>::operator[](std::size_t idx)

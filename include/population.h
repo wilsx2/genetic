@@ -20,6 +20,7 @@ struct Population
     
     std::vector<Member<T>> members;
     std::size_t generation;
+    float total_fitness;
 
     Member<T>& operator[](std::size_t idx);
     const Member<T>& operator[](std::size_t idx) const;

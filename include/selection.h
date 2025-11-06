@@ -12,6 +12,12 @@ using Func = std::function<T&(Population<T>&)>;
 template<typename T, std::size_t N>
 T& tournament(Population<T>& population);
 
+template<typename T>
+T& roulette(Population<T>& population);
+
+template<typename T>
+T& rankBased(Population<T>& population);
+
 }
 
 #include "selection.tpp"

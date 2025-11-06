@@ -43,10 +43,13 @@ inline std::size_t GeneticAlgorithm<T>::numElites()
 template <typename T>
 void GeneticAlgorithm<T>::evaluateFitness()
 {
+    population_.total_fitness = 0.f;
     std::size_t start = population_.generation == 1 ? 0 : numElites();
     for (int i = start; i < population_.size(); ++i)
     {
-        population_[i].fitness = fitness_(population_[i].value);
+        auto score = fitness_(population_[i].value);
+        population_[i].fitness = score;
+        population_.total_fitness += score;
     }
 
     population_.sort();
