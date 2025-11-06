@@ -30,13 +30,15 @@ class GeneticAlgorithm {
             float elitism_rate,
             selection::Func<T> select
         );
+        inline std::size_t numElites();
+        void evaluateFitness();
         void evolve();
         void evolve(std::size_t n);
-        void evolve_until_fitness(float target);
+        void evolveUntilFitness(float target);
         const Population<T>& getPopulation() const;
 
-        bool save_population(std::string filepath);
-        bool load_population(std::string filepath);
+        bool savePopulation(std::string filepath);
+        bool loadPopulation(std::string filepath);
 };
 
 #include "ga.tpp"

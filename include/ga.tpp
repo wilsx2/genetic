@@ -28,8 +28,27 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     for (int i = 0; i < population_size; ++i)
     {
         auto child = birth();
-        population_.members.push_back({child, fitness_(child)});
+        population_.members.push_back({child, 0.f});
     }
+
+    evaluateFitness();
+}
+
+template <typename T>
+inline std::size_t GeneticAlgorithm<T>::numElites()
+{
+    return population_.size() * elitism_rate_;
+}
+
+template <typename T>
+void GeneticAlgorithm<T>::evaluateFitness()
+{
+    std::size_t start = population_.generation == 1 ? 0 : numElites();
+    for (int i = start; i < population_.size(); ++i)
+    {
+        population_[i].fitness = fitness_(population_[i].value);
+    }
+
     population_.sort();
 }
 
@@ -39,7 +58,7 @@ void GeneticAlgorithm<T>::evolve()
     std::vector<Member<T>> new_members;
 
     // Apply Elitism
-    for(int i = 0; i < population_.size() * elitism_rate_; ++i)
+    for (int i = 0; i < numElites(); ++i)
     {
         new_members.push_back(population_[i]);
     }
@@ -63,7 +82,8 @@ void GeneticAlgorithm<T>::evolve()
     // Overwrite old population
     population_.members = new_members;
     ++population_.generation;
-    population_.sort();
+
+    evaluateFitness();
 }
 
 template <typename T>
@@ -73,7 +93,7 @@ void GeneticAlgorithm<T>::evolve(std::size_t n)
 }
 
 template <typename T>
-void GeneticAlgorithm<T>::evolve_until_fitness(float target)
+void GeneticAlgorithm<T>::evolveUntilFitness(float target)
 {
     while(population_.fittest().fitness < target) evolve();
 }
@@ -85,13 +105,13 @@ const Population<T>& GeneticAlgorithm<T>::getPopulation() const
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::save_population(std::string filepath)
+bool GeneticAlgorithm<T>::savePopulation(std::string filepath)
 {
     return population_.save(filepath);
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::load_population(std::string filepath)
+bool GeneticAlgorithm<T>::loadPopulation(std::string filepath)
 {
     return population_.load(filepath);
 }

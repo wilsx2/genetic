@@ -16,6 +16,6 @@ int main()
         selection::tournament<int, 5>
     );
 
-    ga.load_population("populations/saveload");
-    print_pop<int>(ga, 5, [](int n){ return std::to_string(n); });
+    ga.loadPopulation("populations/saveload");
+    printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
 }

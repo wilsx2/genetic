@@ -5,7 +5,7 @@
 #include <functional>
 
 template <typename T>
-void print_pop(GeneticAlgorithm<T>& ga, std::size_t num_print, std::function<std::string(const T&)> to_string)
+void printPopulation(GeneticAlgorithm<T>& ga, std::size_t num_print, std::function<std::string(const T&)> to_string)
 {
     const auto& pop = ga.getPopulation();
     std::cout << "Generation " << pop.generation << "\n";

@@ -16,6 +16,6 @@ int main()
     );
 
     ga.evolve(rand() % 91 + 10);
-    print_pop<int>(ga, 5, [](int n){ return std::to_string(n); });
-    ga.save_population("populations/saveload");
+    printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
+    ga.savePopulation("populations/saveload");
 }
