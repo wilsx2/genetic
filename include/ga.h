@@ -2,6 +2,7 @@
 #define GA_H
 
 #include "population.h"
+#include "selection.h"
 
 #include <vector>
 #include <functional>
@@ -16,6 +17,8 @@ class GeneticAlgorithm {
         const std::function<void(T&)> mutate_;
         const std::function<T(T&,T&)> crossover_;
         const float elitism_rate_;     
+
+        selection::Func<T> select_;
         
     public:
         GeneticAlgorithm(
@@ -24,7 +27,8 @@ class GeneticAlgorithm {
             std::function<float(T&)> fitness,
             std::function<void(T&)> mutate,
             std::function<T(T&,T&)> crossover,
-            float elitism_rate
+            float elitism_rate,
+            selection::Func<T> select
         );
         void evolve();
         void evolve(std::size_t n);

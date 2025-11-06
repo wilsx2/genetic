@@ -12,7 +12,8 @@ int main()
         [](int&){return 0.f; },
         [](int&){return;},
         [](int&, int&){return rand();},
-        .1f
+        .1f,
+        selection::tournament<int, 5>
     );
 
     ga.load_population("populations/saveload");

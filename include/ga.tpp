@@ -1,5 +1,4 @@
 #include "ga.h"
-#include "selection.h"
 #include <algorithm>
 #include <cassert>
 #include <ctime>
@@ -14,11 +13,13 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     std::function<float(T&)> fitness,
     std::function<void(T&)> mutate,
     std::function<T(T&,T&)> crossover,
-    float elitism_rate
+    float elitism_rate,
+    selection::Func<T> select
 )   : fitness_(fitness)
     , mutate_(mutate)
     , crossover_(crossover)
     , elitism_rate_(elitism_rate)
+    , select_(select)
     , population_()
 {
     srand(std::time(0));
@@ -47,8 +48,8 @@ void GeneticAlgorithm<T>::evolve()
     while (new_members.size() < population_.size())
     {
         // Select
-        T& parent_a = selection::tournament<T, 10>(population_); //TODO: parameterize
-        T& parent_b = selection::tournament<T, 10>(population_);
+        T& parent_a = select_(population_);
+        T& parent_b = select_(population_);
 
         // Crossover
         T offspring = crossover_(parent_a, parent_b);

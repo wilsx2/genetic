@@ -23,7 +23,8 @@ int main()
         [](BinaryEncoding<int>& bin){return fitness(bin, BinaryEncoding<int>(1000)); },
         BinaryEncoding<int>::mutate<20>,
         BinaryEncoding<int>::crossover,
-        .1f
+        .1f,
+        selection::tournament<BinaryEncoding<int>, 5>
     );
 
     print_pop<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });

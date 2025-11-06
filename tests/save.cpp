@@ -11,7 +11,8 @@ int main()
         [](int&){return 0.f; },
         [](int&){return;},
         [](int&, int&){return rand();},
-        .0f
+        .0f,
+        selection::tournament<int, 5>
     );
 
     ga.evolve(rand() % 91 + 10);
