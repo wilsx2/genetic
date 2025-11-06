@@ -15,7 +15,10 @@ int main()
         .1f,
         selection::tournament<int, 5>
     );
-    printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
+    // for(int i = 0; i < 1000; ++i) {
+    //     printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
+    //     ga.evolve();
+    // }
     ga.evolveUntilFitness(0.f);
     printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
 }

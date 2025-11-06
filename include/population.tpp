@@ -5,6 +5,7 @@
 #include <fstream>
 #include <format>
 #include <typeinfo>
+#include <cassert>
 
 template <typename T>
 Population<T>::Population()
@@ -41,6 +42,27 @@ template <typename T>
 std::size_t Population<T>::size() const
 {
     return members.size();
+}
+
+template <typename T>
+void Population<T>::add(T&& new_member)
+{
+    members.emplace_back(new_member, 0.f);
+}
+
+template <typename T>
+void Population<T>::newGeneration(std::vector<T>& new_gen)
+{
+    int start = members.size() - new_gen.size();
+    assert(start >= 0);
+
+    // Overwrites least-fit members with new generation
+    for(int i = start; i < members.size(); ++i)
+    {
+        members[i].value = new_gen[i - start];
+    }
+
+    ++generation;
 }
 
 template <typename T>

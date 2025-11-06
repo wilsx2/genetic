@@ -28,6 +28,8 @@ struct Population
     Member<T>& fittest();
     const Member<T>& fittest() const;
     std::size_t size() const;
+    void add(T&& new_member);
+    void newGeneration(std::vector<T>& new_gen);
     void sort();
     bool save(std::string label);
     bool load(std::string filename);

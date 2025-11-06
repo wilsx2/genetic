@@ -25,8 +25,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     population_.members.reserve(population_size);
     for (int i = 0; i < population_size; ++i)
     {
-        auto child = birth();
-        population_.members.push_back({child, 0.f});
+        population_.add(birth());
     }
 
     evaluateFitness();
@@ -56,16 +55,10 @@ void GeneticAlgorithm<T>::evaluateFitness()
 template <typename T>
 void GeneticAlgorithm<T>::evolve()
 {
-    std::vector<Member<T>> new_members;
-
-    // Apply Elitism
-    for (int i = 0; i < numElites(); ++i)
-    {
-        new_members.push_back(population_[i]);
-    }
+    std::vector<T> new_members;
     
     // Populate with children
-    while (new_members.size() < population_.size())
+    while (new_members.size() < population_.size() - numElites())
     {
         // Select
         T& parent_a = select_(population_);
@@ -77,13 +70,11 @@ void GeneticAlgorithm<T>::evolve()
         // Mutate
         mutate_(offspring);
         
-        new_members.push_back({offspring, 0.f});
+        new_members.push_back(offspring);
     }
 
     // Overwrite old population
-    population_.members = new_members;
-    ++population_.generation;
-
+    population_.newGeneration(new_members);
     evaluateFitness();
 }
 
