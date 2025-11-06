@@ -17,8 +17,6 @@ class GeneticAlgorithm {
         const std::function<T(T&,T&)> crossover_;
         const float elitism_rate_;     
         
-        template<std::size_t N> T& tournamentSelect();
-        
     public:
         GeneticAlgorithm(
             std::size_t population_size,

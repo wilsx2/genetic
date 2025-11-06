@@ -1,4 +1,5 @@
 #include "ga.h"
+#include "selection.h"
 #include <algorithm>
 #include <cassert>
 #include <ctime>
@@ -32,25 +33,6 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
 }
 
 template <typename T>
-template <std::size_t N>
-T& GeneticAlgorithm<T>::tournamentSelect()
-{
-    int i = rand() % population_.size();
-
-    std::pair<T&, float> fittest = {
-        population_[i].value, 
-        population_[i].fitness
-    };
-    for (int k = 1; k < N; ++k)
-    {
-        int j = rand() % population_.size();
-        if (population_[j].fitness > fittest.second)
-            fittest = {population_[j].value, population_[j].fitness};
-    }
-    return fittest.first;
-}
-
-template <typename T>
 void GeneticAlgorithm<T>::evolve()
 {
     std::vector<Member<T>> new_members;
@@ -65,8 +47,8 @@ void GeneticAlgorithm<T>::evolve()
     while (new_members.size() < population_.size())
     {
         // Select
-        T& parent_a = tournamentSelect<10>(); //TODO: parameterize
-        T& parent_b = tournamentSelect<10>();
+        T& parent_a = selection::tournament<T, 10>(population_); //TODO: parameterize
+        T& parent_b = selection::tournament<T, 10>(population_);
 
         // Crossover
         T offspring = crossover_(parent_a, parent_b);
