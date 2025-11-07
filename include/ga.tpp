@@ -50,6 +50,7 @@ void GeneticAlgorithm<T>::evaluateFitness()
     }
 
     population_.sort();
+    population_.best_of.push_back(population_.fittest());
 }
 
 template <typename T>

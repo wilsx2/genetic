@@ -20,6 +20,7 @@ struct Population
     
     u_int32_t identifier;
     std::vector<Member<T>> members;
+    std::vector<Member<T>> best_of;
     std::size_t generation;
     float total_fitness;
 

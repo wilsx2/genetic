@@ -27,7 +27,8 @@ int main()
         selection::tournament<BinaryEncoding<int>, 5>
     );
 
-    printPopulation<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
+    printCurrentGeneration<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
     ga.evolveUntilFitness(32.f);
-    printPopulation<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
+    printCurrentGeneration<BinaryEncoding<int>>(ga, 5, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
+    printBestOf<BinaryEncoding<int>>(ga, [](BinaryEncoding<int> n){ return std::to_string(n.get()); });
 }

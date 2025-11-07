@@ -18,6 +18,6 @@ int main()
     );
 
     ga.evolve(rand() % 91 + 10);
-    printPopulation<int>(ga, 5, [](int n){ return std::to_string(n); });
+    printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
     ga.savePopulation("saveload");
 }
