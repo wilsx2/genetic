@@ -28,4 +28,5 @@ int main(int argc, char *argv[])
         return 1;
     }
     printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
+    printBestOf<int>(ga, [](int n){ return std::to_string(n); });
 }

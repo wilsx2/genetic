@@ -94,16 +94,25 @@ bool Population<T>::save(std::string label)
 
     // Identifier
     output.write(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));
-    
-    // Current Generation
-    output.write(reinterpret_cast<char*>(&generation), sizeof(std::size_t));
 
-    // Size
-    auto size = members.size();
+    // Best Of
+    /// Size
+    std::size_t size = best_of.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
 
-    // Members
-    output.write(reinterpret_cast<char*>(members.data()), sizeof(T)*size);
+    /// Members
+    output.write(reinterpret_cast<char*>(best_of.data()), sizeof(Member<T>)*size);
+    
+    // Current Generation
+    /// Number
+    output.write(reinterpret_cast<char*>(&generation), sizeof(std::size_t));
+
+    /// Size
+    size = members.size();
+    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+
+    /// Members
+    output.write(reinterpret_cast<char*>(members.data()), sizeof(Member<T>)*size);
 
     output.close();
     return true;
@@ -126,16 +135,25 @@ bool Population<T>::load(std::string filename)
     // Identifier
     input.read(reinterpret_cast<char*>(&identifier), sizeof(u_int32_t));
 
-    // Current Generation
-    input.read(reinterpret_cast<char*>(&generation), sizeof(std::size_t)); 
-
-    // Size
+    // Best Of
+    /// Size
     std::size_t size;
+    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+
+    /// Members
+    best_of.resize(size);
+    input.read(reinterpret_cast<char*>(best_of.data()), sizeof(Member<T>)*size); 
+
+    // Current Generation
+    /// Number
+    input.read(reinterpret_cast<char*>(&generation), sizeof(std::size_t)); 
+    
+    /// Size
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
 
-    // Members
+    /// Members
     members.resize(size);
-    input.read(reinterpret_cast<char*>(members.data()), sizeof(T)*size); 
+    input.read(reinterpret_cast<char*>(members.data()), sizeof(Member<T>)*size); 
 
     input.close();
     return true;

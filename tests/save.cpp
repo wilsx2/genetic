@@ -19,5 +19,6 @@ int main()
 
     ga.evolve(rand() % 91 + 10);
     printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
+    printBestOf<int>(ga, [](int n){ return std::to_string(n); });
     ga.savePopulation("saveload");
 }
