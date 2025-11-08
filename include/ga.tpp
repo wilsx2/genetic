@@ -172,7 +172,7 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string id)
     // Begin loading
     std::ifstream input (path.value().string());
     if (!input.is_open()) {
-        std::cerr << "Failed to open file \"" << path.value().string() << "\""
+        std::cerr << "Failed to open file \"" << path.value().string() << "\"";
         return false;
     }
     
@@ -182,7 +182,7 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string id)
     if (inputTypeHash != typeid(T).hash_code()) {
         std::cerr << "File \"" << path.value().string()
             << "\" stores a population of a type other than \""
-            << typeid(T).name() << "\""
+            << typeid(T).name() << "\"";
         return false;
     }
 

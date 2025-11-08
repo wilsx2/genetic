@@ -14,7 +14,8 @@ class Controller
     public:
         Controller(GeneticAlgorithm<T>&& ga);
         void beginRunning();
-        void takeCommand(std::string input);
+        bool takeInput();
+        bool resolveCommand(std::string input);
 
         void restart();
         void save();
@@ -29,6 +30,7 @@ class Controller
         void evolveUntil(float target_fitness);
         void evolveUntilStagnatesFor(int generations, float minimum_improvement);
         void evolveUntilStagnatesFor(float seconds, float minimum_improvement);
-    };
+};
 
+#include "controller.tpp"
 #endif
