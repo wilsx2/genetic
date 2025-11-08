@@ -3,12 +3,15 @@
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
+#include <filesystem>
+#include <format>
 #include <iostream>
 #include <fstream>
-#include <format>
+
 
 template <typename T>
 GeneticAlgorithm<T>::GeneticAlgorithm(
+    std::string problem,
     std::size_t population_size,
     std::function<T()> birth,
     std::function<float(T&)> fitness,
@@ -16,11 +19,13 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     std::function<T(T&,T&)> crossover,
     float elitism_rate,
     selection::Func<T> select
-)   : fitness_function_(fitness)
+)   : save_directory_("populations/"+problem+"/")
+    , fitness_function_(fitness)
     , mutate_function_(mutate)
     , crossover_function_(crossover)
     , elitism_rate_(elitism_rate)
     , selection_function_(select)
+    , population_identifier_(rand())
 {
     population_.reserve(population_size);
     while (population_.size() < population_size)
@@ -82,11 +87,43 @@ void GeneticAlgorithm<T>::rankAndRecordFittest()
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::savePopulation(std::string label)
+std::optional<std::filesystem::path> GeneticAlgorithm<T>::findPopulationFile(std::string id)
 {
+    if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
+    {
+        return std::nullopt;
+    }
+
+    for (const auto& entry : std::filesystem::directory_iterator(save_directory_))
+    {
+        if (!entry.is_regular_file())
+            continue;
+
+        const auto filename = entry.path().filename().string();
+        if (filename.rfind(id, 0) == 0)
+        {
+            return entry.path();
+        }
+    }
+
+    return std::nullopt;
+}
+
+template <typename T>
+bool GeneticAlgorithm<T>::savePopulation()
+{
+    // Ensure there's a place for our save
+    std::filesystem::create_directories(save_directory_);
+
+    // Overwrite previous save of this population, if it exists
+    std::optional<std::filesystem::path> path = findPopulationFile(std::format("{:x}", population_identifier_));
+    if (path.has_value())
+        std::filesystem::remove(path.value());
+
+    // Begin saving
     std::ofstream output (
-        "populations/" + label
-        + "_P" + std::format("{:x}", population_identifier_)
+        save_directory_
+        + std::format("{:x}", population_identifier_)
         + "_G" + std::to_string(fittest_of_each_generation_.size())
         + "_F" + std::to_string(population_[0].fitness)
     );
@@ -120,10 +157,15 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
 }
 
 template <typename T>
-bool GeneticAlgorithm<T>::loadPopulation(std::string filename)
+bool GeneticAlgorithm<T>::loadPopulation(std::string id)
 {
-    std::ifstream input ("populations/"+filename);
-    
+    // Search for file with id provided
+    std::optional<std::filesystem::path> path = findPopulationFile(id);
+    if (!path.has_value())
+        return false;
+
+    // Begin loading
+    std::ifstream input (path.value().string());
     if (!input.is_open())
         return false;
     

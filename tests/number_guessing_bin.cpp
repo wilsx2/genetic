@@ -18,6 +18,7 @@ float fitness(BinaryEncoding<int> a, BinaryEncoding<int> b)
 int main()
 {
     GeneticAlgorithm<BinaryEncoding<int>> ga (
+        "numbin",
         100,
         BinaryEncoding<int>::birth,
         [](BinaryEncoding<int>& bin){return fitness(bin, BinaryEncoding<int>(1000)); },

@@ -8,6 +8,7 @@ int main()
     srand(std::time(0));
 
     GeneticAlgorithm<int> ga (
+        "saveload",
         10,
         [](){return rand();},
         [](int&){return 0.f; },
@@ -20,5 +21,5 @@ int main()
     ga.evolve(rand() % 91 + 10);
     printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
     printBestOf<int>(ga, [](int n){ return std::to_string(n); });
-    ga.savePopulation("saveload");
+    ga.savePopulation();
 }

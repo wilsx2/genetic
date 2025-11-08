@@ -4,15 +4,18 @@
 #include "member.h"
 #include "selection.h"
 
+#include <optional>
 #include <vector>
 #include <functional>
 #include <string>
+#include <filesystem>
 
 template <typename T>
 class GeneticAlgorithm {
     static_assert(std::is_trivially_copyable_v<T> == true);
 
     private:
+        const std::string save_directory_;
         std::vector<Member<T>> population_;
         u_int32_t population_identifier_;
         std::vector<Member<T>> fittest_of_each_generation_;
@@ -25,9 +28,11 @@ class GeneticAlgorithm {
         selection::Func<T> selection_function_;
 
         inline std::size_t numElites();
+        std::optional<std::filesystem::path> findPopulationFile(std::string id);
         
     public:
         GeneticAlgorithm(
+            std::string problem,
             std::size_t population_size,
             std::function<T()> birth,
             std::function<float(T&)> fitness,
@@ -44,8 +49,8 @@ class GeneticAlgorithm {
         const std::vector<Member<T>>& getFittestOfEachGeneration() const;
         std::size_t getGeneration() const;
 
-        bool savePopulation(std::string label);
-        bool loadPopulation(std::string filename);
+        bool savePopulation();
+        bool loadPopulation(std::string id);
 };
 
 #include "ga.tpp"

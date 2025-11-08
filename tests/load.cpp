@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     }
 
     GeneticAlgorithm<int> ga (
+        "saveload",
         10,
         [](){return rand();},
         [](int&){return 0.f; },
@@ -29,4 +30,7 @@ int main(int argc, char *argv[])
     }
     printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
     printBestOf<int>(ga, [](int n){ return std::to_string(n); });
+
+    ga.evolve(20);
+    ga.savePopulation();
 }

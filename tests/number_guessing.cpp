@@ -7,6 +7,7 @@
 int main()
 {
     GeneticAlgorithm<int> ga (
+        "number",
         10000,
         [](){return rand();},
         [](int& n){return -abs(1000 - n); },
