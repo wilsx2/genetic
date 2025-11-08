@@ -1,7 +1,7 @@
 #ifndef GA_H
 #define GA_H
 
-#include "population.h"
+#include "member.h"
 #include "selection.h"
 
 #include <vector>
@@ -10,15 +10,20 @@
 
 template <typename T>
 class GeneticAlgorithm {
+    static_assert(std::is_trivially_copyable_v<T> == true);
+
     private:
-        Population<T> population_;
+        std::vector<Member<T>> members_;
+        std::size_t generation_;
+        u_int32_t population_identifier_;
+        std::vector<Member<T>> best_of_each_generation_;
         
-        const std::function<float(T&)> fitness_;
-        const std::function<void(T&)> mutate_;
-        const std::function<T(T&,T&)> crossover_;
+        const std::function<float(T&)> fitness_function_;
+        const std::function<void(T&)> mutate_function_;
+        const std::function<T(T&,T&)> crossover_function_;
         const float elitism_rate_;     
 
-        selection::Func<T> select_;
+        selection::Func<T> selection_function_;
         
     public:
         GeneticAlgorithm(
@@ -35,7 +40,9 @@ class GeneticAlgorithm {
         void evolve();
         void evolve(std::size_t n);
         void evolveUntilFitness(float target);
-        const Population<T>& getPopulation() const;
+        const std::vector<Member<T>>& getPopulation() const;
+        const std::vector<Member<T>>& getBestOfEachGeneration() const;
+        std::size_t getGeneration() const;
 
         bool savePopulation(std::string label);
         bool loadPopulation(std::string filename);

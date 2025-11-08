@@ -1,22 +1,23 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include "population.h"
+#include "member.h"
+#include <vector>
 #include <functional>
 
 namespace selection
 {
 template <typename T>
-using Func = std::function<T&(Population<T>&)>;
+using Func = std::function<T&(std::vector<Member<T>>&)>;
 
 template<typename T, std::size_t N>
-T& tournament(Population<T>& population);
+T& tournament(std::vector<Member<T>>& population);
 
 template<typename T>
-T& roulette(Population<T>& population);
+T& roulette(std::vector<Member<T>>& population);
 
 template<typename T>
-T& rankBased(Population<T>& population);
+T& rankBased(std::vector<Member<T>>& population);
 
 }
 
