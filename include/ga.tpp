@@ -22,34 +22,33 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , elitism_rate_(elitism_rate)
     , selection_function_(select)
 {
-    members_.reserve(population_size);
+    population_.reserve(population_size);
     for (int i = 0; i < population_size; ++i)
     {
         T member = birth();
-        members_.emplace_back(member, fitness_function_(member));
+        population_.emplace_back(member, fitness_function_(member));
     }
 
-    generation_ = 1;
-    std::sort(members_.begin(), members_.end(),
+    std::sort(population_.begin(), population_.end(),
     [](const Member<T>& a, const Member<T>& b) {
         return a.fitness > b.fitness;
     });
-    best_of_each_generation_.push_back(members_[0]);
+    best_of_each_generation_.push_back(population_[0]);
 }
 
 template <typename T>
 inline std::size_t GeneticAlgorithm<T>::numElites()
 {
-    return members_.size() * elitism_rate_;
+    return population_.size() * elitism_rate_;
 }
 
 template <typename T>
 void GeneticAlgorithm<T>::evolve()
 {
-    std::vector<Member<T>> parents = members_;
+    std::vector<Member<T>> parents = population_;
     
     // Replace non-elites with children
-    for (int i = numElites(); i < members_.size(); ++i)
+    for (int i = numElites(); i < population_.size(); ++i)
     {
         // Select
         T& parent_a = selection_function_(parents);
@@ -62,16 +61,15 @@ void GeneticAlgorithm<T>::evolve()
         mutate_function_(offspring);
         
         /// Overwrite old member
-        members_[i].fitness = fitness_function_(offspring);
-        members_[i].value = std::move(offspring);
+        population_[i].fitness = fitness_function_(offspring);
+        population_[i].value = std::move(offspring);
     }
 
-    generation_ += 1;
-    std::sort(members_.begin(), members_.end(),
+    std::sort(population_.begin(), population_.end(),
     [](const Member<T>& a, const Member<T>& b) {
         return a.fitness > b.fitness;
     });
-    best_of_each_generation_.push_back(members_[0]);
+    best_of_each_generation_.push_back(population_[0]);
 }
 
 template <typename T>
@@ -83,13 +81,13 @@ void GeneticAlgorithm<T>::evolve(std::size_t n)
 template <typename T>
 void GeneticAlgorithm<T>::evolveUntilFitness(float target)
 {
-    while(members_[0].fitness < target) evolve();
+    while(population_[0].fitness < target) evolve();
 }
 
 template <typename T>
 const std::vector<Member<T>>& GeneticAlgorithm<T>::getPopulation() const
 {
-    return members_;
+    return population_;
 }
 
 template <typename T>
@@ -101,7 +99,7 @@ const std::vector<Member<T>>& GeneticAlgorithm<T>::getBestOfEachGeneration() con
 template <typename T>
 std::size_t GeneticAlgorithm<T>::getGeneration() const
 {
-    return generation_;
+    return best_of_each_generation_.size();
 }
 
 template <typename T>
@@ -111,7 +109,7 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
         "populations/" + label
         + "_P" + std::format("{:x}", population_identifier_)
         + "_G" + std::to_string(generation_)
-        + "_F" + std::to_string(members_[0].fitness)
+        + "_F" + std::to_string(population_[0].fitness)
     );
     
     if (!output.is_open())
@@ -133,15 +131,12 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
     output.write(reinterpret_cast<char*>(best_of_each_generation_.data()), sizeof(Member<T>)*size);
     
     // Current Generation
-    /// Number
-    output.write(reinterpret_cast<char*>(&generation_), sizeof(std::size_t));
-
     /// Size
-    size = members_.size();
+    size = population_.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
 
     /// Members
-    output.write(reinterpret_cast<char*>(members_.data()), sizeof(Member<T>)*size);
+    output.write(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size);
 
     output.close();
     return true;
@@ -174,15 +169,12 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string filename)
     input.read(reinterpret_cast<char*>(best_of_each_generation_.data()), sizeof(Member<T>)*size); 
 
     // Current Generation
-    /// Number
-    input.read(reinterpret_cast<char*>(&generation_), sizeof(std::size_t)); 
-    
     /// Size
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
 
     /// Members
-    members_.resize(size);
-    input.read(reinterpret_cast<char*>(members_.data()), sizeof(Member<T>)*size); 
+    population_.resize(size);
+    input.read(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size); 
 
     input.close();
     return true;

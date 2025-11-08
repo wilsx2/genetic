@@ -13,8 +13,7 @@ class GeneticAlgorithm {
     static_assert(std::is_trivially_copyable_v<T> == true);
 
     private:
-        std::vector<Member<T>> members_;
-        std::size_t generation_;
+        std::vector<Member<T>> population_;
         u_int32_t population_identifier_;
         std::vector<Member<T>> best_of_each_generation_;
         
