@@ -128,8 +128,10 @@ bool GeneticAlgorithm<T>::savePopulation()
         + "_F" + std::to_string(population_[0].fitness)
     );
     
-    if (!output.is_open())
+    if (!output.is_open()) {
+        std::cerr << "Failed to create save" << std::flush;
         return false;
+    }
 
     // Tag With Type ID
     std::size_t typeHash = typeid(T).hash_code();
@@ -161,19 +163,28 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string id)
 {
     // Search for file with id provided
     std::optional<std::filesystem::path> path = findPopulationFile(id);
-    if (!path.has_value())
+    if (!path.has_value()) {
+        std::cerr << "No file in the \"" << save_directory_ <<
+        "\" directory matches the prefix \"" << id << std::flush;
         return false;
+    }
 
     // Begin loading
     std::ifstream input (path.value().string());
-    if (!input.is_open())
+    if (!input.is_open()) {
+        std::cerr << "Failed to open file \"" << path.value().string() << "\""
         return false;
+    }
     
     // Check Type ID tag
     std::size_t inputTypeHash;
     input.read(reinterpret_cast<char*>(&inputTypeHash), sizeof(std::size_t));
-    if (inputTypeHash != typeid(T).hash_code())
+    if (inputTypeHash != typeid(T).hash_code()) {
+        std::cerr << "File \"" << path.value().string()
+            << "\" stores a population of a type other than \""
+            << typeid(T).name() << "\""
         return false;
+    }
 
     // Identifier
     input.read(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));

@@ -22,12 +22,11 @@ int main(int argc, char *argv[])
         selection::tournament<int, 5>
     );
 
-    std::string filename (argv[1]);
-    bool success = ga.loadPopulation(filename);
-    if (!success) {
-        std::cerr << "File name \"" << filename << "\" could not be opened or contained the wrong type.\n";
+    std::string id (argv[1]);
+    bool success = ga.loadPopulation(id);
+    if (!success)
         return 1;
-    }
+
     printCurrentGeneration<int>(ga, 5, [](int n){ return std::to_string(n); });
     printBestOf<int>(ga, [](int n){ return std::to_string(n); });
 
