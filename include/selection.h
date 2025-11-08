@@ -14,9 +14,6 @@ template<typename T, std::size_t N>
 T& tournament(std::vector<Member<T>>& population);
 
 template<typename T>
-T& roulette(std::vector<Member<T>>& population);
-
-template<typename T>
 T& rankBased(std::vector<Member<T>>& population);
 
 }

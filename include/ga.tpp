@@ -26,7 +26,8 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     for (int i = 0; i < population_size; ++i)
     {
         T member = birth();
-        population_.emplace_back(member, fitness_function_(member));
+        float fitness_score = fitness_function_(member);
+        population_.emplace_back(std::move(member), fitness_score);
     }
 
     std::sort(population_.begin(), population_.end(),
@@ -108,7 +109,7 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
     std::ofstream output (
         "populations/" + label
         + "_P" + std::format("{:x}", population_identifier_)
-        + "_G" + std::to_string(generation_)
+        + "_G" + std::to_string(best_of_each_generation_.size())
         + "_F" + std::to_string(population_[0].fitness)
     );
     

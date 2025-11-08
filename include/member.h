@@ -1,5 +1,5 @@
-#ifndef POPULATION_H
-#define POPULATION_H
+#ifndef MEMBER_H
+#define MEMBER_H
 
 template <typename T>
 struct Member
