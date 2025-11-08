@@ -15,7 +15,7 @@ class GeneticAlgorithm {
     private:
         std::vector<Member<T>> population_;
         u_int32_t population_identifier_;
-        std::vector<Member<T>> best_of_each_generation_;
+        std::vector<Member<T>> fittest_of_each_generation_;
         
         const std::function<float(T&)> fitness_function_;
         const std::function<void(T&)> mutate_function_;
@@ -23,6 +23,8 @@ class GeneticAlgorithm {
         const float elitism_rate_;     
 
         selection::Func<T> selection_function_;
+
+        inline std::size_t numElites();
         
     public:
         GeneticAlgorithm(
@@ -34,13 +36,12 @@ class GeneticAlgorithm {
             float elitism_rate,
             selection::Func<T> select
         );
-        inline std::size_t numElites();
-        void evaluateFitness();
+        void rankAndRecordFittest();
         void evolve();
         void evolve(std::size_t n);
         void evolveUntilFitness(float target);
         const std::vector<Member<T>>& getPopulation() const;
-        const std::vector<Member<T>>& getBestOfEachGeneration() const;
+        const std::vector<Member<T>>& getFittestOfEachGeneration() const;
         std::size_t getGeneration() const;
 
         bool savePopulation(std::string label);

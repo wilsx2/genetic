@@ -20,7 +20,7 @@ void printCurrentGeneration(GeneticAlgorithm<T>& ga, std::size_t num_print, std:
 template <typename T>
 void printBestOf(GeneticAlgorithm<T>& ga, std::function<std::string(const T&)> to_string)
 {
-    const std::vector<Member<T>>& best = ga.getBestOfEachGeneration();
+    const std::vector<Member<T>>& best = ga.getFittestOfEachGeneration();
     for(int i = 0; i < best.size(); ++i)
     {
         auto member = best[i];

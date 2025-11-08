@@ -23,24 +23,14 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , selection_function_(select)
 {
     population_.reserve(population_size);
-    for (int i = 0; i < population_size; ++i)
+    while (population_.size() < population_size)
     {
         T member = birth();
         float fitness_score = fitness_function_(member);
         population_.emplace_back(std::move(member), fitness_score);
     }
 
-    std::sort(population_.begin(), population_.end(),
-    [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness > b.fitness;
-    });
-    best_of_each_generation_.push_back(population_[0]);
-}
-
-template <typename T>
-inline std::size_t GeneticAlgorithm<T>::numElites()
-{
-    return population_.size() * elitism_rate_;
+    rankAndRecordFittest();    
 }
 
 template <typename T>
@@ -66,11 +56,7 @@ void GeneticAlgorithm<T>::evolve()
         population_[i].value = std::move(offspring);
     }
 
-    std::sort(population_.begin(), population_.end(),
-    [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness > b.fitness;
-    });
-    best_of_each_generation_.push_back(population_[0]);
+    rankAndRecordFittest();
 }
 
 template <typename T>
@@ -86,21 +72,13 @@ void GeneticAlgorithm<T>::evolveUntilFitness(float target)
 }
 
 template <typename T>
-const std::vector<Member<T>>& GeneticAlgorithm<T>::getPopulation() const
+void GeneticAlgorithm<T>::rankAndRecordFittest()
 {
-    return population_;
-}
-
-template <typename T>
-const std::vector<Member<T>>& GeneticAlgorithm<T>::getBestOfEachGeneration() const
-{
-    return best_of_each_generation_;
-}
-
-template <typename T>
-std::size_t GeneticAlgorithm<T>::getGeneration() const
-{
-    return best_of_each_generation_.size();
+    std::sort(population_.begin(), population_.end(),
+    [](const Member<T>& a, const Member<T>& b) {
+        return a.fitness > b.fitness;
+    });
+    fittest_of_each_generation_.push_back(population_[0]);
 }
 
 template <typename T>
@@ -109,7 +87,7 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
     std::ofstream output (
         "populations/" + label
         + "_P" + std::format("{:x}", population_identifier_)
-        + "_G" + std::to_string(best_of_each_generation_.size())
+        + "_G" + std::to_string(fittest_of_each_generation_.size())
         + "_F" + std::to_string(population_[0].fitness)
     );
     
@@ -123,19 +101,17 @@ bool GeneticAlgorithm<T>::savePopulation(std::string label)
     // Identifier
     output.write(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
 
-    // Best Of
+    // Fittest
     /// Size
-    std::size_t size = best_of_each_generation_.size();
+    std::size_t size = fittest_of_each_generation_.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-
     /// Members
-    output.write(reinterpret_cast<char*>(best_of_each_generation_.data()), sizeof(Member<T>)*size);
+    output.write(reinterpret_cast<char*>(fittest_of_each_generation_.data()), sizeof(Member<T>)*size);
     
     // Current Generation
     /// Size
     size = population_.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-
     /// Members
     output.write(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size);
 
@@ -160,23 +136,45 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string filename)
     // Identifier
     input.read(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
 
-    // Best Of
+    // Fittest
     /// Size
     std::size_t size;
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-
     /// Members
-    best_of_each_generation_.resize(size);
-    input.read(reinterpret_cast<char*>(best_of_each_generation_.data()), sizeof(Member<T>)*size); 
+    fittest_of_each_generation_.resize(size);
+    input.read(reinterpret_cast<char*>(fittest_of_each_generation_.data()), sizeof(Member<T>)*size); 
 
     // Current Generation
     /// Size
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
-
     /// Members
     population_.resize(size);
     input.read(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size); 
 
     input.close();
     return true;
+}
+
+template <typename T>
+inline std::size_t GeneticAlgorithm<T>::numElites()
+{
+    return population_.size() * elitism_rate_;
+}
+
+template <typename T>
+const std::vector<Member<T>>& GeneticAlgorithm<T>::getPopulation() const
+{
+    return population_;
+}
+
+template <typename T>
+const std::vector<Member<T>>& GeneticAlgorithm<T>::getFittestOfEachGeneration() const
+{
+    return fittest_of_each_generation_;
+}
+
+template <typename T>
+std::size_t GeneticAlgorithm<T>::getGeneration() const
+{
+    return fittest_of_each_generation_.size();
 }
