@@ -1,6 +1,7 @@
 #include "controller.h"
 #include <sstream>
 #include <cctype>
+#include <chrono>
 
 template<typename T>
 Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
@@ -22,14 +23,25 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
         if (args.size() == 0)
         {
             evolve(1);
-        } 
-        else if (args.size() == 1 || (args.size() == 2 && args[1] == "generations"))
+        }
+        else if (args.size() >= 1)
         {
-            try
+            if (args.size() == 1 || (args.size() == 2 && args[1] == "generations"))
             {
-                evolve(std::stoi(args[0]));
+                try
+                {
+                    evolve(std::stoi(args[0]));
+                }
+                catch (std::invalid_argument& e) {}
             }
-            catch (std::invalid_argument& e) {}
+            else if (args.size() == 2 && args[1] == "seconds")
+            {
+                try
+                {
+                    evolve(std::stof(args[0]));
+                }
+                catch (std::invalid_argument& e) {}
+            }
         }
     };
 }
@@ -100,7 +112,19 @@ void Controller<T>::evolve(int generations)
 {
     for(int i = 0; i < generations; ++i) ga_.evolve();
 }
-void evolve(float seconds);
+template <typename T>
+void Controller<T>::evolve(float seconds)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+    auto time_elapsed = [start_time]()
+    {
+        auto current_time = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+    };
+    while (time_elapsed() < seconds)
+        ga_.evolve();
+    
+}
 // void evolveUntil(float target_fitness);
 // void evolveUntilStagnatesFor(int generations, float minimum_improvement);
 // void evolveUntilStagnatesFor(float seconds, float minimum_improvement);
