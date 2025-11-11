@@ -12,6 +12,6 @@ int main()
         .1f,
         selection::tournament<int, 5>
     ));
-    cli.beginRunning();
+    cli.run();
     return 0;
 }
