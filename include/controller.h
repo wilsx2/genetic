@@ -2,7 +2,9 @@
 #define CONTROLLER_H
 
 #include "ga.h"
+#include <string>
 #include <functional>
+#include <variant>
 
 template<typename T>
 class Controller
@@ -10,12 +12,13 @@ class Controller
     private:
         GeneticAlgorithm<T> ga_;
         std::function<void(std::vector<T>)> view_function_;
+
+        bool takeInput();
+        bool resolveCommand(std::string input);
     
     public:
         Controller(GeneticAlgorithm<T>&& ga);
         void beginRunning();
-        bool takeInput();
-        bool resolveCommand(std::string input);
 
         void restart();
         void save();
