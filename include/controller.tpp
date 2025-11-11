@@ -89,7 +89,7 @@ void Controller<T>::printStats()
 {
     const auto& fittest_of = ga_.getFittestOfEachGeneration(); 
     std::cout << "Generation " << fittest_of.size() << "\n"
-        << "Fittest Score " << fittest_of.front().fitness << "\n"
+        << "Fittest Score " << fittest_of.back().fitness << "\n"
         << "Population ID " << ga_.getFormattedId() << "\n";
 }
 // void viewCurrent();
