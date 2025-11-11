@@ -26,7 +26,7 @@ class Controller
 
         void restart();
         void save();
-        void load();
+        void load(std::string id);
 
         void printStats();
         void viewCurrent();

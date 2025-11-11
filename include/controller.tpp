@@ -7,6 +7,14 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
     : ga_(ga)
 {
     commands_["stats"]  = [&](ArgumentList args){ printStats(); };
+    commands_["save"]   = [&](ArgumentList args){ save(); };
+    commands_["load"]   = [&](ArgumentList args)
+    {
+        if (args.size() == 1)
+            load(args[0]); 
+        else
+            std::cout << "Received " << args.size() << " arguments, expected 1";
+    };
     commands_["quit"]   = [&](ArgumentList args){ running_ = false; };
 
     commands_["evolve"] = [&](ArgumentList args){
@@ -22,7 +30,6 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
             }
             catch (std::invalid_argument& e) {}
         }
-        
     };
 }
 
@@ -64,8 +71,17 @@ void Controller<T>::executeCommand(std::string input)
 }
 
 // void restart();
-// void save();
-// void load();
+template<typename T>
+void Controller<T>::save()
+{
+    ga_.savePopulation();
+}
+
+template<typename T>
+void Controller<T>::load(std::string id)
+{
+    ga_.loadPopulation(id);
+}
 
 template<typename T>
 void Controller<T>::printStats()
