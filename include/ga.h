@@ -15,6 +15,7 @@ class GeneticAlgorithm {
     static_assert(std::is_trivially_copyable_v<T> == true);
 
     private:
+        const std::string problem_;
         const std::string save_directory_;
         std::vector<Member<T>> population_;
         u_int32_t population_identifier_;
@@ -45,9 +46,12 @@ class GeneticAlgorithm {
         void evolve();
         void evolve(std::size_t n);
         void evolveUntilFitness(float target);
+        
         const std::vector<Member<T>>& getPopulation() const;
         const std::vector<Member<T>>& getFittestOfEachGeneration() const;
         std::size_t getGeneration() const;
+        std::string getFormattedId() const;
+        const std::string& getProblem() const;
 
         bool savePopulation();
         bool loadPopulation(std::string id);

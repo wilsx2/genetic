@@ -19,7 +19,8 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     std::function<T(T&,T&)> crossover,
     float elitism_rate,
     selection::Func<T> select
-)   : save_directory_("populations/"+problem+"/")
+)   : problem_(problem)
+    , save_directory_("populations/"+problem+"/")
     , fitness_function_(fitness)
     , mutate_function_(mutate)
     , crossover_function_(crossover)
@@ -116,14 +117,14 @@ bool GeneticAlgorithm<T>::savePopulation()
     std::filesystem::create_directories(save_directory_);
 
     // Overwrite previous save of this population, if it exists
-    std::optional<std::filesystem::path> path = findPopulationFile(std::format("{:x}", population_identifier_));
+    std::optional<std::filesystem::path> path = findPopulationFile(getFormattedId());
     if (path.has_value())
         std::filesystem::remove(path.value());
 
     // Begin saving
     std::ofstream output (
         save_directory_
-        + std::format("{:x}", population_identifier_)
+        + getFormattedId()
         + "_G" + std::to_string(fittest_of_each_generation_.size())
         + "_F" + std::to_string(population_[0].fitness)
     );
@@ -165,7 +166,7 @@ bool GeneticAlgorithm<T>::loadPopulation(std::string id)
     std::optional<std::filesystem::path> path = findPopulationFile(id);
     if (!path.has_value()) {
         std::cerr << "No file in the \"" << save_directory_ <<
-        "\" directory matches the prefix \"" << id << "\n";
+        "\" directory matches the prefix \"" << id << "\"\n";
         return false;
     }
 
@@ -230,4 +231,16 @@ template <typename T>
 std::size_t GeneticAlgorithm<T>::getGeneration() const
 {
     return fittest_of_each_generation_.size();
+}
+
+template <typename T>
+std::string GeneticAlgorithm<T>::getFormattedId() const
+{
+    return std::format("{:x}", population_identifier_);
+}
+
+template <typename T>
+const std::string& GeneticAlgorithm<T>::getProblem() const
+{
+    return problem_;
 }

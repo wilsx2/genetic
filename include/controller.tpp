@@ -17,7 +17,8 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
     };
     commands_["quit"]   = [&](ArgumentList args){ running_ = false; };
 
-    commands_["evolve"] = [&](ArgumentList args){
+    commands_["evolve"] = [&](ArgumentList args)
+    {
         if (args.size() == 0)
         {
             evolve(1);
@@ -40,7 +41,7 @@ void Controller<T>::run()
     running_ = true;
     while(running_)
     {
-        std::cout << "> ";
+        std::cout << "[" << ga_.getProblem() << "]> ";
         if(!std::getline(std::cin, input)) return;
         executeCommand(input);
     }
@@ -87,8 +88,9 @@ template<typename T>
 void Controller<T>::printStats()
 {
     const auto& fittest_of = ga_.getFittestOfEachGeneration(); 
-    std::cout << "Generation " << fittest_of.size() << "\n" <<
-        "Fittest Score " << fittest_of.front().fitness << "\n";
+    std::cout << "Generation " << fittest_of.size() << "\n"
+        << "Fittest Score " << fittest_of.front().fitness << "\n"
+        << "Population ID " << ga_.getFormattedId() << "\n";
 }
 // void viewCurrent();
 // void viewAll();
