@@ -16,7 +16,7 @@ class Controller
 
         GeneticAlgorithm<T> ga_;
         std::map<std::string, CommandCallback> commands_;
-        std::function<void(const std::vector<T>&)> view_function_;
+        const std::function<void(const std::vector<Member<T>>&)> view_function_;
         bool running_;
 
         void executeCommand(std::string input);
@@ -26,7 +26,7 @@ class Controller
         void errorUnexpectedNumberOfArguments(std::size_t expected_min, std::size_t expected_max, std::size_t received);
     
     public:
-        Controller(GeneticAlgorithm<T>&& ga);
+        Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std::vector<Member<T>>&)>);
         void run();
 
         void restart();

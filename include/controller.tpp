@@ -4,8 +4,9 @@
 #include <chrono>
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std::vector<Member<T>>&)> view)
     : ga_(ga)
+    , view_function_(view)
 {
     commands_["stats"]  = [&](ArgumentList args){ printStats(); };
     commands_["restart"]= [&](ArgumentList args){ restart(); };
@@ -263,13 +264,13 @@ void Controller<T>::printStats()
 template <typename T>
 void Controller<T>::viewPopulation()
 {
-    view_function_(ga_.getFittestOfEachGeneration());
+    view_function_(ga_.getPopulation());
 }
 
 template <typename T>
 void Controller<T>::viewBest()
 {
-    view_function_(ga_.getPopulation());
+    view_function_(ga_.getFittestOfEachGeneration());
 }
 
 template <typename T>
