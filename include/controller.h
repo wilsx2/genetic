@@ -16,6 +16,7 @@ class Controller
 
         GeneticAlgorithm<T> ga_;
         std::map<std::string, CommandCallback> commands_;
+        std::function<void(const std::vector<T>&)> view_function_;
         bool running_;
 
         void executeCommand(std::string input);
@@ -33,8 +34,8 @@ class Controller
         void load(std::string id);
 
         void printStats();
-        void viewCurrent();
-        void viewAll();
+        void viewPopulation();
+        void viewBest();
 
         void evolveGenerations(int generations);
         void evolveSeconds(float seconds);

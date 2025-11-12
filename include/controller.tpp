@@ -8,7 +8,7 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
     : ga_(ga)
 {
     commands_["stats"]  = [&](ArgumentList args){ printStats(); };
-    commands_["restart"]   = [&](ArgumentList args){ restart(); };
+    commands_["restart"]= [&](ArgumentList args){ restart(); };
     commands_["save"]   = [&](ArgumentList args){ save(); };
     commands_["load"]   = [&](ArgumentList args)
     {
@@ -18,6 +18,8 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
             std::cout << "Received " << args.size() << " arguments, expected 1";
     };
     commands_["quit"]   = [&](ArgumentList args){ running_ = false; };
+    commands_["view-population"] = [&](ArgumentList args){ viewPopulation(); };
+    commands_["view-best"] = [&](ArgumentList args){ viewBest(); };
 
     commands_["evolve"] = [&](ArgumentList args)
     {
@@ -257,8 +259,18 @@ void Controller<T>::printStats()
         << "Fittest Score " << ga_.getFittestScore() << "\n"
         << "Population ID " << ga_.getFormattedId() << "\n";
 }
-// void viewCurrent();
-// void viewAll();
+
+template <typename T>
+void Controller<T>::viewPopulation()
+{
+    view_function_(ga_.getFittestOfEachGeneration());
+}
+
+template <typename T>
+void Controller<T>::viewBest()
+{
+    view_function_(ga_.getPopulation());
+}
 
 template <typename T>
 void Controller<T>::evolveGenerations(int generations)
