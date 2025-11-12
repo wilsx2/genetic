@@ -19,6 +19,10 @@ class Controller
         bool running_;
 
         void executeCommand(std::string input);
+
+        void errorInvalidArgument(std::string arg);
+        void errorUnexpectedNumberOfArguments(std::size_t expected, std::size_t received);
+        void errorUnexpectedNumberOfArguments(std::size_t expected_min, std::size_t expected_max, std::size_t received);
     
     public:
         Controller(GeneticAlgorithm<T>&& ga);
@@ -32,11 +36,12 @@ class Controller
         void viewCurrent();
         void viewAll();
 
-        void evolve(int generations);
-        void evolve(float seconds);
-        void evolveUntil(float target_fitness);
-        void evolveUntilStagnatesFor(int generations, float minimum_improvement);
-        void evolveUntilStagnatesFor(float seconds, float minimum_improvement);
+        void evolveGenerations(int generations);
+        void evolveSeconds(float seconds);
+        void evolveUntilFitness(float target_fitness);
+        void evolveUntilGeneration(int target_generation);
+        void evolveUntilStagnantForGenerations(int generations, float minimum_improvement);
+        void evolveUntilStagnantForSeconds(float seconds, float minimum_improvement);
 };
 
 #include "controller.tpp"

@@ -226,6 +226,11 @@ const std::vector<Member<T>>& GeneticAlgorithm<T>::getFittestOfEachGeneration() 
 {
     return fittest_of_each_generation_;
 }
+template <typename T>
+float GeneticAlgorithm<T>::getFittestScore() const
+{
+    return fittest_of_each_generation_.back().fitness;
+}
 
 template <typename T>
 std::size_t GeneticAlgorithm<T>::getGeneration() const

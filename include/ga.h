@@ -49,6 +49,7 @@ class GeneticAlgorithm {
         
         const std::vector<Member<T>>& getPopulation() const;
         const std::vector<Member<T>>& getFittestOfEachGeneration() const;
+        float getFittestScore() const;
         std::size_t getGeneration() const;
         std::string getFormattedId() const;
         const std::string& getProblem() const;
