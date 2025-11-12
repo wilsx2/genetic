@@ -21,22 +21,35 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     selection::Func<T> select
 )   : problem_(problem)
     , save_directory_("populations/"+problem+"/")
+    , birth_function_(birth)
     , fitness_function_(fitness)
     , mutate_function_(mutate)
     , crossover_function_(crossover)
     , elitism_rate_(elitism_rate)
     , selection_function_(select)
-    , population_identifier_(rand())
 {
-    population_.reserve(population_size);
-    while (population_.size() < population_size)
+    newPopulation(population_size);
+}
+
+template <typename T>
+void GeneticAlgorithm<T>::newPopulation(std::size_t size)
+{
+    if (population_.size() != 0 || fittest_of_each_generation_.size() != 0)
     {
-        T member = birth();
+        fittest_of_each_generation_.resize(0);
+        population_.resize(0);
+    }
+
+    population_identifier_ = rand();
+    population_.reserve(size);
+    while (population_.size() < size)
+    {
+        T member = birth_function_();
         float fitness_score = fitness_function_(member);
         population_.emplace_back(std::move(member), fitness_score);
     }
 
-    rankAndRecordFittest();    
+    rankAndRecordFittest();   
 }
 
 template <typename T>

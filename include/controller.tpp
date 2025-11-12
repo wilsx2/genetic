@@ -8,6 +8,7 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga)
     : ga_(ga)
 {
     commands_["stats"]  = [&](ArgumentList args){ printStats(); };
+    commands_["restart"]   = [&](ArgumentList args){ restart(); };
     commands_["save"]   = [&](ArgumentList args){ save(); };
     commands_["load"]   = [&](ArgumentList args)
     {
@@ -231,7 +232,12 @@ void Controller<T>::executeCommand(std::string input)
     }
 }
 
-// void restart();
+template<typename T>
+void Controller<T>::restart()
+{
+    ga_.newPopulation(ga_.getPopulation().size());
+}
+
 template<typename T>
 void Controller<T>::save()
 {

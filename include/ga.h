@@ -21,6 +21,7 @@ class GeneticAlgorithm {
         u_int32_t population_identifier_;
         std::vector<Member<T>> fittest_of_each_generation_;
         
+        const std::function<T()> birth_function_;
         const std::function<float(T&)> fitness_function_;
         const std::function<void(T&)> mutate_function_;
         const std::function<T(T&,T&)> crossover_function_;
@@ -42,6 +43,7 @@ class GeneticAlgorithm {
             float elitism_rate,
             selection::Func<T> select
         );
+        void newPopulation(std::size_t size);
         void rankAndRecordFittest();
         void evolve();
         void evolve(std::size_t n);
