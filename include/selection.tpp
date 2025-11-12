@@ -30,9 +30,9 @@ T& selection::rankBased(std::vector<Member<T>>& population)
 
     int spin = (rand() % (total_rank)) + 1;
     int i = 0;
-    while(spin > size - i)
+    while(spin > i + 1)
     {
-        spin -= size - i;
+        spin -= (i + 1);
         ++i;
     }
     return population[i].value;

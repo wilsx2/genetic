@@ -58,7 +58,7 @@ void GeneticAlgorithm<T>::evolve()
     std::vector<Member<T>> parents = population_;
     
     // Replace non-elites with children
-    for (int i = numElites(); i < population_.size(); ++i)
+    for (int i = 0; i < population_.size() - numElites(); ++i)
     {
         // Select
         T& parent_a = selection_function_(parents);
@@ -87,7 +87,7 @@ void GeneticAlgorithm<T>::evolve(std::size_t n)
 template <typename T>
 void GeneticAlgorithm<T>::evolveUntilFitness(float target)
 {
-    while(population_[0].fitness < target) evolve();
+    while(getFittestScore() < target) evolve();
 }
 
 template <typename T>
@@ -95,9 +95,9 @@ void GeneticAlgorithm<T>::rankAndRecordFittest()
 {
     std::sort(population_.begin(), population_.end(),
     [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness > b.fitness;
+        return a.fitness < b.fitness;
     });
-    fittest_of_each_generation_.push_back(population_[0]);
+    fittest_of_each_generation_.push_back(population_.back());
 }
 
 template <typename T>
@@ -138,8 +138,8 @@ bool GeneticAlgorithm<T>::savePopulation()
     std::ofstream output (
         save_directory_
         + getFormattedId()
-        + "_G" + std::to_string(fittest_of_each_generation_.size())
-        + "_F" + std::to_string(population_[0].fitness)
+        + "_G" + std::to_string(getGeneration())
+        + "_F" + std::to_string(getFittestScore())
     );
     
     if (!output.is_open()) {
@@ -242,7 +242,7 @@ const std::vector<Member<T>>& GeneticAlgorithm<T>::getFittestOfEachGeneration() 
 template <typename T>
 float GeneticAlgorithm<T>::getFittestScore() const
 {
-    return fittest_of_each_generation_.back().fitness;
+    return population_.back().fitness;
 }
 
 template <typename T>
