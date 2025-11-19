@@ -2,6 +2,7 @@
 #include <sstream>
 #include <cctype>
 #include <chrono>
+#include <thread>
 
 template<typename T>
 Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
@@ -182,14 +183,20 @@ void Controller<T>::evolve(EvolutionCondition condition)
     auto calculate_time_elapsed = [start_time, &time_elapsed]()
     {
         auto current_time = std::chrono::high_resolution_clock::now();
-        time_elapsed = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+        time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() / 1000.f;
     };
 
     while (condition(ga_, time_elapsed))
     {
         ga_.evolve();
         calculate_time_elapsed();
+
+        std::cout << "\033[2K" << "Generation:     " << ga_.getGeneration() << "\n";
+        std::cout << "\033[2K" << "Fitness:        " << ga_.getFittestScore() << "\n";
+        std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
+        std::cout << "\x1b[A\x1b[A\x1b[A";
     }
+    std::cout << "\n\n\n";
 }
 
 template <typename T>
