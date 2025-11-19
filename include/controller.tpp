@@ -22,8 +22,7 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     commands_["evolve-seconds"] = bind_command<&Controller::evolveSeconds>();
     commands_["evolve-until-fitness"] = bind_command<&Controller::evolveUntilFitness>();
     commands_["evolve-until-generation"] = bind_command<&Controller::evolveUntilGeneration>();
-    commands_["evolve-until-stagnant-x-generations"] = bind_command<&Controller::evolveUntilStagnantForGenerations>();
-    commands_["evolve-until-stagnant-x-seconds"] = bind_command<&Controller::evolveUntilStagnantForSeconds>();
+    commands_["evolve-until-stagnant"] = bind_command<&Controller::evolveUntilStagnant>();
 }
 
 template <typename T>
@@ -176,84 +175,79 @@ void Controller<T>::viewBest()
 }
 
 template <typename T>
+void Controller<T>::evolve(EvolutionCondition condition)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+    float time_elapsed = 0.f;
+    auto calculate_time_elapsed = [start_time, &time_elapsed]()
+    {
+        auto current_time = std::chrono::high_resolution_clock::now();
+        time_elapsed = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+    };
+
+    while (condition(ga_, time_elapsed))
+    {
+        ga_.evolve();
+        calculate_time_elapsed();
+    }
+}
+
+template <typename T>
 void Controller<T>::evolveGenerations(int generations)
 {
-    for(int i = 0; i < generations; ++i) ga_.evolve();
+    evolveUntilGeneration(ga_.getGeneration() + generations);
 }
+
 template <typename T>
 void Controller<T>::evolveSeconds(float seconds)
 {
-    auto start_time = std::chrono::high_resolution_clock::now();
-    auto time_elapsed = [start_time]()
+    EvolutionCondition cond = [seconds](const GeneticAlgorithm<T>&, float time)
     {
-        auto current_time = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+        return time < seconds;
     };
-    while (time_elapsed() < seconds)
-        ga_.evolve();
+
+    evolve(cond);
 }
+
 template <typename T>
 void Controller<T>::evolveUntilGeneration(int target_generation)
 {
-    int current = ga_.getGeneration();
-    int difference = target_generation - current;
-    if (difference <= 1)
+    EvolutionCondition cond = [target_generation](const GeneticAlgorithm<T>& ga, float)
     {
-        std::cerr << "Current generation is " << current << ", which is at or past target generation of " << target_generation << "\n";
-    }
-    else
-    {
-        evolveGenerations(difference);
-    }
+        return ga.getGeneration() < target_generation;
+    };
+
+    evolve(cond);
 }
 
 template <typename T>
 void Controller<T>::evolveUntilFitness(float target_fitness)
 {
-    while (ga_.getFittestScore() < target_fitness)
+    EvolutionCondition cond = [target_fitness](const GeneticAlgorithm<T>& ga, float)
     {
-        ga_.evolve();
-    }
-}
-
-template <typename T>
-void Controller<T>::evolveUntilStagnantForGenerations(int generations, float minimum_improvement)
-{
-    int stagnant_for = 0;
-    float previous_fittest, current_fittest;
-    do 
-    {
-        previous_fittest = ga_.getFittestScore();
-        ga_.evolve();
-        current_fittest = ga_.getFittestScore();
-
-        if (current_fittest / previous_fittest < 1.f + minimum_improvement)
-            ++stagnant_for;
-        else
-            stagnant_for = 0;
-    }
-    while (stagnant_for < generations);
-}
-
-template <typename T>
-void Controller<T>::evolveUntilStagnantForSeconds(float seconds, float minimum_improvement)
-{
-    auto last_time_not_stangant = std::chrono::high_resolution_clock::now();
-    auto time_elapsed = [last_time_not_stangant]()
-    {
-        auto current_time = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration_cast<std::chrono::seconds>(current_time - last_time_not_stangant).count();
+        return ga.getFittestScore() < target_fitness;
     };
+    
+    evolve(cond);
+}
 
-    float previous_fittest, current_fittest;
-    do 
-    {
-        previous_fittest = ga_.getFittestScore();
-        ga_.evolve();
-        current_fittest = ga_.getFittestScore();
+template <typename T>
+void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_improvement)
+{
+    EvolutionCondition cond =
+        [generations, minimum_average_improvement]
+        (const GeneticAlgorithm<T>& ga, float)
+        {
+            if (ga.getGeneration() < generations)
+                return true;
 
-        if (current_fittest / previous_fittest >= 1.f + minimum_improvement)
-            last_time_not_stangant = std::chrono::high_resolution_clock::now();
-    }
-    while (time_elapsed() < seconds);
+            float current_fittest = ga.getFittestScore();
+            float fittest_x_generations_ago = ga.getFittestOfEachGeneration()[ga.getGeneration() - generations].fitness;
+            
+            float improvement = (current_fittest / fittest_x_generations_ago) - 1.f;
+            float avg_improvement = improvement / static_cast<float>(generations);
+            return avg_improvement < minimum_average_improvement;
+        };
+
+    evolve(cond);
 }

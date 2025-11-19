@@ -15,6 +15,7 @@ class Controller
         using ArgumentList = std::vector<std::string>&;
         using CommandCallback = std::function<void(ArgumentList)>;
         using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
+        using EvolutionCondition = std::function<bool(const GeneticAlgorithm<T>& ga, float time)>;
 
         GeneticAlgorithm<T> ga_;
         std::map<std::string, CommandCallback> commands_;
@@ -39,12 +40,12 @@ class Controller
         void viewPopulation();
         void viewBest();
 
+        void evolve(EvolutionCondition break_condition);
         void evolveGenerations(int generations);
         void evolveSeconds(float seconds);
         void evolveUntilFitness(float target_fitness);
         void evolveUntilGeneration(int target_generation);
-        void evolveUntilStagnantForGenerations(int generations, float minimum_improvement);
-        void evolveUntilStagnantForSeconds(float seconds, float minimum_improvement);
+        void evolveUntilStagnant(int generational_average, float minimum_improvement);
 };
 
 #include "controller.tpp"
