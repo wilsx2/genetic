@@ -7,16 +7,18 @@
 #include <variant>
 #include <map>
 
+enum class ViewType {Generations, Population};
 template<typename T>
 class Controller
 {
     private:
         using ArgumentList = std::vector<std::string>&;
         using CommandCallback = std::function<void(ArgumentList)>;
+        using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
 
         GeneticAlgorithm<T> ga_;
         std::map<std::string, CommandCallback> commands_;
-        const std::function<void(const std::vector<Member<T>>&)> view_function_;
+        const ViewCallback view_function_;
         bool running_;
 
         template <typename V>
@@ -26,7 +28,7 @@ class Controller
         void executeCommand(std::string input);
     
     public:
-        Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std::vector<Member<T>>&)>);
+        Controller(GeneticAlgorithm<T>&& ga, ViewCallback view);
         void run();
 
         void restart();

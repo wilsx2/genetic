@@ -4,7 +4,7 @@
 #include <chrono>
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std::vector<Member<T>>&)> view)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     : ga_(ga)
     , view_function_(view)
 {
@@ -42,7 +42,7 @@ template<typename T>
 template<auto MemberFunc>
 typename Controller<T>::CommandCallback Controller<T>::bind_command()
 {
-    // This function is written by AI
+    // This method was written by AI
     return [this](ArgumentList args)
     {
         using Func = decltype(MemberFunc);
@@ -166,13 +166,13 @@ void Controller<T>::printStats()
 template <typename T>
 void Controller<T>::viewPopulation()
 {
-    view_function_(ga_.getPopulation());
+    view_function_(ga_.getPopulation(), ViewType::Population);
 }
 
 template <typename T>
 void Controller<T>::viewBest()
 {
-    view_function_(ga_.getFittestOfEachGeneration());
+    view_function_(ga_.getFittestOfEachGeneration(), ViewType::Generations);
 }
 
 template <typename T>

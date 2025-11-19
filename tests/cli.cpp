@@ -14,11 +14,16 @@ int main()
             .1f,
             selection::tournament<int, 5>
         ),
-        [](const std::vector<Member<int>>& nums)
+        [](const std::vector<Member<int>>& nums, ViewType view_type)
         {
-            for (auto& num : nums)
+            for (int i = 0; i < nums.size(); ++i)
             {
-                std::cout << num.value << " | " << num.fitness << "\n";
+                if (view_type == ViewType::Generations)
+                    std::cout << "Generation " << i << ": ";
+                else if (view_type == ViewType::Population)
+                    std::cout << "Rank " << (nums.size() - i) << ": ";
+                
+                std::cout << nums[i].value << " | " << nums[i].fitness << "\n";
             }
         }
     );
