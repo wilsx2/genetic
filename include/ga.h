@@ -46,8 +46,6 @@ class GeneticAlgorithm {
         void newPopulation(std::size_t size);
         void rankAndRecordFittest();
         void evolve();
-        void evolve(std::size_t n);
-        void evolveUntilFitness(float target);
         
         const std::vector<Member<T>>& getPopulation() const;
         const std::vector<Member<T>>& getFittestOfEachGeneration() const;

@@ -79,18 +79,6 @@ void GeneticAlgorithm<T>::evolve()
 }
 
 template <typename T>
-void GeneticAlgorithm<T>::evolve(std::size_t n)
-{
-    for (int i = 0; i < n; ++i) evolve();
-}
-
-template <typename T>
-void GeneticAlgorithm<T>::evolveUntilFitness(float target)
-{
-    while(getFittestScore() < target) evolve();
-}
-
-template <typename T>
 void GeneticAlgorithm<T>::rankAndRecordFittest()
 {
     std::sort(population_.begin(), population_.end(),

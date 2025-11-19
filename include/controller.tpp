@@ -158,9 +158,9 @@ void Controller<T>::load(std::string id)
 template<typename T>
 void Controller<T>::printStats()
 {
-    std::cout << "Generation " << ga_.getGeneration() << "\n"
-        << "Fittest Score " << ga_.getFittestScore() << "\n"
-        << "Population ID " << ga_.getFormattedId() << "\n";
+    std::cout   << "Generation:     " << ga_.getGeneration() << "\n"
+                << "Fittest Score:  " << ga_.getFittestScore() << "\n"
+                << "Population ID:  " << ga_.getFormattedId() << "\n";
 }
 
 template <typename T>
@@ -192,7 +192,7 @@ void Controller<T>::evolve(EvolutionCondition condition)
         calculate_time_elapsed();
 
         std::cout << "\033[2K" << "Generation:     " << ga_.getGeneration() << "\n";
-        std::cout << "\033[2K" << "Fitness:        " << ga_.getFittestScore() << "\n";
+        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getFittestScore() << "\n";
         std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
         std::cout << "\x1b[A\x1b[A\x1b[A";
     }
@@ -230,9 +230,10 @@ void Controller<T>::evolveUntilGeneration(int target_generation)
 template <typename T>
 void Controller<T>::evolveUntilFitness(float target_fitness)
 {
-    EvolutionCondition cond = [target_fitness](const GeneticAlgorithm<T>& ga, float)
+    int start = ga_.getGeneration();
+    EvolutionCondition cond = [target_fitness, start](const GeneticAlgorithm<T>& ga, float)
     {
-        return ga.getFittestScore() < target_fitness;
+        return ga.getFittestScore() < target_fitness || ga.getGeneration() - start > 10000;
     };
     
     evolve(cond);
