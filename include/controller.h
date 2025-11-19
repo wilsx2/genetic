@@ -19,11 +19,11 @@ class Controller
         const std::function<void(const std::vector<Member<T>>&)> view_function_;
         bool running_;
 
+        template <typename V>
+        static V from_string(const std::string& s);
+        template<auto MemberFunc>
+        CommandCallback bind_command();
         void executeCommand(std::string input);
-
-        void errorInvalidArgument(std::string arg);
-        void errorUnexpectedNumberOfArguments(std::size_t expected, std::size_t received);
-        void errorUnexpectedNumberOfArguments(std::size_t expected_min, std::size_t expected_max, std::size_t received);
     
     public:
         Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std::vector<Member<T>>&)>);

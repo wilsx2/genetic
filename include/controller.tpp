@@ -8,194 +8,96 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, std::function<void(const std
     : ga_(ga)
     , view_function_(view)
 {
-    commands_["stats"]  = [&](ArgumentList args){ printStats(); };
-    commands_["restart"]= [&](ArgumentList args){ restart(); };
-    commands_["save"]   = [&](ArgumentList args){ save(); };
-    commands_["load"]   = [&](ArgumentList args)
-    {
-        if (args.size() == 1)
-            load(args[0]); 
-        else
-            std::cout << "Received " << args.size() << " arguments, expected 1";
-    };
-    commands_["quit"]   = [&](ArgumentList args){ running_ = false; };
-    commands_["view-population"] = [&](ArgumentList args){ viewPopulation(); };
-    commands_["view-best"] = [&](ArgumentList args){ viewBest(); };
+    // Zero-argument commands
+    commands_["stats"] = bind_command<&Controller::printStats>();
+    commands_["restart"] = bind_command<&Controller::restart>();
+    commands_["save"] = bind_command<&Controller::save>();
+    commands_["view-population"] = bind_command<&Controller::viewPopulation>();
+    commands_["view-best"] = bind_command<&Controller::viewBest>();
+    commands_["quit"] = [&](ArgumentList args){ running_ = false; };
+    
+    // Commands with arguments
+    commands_["load"] = bind_command<&Controller::load>();
+    commands_["evolve"] = bind_command<&Controller::evolveGenerations>();
+    commands_["evolve-seconds"] = bind_command<&Controller::evolveSeconds>();
+    commands_["evolve-until-fitness"] = bind_command<&Controller::evolveUntilFitness>();
+    commands_["evolve-until-generation"] = bind_command<&Controller::evolveUntilGeneration>();
+    commands_["evolve-until-stagnant-x-generations"] = bind_command<&Controller::evolveUntilStagnantForGenerations>();
+    commands_["evolve-until-stagnant-x-seconds"] = bind_command<&Controller::evolveUntilStagnantForSeconds>();
+}
 
-    commands_["evolve"] = [&](ArgumentList args)
-    {
-        if (args.size() == 0)
-        {
-            evolveGenerations(1);
-        }
-        else if (args.size() == 1)
-        {
-            try
-            {
-                evolveGenerations(std::stoi(args[0]));
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(0, 1, args.size());
-        }
-    };
+template <typename T>
+template <typename V>
+V Controller<T>::from_string(const std::string& s) {
+    std::istringstream iss(s);
+    V value;
+    iss >> value;
+    if (iss.fail() || !iss.eof()) {
+        throw std::invalid_argument("Cannot convert string to target type");
+    }
+    return value;
+}
 
-    commands_["evolve-seconds"] = [&](ArgumentList args)
+template<typename T>
+template<auto MemberFunc>
+typename Controller<T>::CommandCallback Controller<T>::bind_command()
+{
+    // This function is written by AI
+    return [this](ArgumentList args)
     {
-        if (args.size() == 1)
+        using Func = decltype(MemberFunc);
+        
+        // Deduce the argument types from the member function pointer
+        constexpr auto invoke_with_args = []<typename R, typename C, typename... Args>(R (C::*)(Args...))
         {
-            try
+            return [](Controller* self, ArgumentList args_list) -> void
             {
-                evolveSeconds(std::stof(args[0]));
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(1, args.size());
-        }
-    };
+                constexpr size_t N = sizeof...(Args);
+                
+                if (args_list.size() != N)
+                {
+                    std::cerr << "Expected " << N << " argument(s), received " << args_list.size() << "\n";
+                    return;
+                }
 
-    commands_["evolve-until-fitness"] = [&](ArgumentList args)
-    {
-        if (args.size() == 1)
-        {
-            try
-            {
-                evolveUntilFitness(std::stof(args[0]));
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(1, args.size());
-        }
-    };
-
-    commands_["evolve-until-generation"] = [&](ArgumentList args)
-    {
-        if (args.size() == 1)
-        {
-            try
-            {
-                evolveUntilGeneration(std::stoi(args[0]));
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(1, args.size());
-        }
-    };
-
-    commands_["evolve-until-stagnant-x-generations"] = [&](ArgumentList args)
-    {
-        if (args.size() == 2)
-        {
-            try
-            {
-                int generations = std::stoi(args[0]);
                 try
                 {
-                    float minimum_improvement = std::stof(args[1]);
-                    evolveUntilStagnantForGenerations(generations, minimum_improvement);
+                    // Convert arguments using index sequence
+                    auto converted = [&]<size_t... I>(std::index_sequence<I...>)
+                    {
+                        return std::tuple{self->template from_string<Args>(args_list[I])...};
+                    }(std::make_index_sequence<N>{});
+
+                    // Call the member function
+                    std::apply([self](auto&&... converted_args)
+                    {
+                        (self->*MemberFunc)(std::forward<decltype(converted_args)>(converted_args)...);
+                    }, converted);
                 }
-                catch (std::invalid_argument& e)
+                catch (const std::exception&)
                 {
-                    errorInvalidArgument(args[1]);
+                    // Find which argument failed by trying to convert each one
+                    [&]<size_t... I>(std::index_sequence<I...>)
+                    {
+                        (([]<size_t Idx>(Controller* s, const std::string& arg)
+                        {
+                            try
+                            {
+                                using ArgType = std::tuple_element_t<Idx, std::tuple<Args...>>;
+                                s->template from_string<ArgType>(arg);
+                            }
+                            catch (const std::exception&)
+                            {
+                                std::cerr << "Invalid argument \"" << arg << "\"\n";
+                            }
+                        }.template operator()<I>(self, args_list[I])), ...);
+                    }(std::make_index_sequence<N>{});
                 }
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else if (args.size() == 1)
-        {
-            try
-            {
-                evolveUntilStagnantForGenerations(std::stoi(args[0]), 0.05f);
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(1, 2, args.size());
-        }
+            };
+        }(MemberFunc);
+
+        invoke_with_args(this, args);
     };
-
-    commands_["evolve-until-stagnant-x-seconds"] = [&](ArgumentList args)
-    {
-        if (args.size() == 2)
-        {
-            try
-            {
-                float seconds = std::stof(args[0]);
-                try
-                {
-                    float minimum_improvement = std::stof(args[1]);
-                    evolveUntilStagnantForSeconds(seconds, minimum_improvement);
-                }
-                catch (std::invalid_argument& e)
-                {
-                    errorInvalidArgument(args[1]);
-                }
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else if (args.size() == 1)
-        {
-            try
-            {
-                evolveUntilStagnantForSeconds(std::stof(args[0]), 0.05f);
-            }
-            catch (std::invalid_argument& e)
-            {
-                errorInvalidArgument(args[0]);
-            }
-        }
-        else
-        {
-            errorUnexpectedNumberOfArguments(1, 2, args.size());
-        }
-    };
-}
-template<typename T>
-void Controller<T>::errorInvalidArgument(std::string arg)
-{
-    std::cerr << "Invalid argument \"" << arg << "\"\n";
-}
-
-template<typename T>
-void Controller<T>::errorUnexpectedNumberOfArguments(std::size_t expected, std::size_t received)
-{
-    std::cerr << "Expected " << expected << " argument(s), received " << received << "\n";
-}
-
-template<typename T>
-void Controller<T>::errorUnexpectedNumberOfArguments(std::size_t min, std::size_t max, std::size_t received)
-{
-    std::cerr << "Expected between " << min << " and " << max << " argument(s), received " << received << "\n";
 }
 
 template<typename T>
