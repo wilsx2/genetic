@@ -230,10 +230,12 @@ void Controller<T>::evolveUntilGeneration(int target_generation)
 template <typename T>
 void Controller<T>::evolveUntilFitness(float target_fitness)
 {
+    constexpr std::size_t TIMEOUT = 10000;
+    
     int start = ga_.getGeneration();
     EvolutionCondition cond = [target_fitness, start](const GeneticAlgorithm<T>& ga, float)
     {
-        return ga.getFittestScore() < target_fitness || ga.getGeneration() - start > 10000;
+        return ga.getFittestScore() < target_fitness || ga.getGeneration() - start > TIMEOUT;
     };
     
     evolve(cond);
