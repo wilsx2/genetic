@@ -18,7 +18,7 @@ class GeneticAlgorithm {
         const std::string problem_;
         const std::string save_directory_;
         std::vector<Member<T>> population_;
-        u_int32_t population_identifier_;
+        uint32_t population_identifier_;
         std::vector<Member<T>> fittest_of_each_generation_;
         
         const std::function<T()> birth_function_;
