@@ -36,8 +36,8 @@ void GeneticAlgorithm<T>::newPopulation(std::size_t size)
 {
     if (population_.size() != 0 || fittest_of_each_generation_.size() != 0)
     {
-        fittest_of_each_generation_.resize(0);
-        population_.resize(0);
+        fittest_of_each_generation_.clear();
+        population_.clear();
     }
 
     population_identifier_ = rand();

@@ -26,7 +26,7 @@ class Controller
         static V from_string(const std::string& s);
         template<auto MemberFunc>
         CommandCallback bind_command();
-        void executeCommand(std::string input);
+        void executeCommand(const std::string& input);
     
     public:
         Controller(GeneticAlgorithm<T>&& ga, ViewCallback view);
@@ -34,7 +34,7 @@ class Controller
 
         void restart();
         void save();
-        void load(std::string id);
+        void load(const std::string& id);
 
         void printStats();
         void viewPopulation();

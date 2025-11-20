@@ -114,7 +114,7 @@ void Controller<T>::run()
 }
 
 template<typename T>
-void Controller<T>::executeCommand(std::string input)
+void Controller<T>::executeCommand(const std::string& input)
 {
     std::istringstream ss(input);
     std::string command;
@@ -150,7 +150,7 @@ void Controller<T>::save()
 }
 
 template<typename T>
-void Controller<T>::load(std::string id)
+void Controller<T>::load(const std::string& id)
 {
     ga_.loadPopulation(id);
 }
@@ -231,7 +231,6 @@ template <typename T>
 void Controller<T>::evolveUntilFitness(float target_fitness)
 {
     constexpr std::size_t TIMEOUT = 10000;
-    
     int start = ga_.getGeneration();
     EvolutionCondition cond = [target_fitness, start](const GeneticAlgorithm<T>& ga, float)
     {
