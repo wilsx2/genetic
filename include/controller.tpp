@@ -254,7 +254,7 @@ void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_i
             
             float improvement = (current_fittest / fittest_x_generations_ago) - 1.f;
             float avg_improvement = improvement / static_cast<float>(generations);
-            return avg_improvement < minimum_average_improvement;
+            return avg_improvement > minimum_average_improvement;
         };
 
     evolve(cond);

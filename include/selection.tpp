@@ -7,19 +7,16 @@ T& selection::tournament(std::vector<Member<T>>& population)
 {
     int i = rand() % population.size();
 
-    std::pair<T&, float> fittest = {
-        population[i].value, 
-        population[i].fitness
-    };
-
+    int fittest_i = i;
+    
     for (int k = 1; k < N; ++k)
     {
         int j = rand() % population.size();
-        if (population[j].fitness > fittest.second)
-            fittest = {population[j].value, population[j].fitness};
+        if (population[j].fitness > population[fittest_i].fitness)
+            fittest_i = j;
     }
 
-    return fittest.first;
+    return population[fittest_i].value;
 }
 
 template<typename T>
