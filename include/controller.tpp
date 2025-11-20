@@ -150,9 +150,9 @@ void Controller<T>::save()
 }
 
 template<typename T>
-void Controller<T>::load(const std::string& id)
+void Controller<T>::load(std::string id)
 {
-    ga_.loadPopulation(id);
+    ga_.loadPopulation(std::move(id));
 }
 
 template<typename T>

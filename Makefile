@@ -5,7 +5,6 @@ INC_DIR := include
 TEST_DIR := tests
 
 # Files
-SRCS := $(shell find $(SRC_DIR) -name "*.cpp")
 TESTS := $(shell find $(TEST_DIR) -name "*.cpp")
 OBJS := $(foreach obj, $(SRCS:%.cpp=%.o), $(BUILD_DIR)/$(obj))
 EXES := $(foreach exe, $(TESTS:%.cpp=%.exe), $(BUILD_DIR)/$(notdir $(exe))) # Create exe for each test

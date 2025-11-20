@@ -34,7 +34,7 @@ class Controller
 
         void restart();
         void save();
-        void load(const std::string& id);
+        void load(std::string id);
 
         void printStats();
         void viewPopulation();
