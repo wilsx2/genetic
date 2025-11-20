@@ -1,4 +1,4 @@
-#include "controller.h"
+#include "genetic.h"
 
 int main()
 {

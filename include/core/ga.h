@@ -2,7 +2,7 @@
 #define GA_H
 
 #include "member.h"
-#include "selection.h"
+#include "operator/selection.h"
 
 #include <optional>
 #include <vector>

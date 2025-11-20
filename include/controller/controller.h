@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "ga.h"
+#include "core/ga.h"
 #include <string>
 #include <functional>
 #include <variant>

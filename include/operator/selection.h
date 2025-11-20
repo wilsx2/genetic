@@ -1,7 +1,7 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include "member.h"
+#include "core/member.h"
 #include <vector>
 #include <functional>
 
