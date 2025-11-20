@@ -140,7 +140,7 @@ bool GeneticAlgorithm<T>::savePopulation()
     output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
 
     // Identifier
-    output.write(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
+    output.write(reinterpret_cast<char*>(&population_identifier_), sizeof(uint32_t));
 
     // Fittest
     /// Size
