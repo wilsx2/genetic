@@ -18,13 +18,13 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     selection::Func<T> select,
     std::size_t population_size,
     float elitism_rate
-)   : problem_(problem)
+)   : problem_(std::move(problem))
     , save_directory_("populations/"+problem+"/")
-    , birth_function_(birth)
-    , fitness_function_(fitness)
-    , mutate_function_(mutate)
-    , crossover_function_(crossover)
-    , selection_function_(select)
+    , birth_function_(std::move(birth))
+    , fitness_function_(std::move(fitness))
+    , mutate_function_(std::move(mutate))
+    , crossover_function_(std::move(crossover))
+    , selection_function_(std::move(select))
     , elitism_rate_(elitism_rate)
 {
     newPopulation(population_size);
