@@ -1,0 +1,33 @@
+#ifndef RNG_H
+#define RNG_H
+
+#include <random>
+
+class RNG
+{
+    private:
+        std::mt19937 gen_;
+        
+    public:
+        RNG(): gen_(std::random_device()()) {}
+        RNG(int seed): gen_(seed) {}
+
+        int integer(int low, int high)
+        {
+            std::uniform_int_distribution<int> dist(low, high);
+            return dist(gen_);
+        }
+
+        std::size_t index(std::size_t size)
+        {
+            std::uniform_int_distribution<std::size_t> dist(0, size);
+            return dist(gen_);
+        }
+
+        float real(float low, float high)
+        {
+            std::uniform_real_distribution<> dist(low, high);
+            return dist(gen_);
+        }
+};
+#endif
