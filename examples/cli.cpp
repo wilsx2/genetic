@@ -1,4 +1,5 @@
 #include "genetic.h"
+#include <limits>
 
 int main()
 {
@@ -6,13 +7,13 @@ int main()
     (
         GeneticAlgorithm<int>(
             "number",
-            10000,
-            [](){return rand();},
             [](int& n){return -abs(1000 - n); },
-            [](int& n){return n += (rand()%20000) - 10000; },
-            [](int& a, int& b){return a/2 + b/2; },
-            .1f,
-            selection::tournament<int, 5>
+            [](RNG& rng){return rng.integer(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());},
+            [](int& n, RNG& rng){return n += rng.integer(-10000,10000); },
+            [](int& a, int& b, RNG&){return a/2 + b/2; },
+            selection::tournament<int, 5>,
+            10000,
+            .1f
         ),
         [](const std::vector<Member<int>>& nums, ViewType view_type)
         {

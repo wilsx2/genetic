@@ -1,5 +1,4 @@
 #include "binary_encoding.h"
-#include <cstdlib>
 
 template <typename T>
 BinaryEncoding<T>::BinaryEncoding()
@@ -43,35 +42,31 @@ const std::bitset<sizeof(T)*8>& BinaryEncoding<T>::data() const
 }
 
 template <typename T>
-BinaryEncoding<T> BinaryEncoding<T>::birth()
+BinaryEncoding<T> BinaryEncoding<T>::birth(RNG& rng)
 {
     BinaryEncoding<T> baby;
     for (std::size_t i = 0; i < baby.data_.size(); ++i)
-        if(rand() % 2) baby.data_.flip(i);
+        if(rng.integer(0,1)) baby.data_.flip(i);
     return baby;
 }
 
 template <typename T>
-BinaryEncoding<T> BinaryEncoding<T>::crossover(BinaryEncoding<T>& a, BinaryEncoding<T>& b)
+BinaryEncoding<T> BinaryEncoding<T>::crossover(BinaryEncoding<T>& a, BinaryEncoding<T>& b, RNG& rng)
 {
     BinaryEncoding<T> offspring;
 
-    std::size_t crossover_point = rand() % offspring.data_.size();
+    std::size_t crossover_point = rng.index(offspring.data_.size());
     for (int i = 0; i < offspring.data_.size(); ++i)
-    {
         offspring.data_.set(i, i < crossover_point ? a.data_[i] : b.data_[i]);
-    }
 
     return offspring;
 }
 
 template <typename T>
 template <int R>
-void BinaryEncoding<T>::mutate(BinaryEncoding& bin)
+void BinaryEncoding<T>::mutate(BinaryEncoding& bin, RNG& rng)
 {
-    float mutation_rate = static_cast<float>((rand() % R) % 100) / 100.f;
-    for (int i = 0; i < bin.data_.size() * mutation_rate; ++i)
-    {
-        bin.data_.flip(rand() % bin.data_.size());
-    }
+    for (int i = 0; i < bin.data_.size(); ++i)
+        if(rng.integer(0, 100) < R)
+            bin.data_.flip(i);
 }

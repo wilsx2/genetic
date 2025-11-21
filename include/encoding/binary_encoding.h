@@ -1,6 +1,7 @@
 #ifndef BINARY_ENCODING_H
 #define BINARY_ENCODING_H
 
+#include "utils/rng.h"
 #include <bitset>
 
 template <typename T>
@@ -17,9 +18,9 @@ class BinaryEncoding {
         void set(T value);
         const std::bitset<sizeof(T)*8>& data() const;
 
-        static BinaryEncoding birth();
-        static BinaryEncoding crossover(BinaryEncoding& a, BinaryEncoding& b);
-        template <int R> static void mutate(BinaryEncoding& bin);
+        static BinaryEncoding birth(RNG& rng);
+        static BinaryEncoding crossover(BinaryEncoding& a, BinaryEncoding& b, RNG& rng);
+        template <int R> static void mutate(BinaryEncoding& bin, RNG& rng);
 };
 
 #include "binary_encoding.tpp"

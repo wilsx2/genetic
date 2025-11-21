@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cassert>
 #include <ctime>
-#include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -12,21 +11,21 @@
 template <typename T>
 GeneticAlgorithm<T>::GeneticAlgorithm(
     std::string problem,
+    FitnessFunction fitness,
+    BirthFunction birth,
+    MutationOperator mutate,
+    CrossoverOperator crossover,
+    selection::Func<T> select,
     std::size_t population_size,
-    std::function<T()> birth,
-    std::function<float(T&)> fitness,
-    std::function<void(T&)> mutate,
-    std::function<T(T&,T&)> crossover,
-    float elitism_rate,
-    selection::Func<T> select
+    float elitism_rate
 )   : problem_(problem)
     , save_directory_("populations/"+problem+"/")
     , birth_function_(birth)
     , fitness_function_(fitness)
     , mutate_function_(mutate)
     , crossover_function_(crossover)
-    , elitism_rate_(elitism_rate)
     , selection_function_(select)
+    , elitism_rate_(elitism_rate)
 {
     newPopulation(population_size);
 }
@@ -40,11 +39,11 @@ void GeneticAlgorithm<T>::newPopulation(std::size_t size)
         population_.clear();
     }
 
-    population_identifier_ = rand();
+    population_identifier_ = rng_.index(UINT32_MAX);
     population_.reserve(size);
     while (population_.size() < size)
     {
-        T member = birth_function_();
+        T member = birth_function_(rng_);
         float fitness_score = fitness_function_(member);
         population_.emplace_back(std::move(member), fitness_score);
     }
@@ -61,14 +60,14 @@ void GeneticAlgorithm<T>::evolve()
     for (int i = 0; i < population_.size() - numElites(); ++i)
     {
         // Select
-        T& parent_a = selection_function_(parents);
-        T& parent_b = selection_function_(parents);
+        T& parent_a = selection_function_(parents, rng_);
+        T& parent_b = selection_function_(parents, rng_);
 
         // Crossover
-        T offspring = crossover_function_(parent_a, parent_b);
+        T offspring = crossover_function_(parent_a, parent_b, rng_);
 
         // Mutate
-        mutate_function_(offspring);
+        mutate_function_(offspring, rng_);
         
         /// Overwrite old member
         population_[i].fitness = fitness_function_(offspring);

@@ -1,17 +1,16 @@
 #include "selection.h"
 #include <utility>
-#include <cstdlib>
 
 template<typename T, std::size_t N>
-T& selection::tournament(std::vector<Member<T>>& population)
+T& selection::tournament(std::vector<Member<T>>& population, RNG& rng)
 {
-    int i = rand() % population.size();
+    int i = rng.index(population.size());
 
     int fittest_i = i;
     
     for (int k = 1; k < N; ++k)
     {
-        int j = rand() % population.size();
+        int j = rng.index(population.size());
         if (population[j].fitness > population[fittest_i].fitness)
             fittest_i = j;
     }
@@ -20,12 +19,12 @@ T& selection::tournament(std::vector<Member<T>>& population)
 }
 
 template<typename T>
-T& selection::rankBased(std::vector<Member<T>>& population)
+T& selection::rankBased(std::vector<Member<T>>& population, RNG& rng)
 {
     auto size = population.size();
     int total_rank = size*(size+1)/2;
 
-    int spin = (rand() % (total_rank)) + 1;
+    int spin = rng.integer(1, total_rank);
     int i = 0;
     while(spin > i + 1)
     {
