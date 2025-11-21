@@ -20,7 +20,7 @@ class RNG
 
         std::size_t index(std::size_t size)
         {
-            std::uniform_int_distribution<std::size_t> dist(0, size);
+            std::uniform_int_distribution<std::size_t> dist(0, size - 1);
             return dist(gen_);
         }
 
