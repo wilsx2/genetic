@@ -234,7 +234,7 @@ void Controller<T>::evolveUntilFitness(float target_fitness)
     int start = ga_.getGeneration();
     EvolutionCondition cond = [target_fitness, start](const GeneticAlgorithm<T>& ga, float)
     {
-        return ga.getFittestScore() < target_fitness || ga.getGeneration() - start > TIMEOUT;
+        return ga.getFittestScore() < target_fitness && ga.getGeneration() - start < TIMEOUT;
     };
     
     evolve(cond);
