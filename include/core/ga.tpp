@@ -83,10 +83,7 @@ void GeneticAlgorithm<T>::evolve()
 template <typename T>
 void GeneticAlgorithm<T>::rankAndRecordFittest()
 {
-    std::sort(population_.begin(), population_.end(),
-    [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness < b.fitness;
-    });
+    std::sort(population_.begin(), population_.end());
     fittest_of_each_generation_.push_back(population_.back());
 }
 
