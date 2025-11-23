@@ -1,15 +1,24 @@
 #include "serializer.h"
-
+#include <filesystem>
+#include <format>
+#include <iostream>
+#include <fstream>
 
 template <typename T>
 Serializer<T>::Serializer(std::string problem_name):
-    save_directory_: ("populations/"+problem+"/")
+    save_directory_("populations/"+problem_name+"/")
 {}
 
 template <typename T>
 std::string Serializer<T>::formatFilename(uint32_t id, std::size_t generation, float fitness) const
 {
-    return std::format("{:x}_G{}_F{}", save_directory_, id, generation, fitness);
+    return std::format("{:x}_G{}_F{}", id, generation, fitness);
+}
+
+template <typename T>
+std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(uint32_t id) const
+{
+    return findPopulationFile(std::format("{:x}", id));
 }
 
 template <typename T>
@@ -26,7 +35,7 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std
             continue;
 
         const auto filename = entry.path().filename().string();
-        if (filename.rfind(id, 0) == 0)
+        if (filename.rfind(id_prefix, 0) == 0)
         {
             return entry.path();
         }
@@ -36,7 +45,7 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std
 }
 
 template <typename T>
-bool Serializer<T>::save(const PopulationData<T>& data)
+bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float fitness)
 {
     // Check that there is data to save
     if (data.fittest_history.size() == 0) {
@@ -47,12 +56,12 @@ bool Serializer<T>::save(const PopulationData<T>& data)
     std::filesystem::create_directories(save_directory_);
 
     // Overwrite previous save of this population, if it exists
-    std::optional<std::filesystem::path> path = findPopulationFile(getFormattedId());
+    std::optional<std::filesystem::path> path = findPopulationFile(data.id);
     if (path.has_value())
         std::filesystem::remove(path.value());
 
     // Begin saving
-    std::ofstream output (save_directory_+formatFilename(data.id, data.fittest_history.size(), data.fittest_history.back().fitness));
+    std::ofstream output (save_directory_+formatFilename(data.id, generation, fitness));
     
     if (!output.is_open()) {
         std::cerr << "Failed to create save" << std::flush;
@@ -90,10 +99,10 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     PopulationData<T> data;
 
     // Search for file with id provided
-    std::optional<std::filesystem::path> path = findPopulationFile(id);
+    std::optional<std::filesystem::path> path = findPopulationFile(id_prefix);
     if (!path.has_value()) {
         std::cerr << "No file in the \"" << save_directory_ <<
-        "\" directory matches the prefix \"" << id << "\"\n";
+        "\" directory matches the prefix \"" << id_prefix << "\"\n";
         return std::nullopt;
     }
 
@@ -115,7 +124,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     }
 
     // Identifier
-    input.read(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
+    input.read(reinterpret_cast<char*>(&data.id), sizeof(u_int32_t));
 
     // Fittest
     /// Size

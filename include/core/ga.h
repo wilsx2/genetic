@@ -3,6 +3,7 @@
 
 #include "member.h"
 #include "operator/selection.h"
+#include "serialization/serializer.h"
 
 #include <optional>
 #include <vector>
@@ -13,8 +14,6 @@
 
 template <typename T>
 class GeneticAlgorithm {
-    static_assert(std::is_trivially_copyable_v<T> == true); // Remove when Serializer is a field
-
     private:
         using FitnessFunction = std::function<float(T&)>;
         using BirthFunction = std::function<T(RNG&)>;
@@ -22,7 +21,6 @@ class GeneticAlgorithm {
         using CrossoverOperator = std::function<T(T&,T&, RNG&)>;
 
         const std::string problem_;
-        const std::string save_directory_;
         std::vector<Member<T>> population_;
         uint32_t population_identifier_;
         std::vector<Member<T>> fittest_of_each_generation_;
@@ -35,10 +33,10 @@ class GeneticAlgorithm {
 
         selection::Func<T> selection_function_;
 
+        Serializer<T> serializer_;
         RNG rng_;
 
         inline std::size_t numElites();
-        std::optional<std::filesystem::path> findPopulationFile(std::string id);
         
     public:
         GeneticAlgorithm(

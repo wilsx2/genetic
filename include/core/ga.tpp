@@ -2,11 +2,6 @@
 #include <algorithm>
 #include <cassert>
 #include <ctime>
-#include <filesystem>
-#include <format>
-#include <iostream>
-#include <fstream>
-
 
 template <typename T>
 GeneticAlgorithm<T>::GeneticAlgorithm(
@@ -19,16 +14,18 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     std::size_t population_size,
     float elitism_rate
 )   : problem_(std::move(problem))
-    , save_directory_("populations/"+problem+"/")
     , birth_function_(std::move(birth))
     , fitness_function_(std::move(fitness))
     , mutate_function_(std::move(mutate))
     , crossover_function_(std::move(crossover))
     , selection_function_(std::move(select))
     , elitism_rate_(elitism_rate)
+    , serializer_(problem_)
 {
     if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
-        throw std::invalid_argument("elitism_rate must be in the interval [0, 1]")
+        throw std::invalid_argument("elitism_rate must be in the interval [0, 1]");
+    if (problem_.size() == 0)
+        throw std::invalid_argument("problem name must be non-empty");
 
     newPopulation(population_size);
 }
@@ -93,126 +90,31 @@ void GeneticAlgorithm<T>::rankAndRecordFittest()
     fittest_of_each_generation_.push_back(population_.back());
 }
 
-template <typename T>
-std::optional<std::filesystem::path> GeneticAlgorithm<T>::findPopulationFile(std::string id)
-{
-    if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
-    {
-        return std::nullopt;
-    }
-
-    for (const auto& entry : std::filesystem::directory_iterator(save_directory_))
-    {
-        if (!entry.is_regular_file())
-            continue;
-
-        const auto filename = entry.path().filename().string();
-        if (filename.rfind(id, 0) == 0)
-        {
-            return entry.path();
-        }
-    }
-
-    return std::nullopt;
-}
 
 template <typename T>
 bool GeneticAlgorithm<T>::savePopulation()
 {
-    // Ensure there's a place for our save
-    std::filesystem::create_directories(save_directory_);
-
-    // Overwrite previous save of this population, if it exists
-    std::optional<std::filesystem::path> path = findPopulationFile(getFormattedId());
-    if (path.has_value())
-        std::filesystem::remove(path.value());
-
-    // Begin saving
-    std::ofstream output (
-        save_directory_
-        + getFormattedId()
-        + "_G" + std::to_string(getGeneration())
-        + "_F" + std::to_string(getFittestScore())
-    );
+    PopulationData<T> data;
+    data.id = population_identifier_;
+    data.current_population = population_;
+    data.fittest_history = fittest_of_each_generation_;
     
-    if (!output.is_open()) {
-        std::cerr << "Failed to create save" << std::flush;
-        return false;
-    }
-
-    // Tag With Type ID
-    std::size_t typeHash = typeid(T).hash_code();
-    output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
-
-    // Identifier
-    output.write(reinterpret_cast<char*>(&population_identifier_), sizeof(uint32_t));
-
-    // Fittest
-    /// Size
-    std::size_t size = fittest_of_each_generation_.size();
-    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-    /// Members
-    output.write(reinterpret_cast<char*>(fittest_of_each_generation_.data()), sizeof(Member<T>)*size);
-    
-    // Current Generation
-    /// Size
-    size = population_.size();
-    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-    /// Members
-    output.write(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size);
-
-    output.close();
-    return true;
+    return serializer_.save(data, getGeneration(), getFittestScore());
 }
 
 template <typename T>
 bool GeneticAlgorithm<T>::loadPopulation(std::string id)
 {
-    // Search for file with id provided
-    std::optional<std::filesystem::path> path = findPopulationFile(id);
-    if (!path.has_value()) {
-        std::cerr << "No file in the \"" << save_directory_ <<
-        "\" directory matches the prefix \"" << id << "\"\n";
-        return false;
+    std::optional<PopulationData<T>> data = serializer_.load(id);
+
+    if (data.has_value())
+    {
+        population_identifier_ = std::move(data->id);
+        population_ = std::move(data->current_population);
+        fittest_of_each_generation_ = std::move(data->fittest_history);
+        return true;
     }
-
-    // Begin loading
-    std::ifstream input (path.value().string());
-    if (!input.is_open()) {
-        std::cerr << "Failed to open file \"" << path.value().string() << "\"\n";
-        return false;
-    }
-    
-    // Check Type ID tag
-    std::size_t inputTypeHash;
-    input.read(reinterpret_cast<char*>(&inputTypeHash), sizeof(std::size_t));
-    if (inputTypeHash != typeid(T).hash_code()) {
-        std::cerr << "File \"" << path.value().string()
-            << "\" stores a population of a type other than \""
-            << typeid(T).name() << "\"\n";
-        return false;
-    }
-
-    // Identifier
-    input.read(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
-
-    // Fittest
-    /// Size
-    std::size_t size;
-    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-    /// Members
-    fittest_of_each_generation_.resize(size);
-    input.read(reinterpret_cast<char*>(fittest_of_each_generation_.data()), sizeof(Member<T>)*size); 
-
-    // Current Generation
-    /// Size
-    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
-    /// Members
-    population_.resize(size);
-    input.read(reinterpret_cast<char*>(population_.data()), sizeof(Member<T>)*size); 
-
-    input.close();
-    return true;
+    return false;
 }
 
 template <typename T>

@@ -1,6 +1,7 @@
 #ifndef RNG_H
 #define RNG_H
 
+#include <stdexcept>
 #include <random>
 
 class RNG
@@ -14,7 +15,7 @@ class RNG
 
         int integer(int low, int high)
         {
-            if (!low <= high)
+            if (low > high)
                 throw std::invalid_argument("low must be <= high");
 
             std::uniform_int_distribution<int> dist(low, high);

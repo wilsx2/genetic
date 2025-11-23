@@ -25,11 +25,12 @@ class Serializer
         
         std::string formatFilename(uint32_t id, std::size_t generation, float fitness) const;
         std::optional<std::filesystem::path> findPopulationFile(const std::string& id_prefix) const;
+        std::optional<std::filesystem::path> findPopulationFile(uint32_t id) const;
         
     public:
         Serializer(std::string problem_name);
 
-        bool save(const PopulationData<T>& data);
+        bool save(PopulationData<T>& data, std::size_t generation, float fitness);
         std::optional<PopulationData<T>> load(const std::string& id_prefix);
 };
 
