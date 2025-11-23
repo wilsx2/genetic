@@ -1,0 +1,138 @@
+#include "serializer.h"
+
+
+template <typename T>
+Serializer<T>::Serializer(std::string problem_name):
+    save_directory_: ("populations/"+problem+"/")
+{}
+
+template <typename T>
+std::string Serializer<T>::formatFilename(uint32_t id, std::size_t generation, float fitness) const
+{
+    return std::format("{:x}_G{}_F{}", save_directory_, id, generation, fitness);
+}
+
+template <typename T>
+std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std::string& id_prefix) const
+{
+    if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
+    {
+        return std::nullopt;
+    }
+
+    for (const auto& entry : std::filesystem::directory_iterator(save_directory_))
+    {
+        if (!entry.is_regular_file())
+            continue;
+
+        const auto filename = entry.path().filename().string();
+        if (filename.rfind(id, 0) == 0)
+        {
+            return entry.path();
+        }
+    }
+
+    return std::nullopt;
+}
+
+template <typename T>
+bool Serializer<T>::save(const PopulationData<T>& data)
+{
+    // Check that there is data to save
+    if (data.fittest_history.size() == 0) {
+        return false;
+    } 
+
+    // Ensure there's a place for our save
+    std::filesystem::create_directories(save_directory_);
+
+    // Overwrite previous save of this population, if it exists
+    std::optional<std::filesystem::path> path = findPopulationFile(getFormattedId());
+    if (path.has_value())
+        std::filesystem::remove(path.value());
+
+    // Begin saving
+    std::ofstream output (save_directory_+formatFilename(data.id, data.fittest_history.size(), data.fittest_history.back().fitness));
+    
+    if (!output.is_open()) {
+        std::cerr << "Failed to create save" << std::flush;
+        return false;
+    }
+
+    // Tag With Type ID
+    std::size_t typeHash = typeid(T).hash_code();
+    output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
+
+    // Identifier
+    output.write(reinterpret_cast<char*>(&data.id), sizeof(uint32_t));
+
+    // Fittest
+    /// Size
+    std::size_t size = data.fittest_history.size();
+    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    /// Members
+    output.write(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size);
+    
+    // Current Generation
+    /// Size
+    size = data.current_population.size();
+    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    /// Members
+    output.write(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size);
+
+    output.close();
+    return true;
+}
+
+template <typename T>
+std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefix)
+{
+    PopulationData<T> data;
+
+    // Search for file with id provided
+    std::optional<std::filesystem::path> path = findPopulationFile(id);
+    if (!path.has_value()) {
+        std::cerr << "No file in the \"" << save_directory_ <<
+        "\" directory matches the prefix \"" << id << "\"\n";
+        return std::nullopt;
+    }
+
+    // Begin loading
+    std::ifstream input (path.value().string());
+    if (!input.is_open()) {
+        std::cerr << "Failed to open file \"" << path.value().string() << "\"\n";
+        return std::nullopt;
+    }
+    
+    // Check Type ID tag
+    std::size_t inputTypeHash;
+    input.read(reinterpret_cast<char*>(&inputTypeHash), sizeof(std::size_t));
+    if (inputTypeHash != typeid(T).hash_code()) {
+        std::cerr << "File \"" << path.value().string()
+            << "\" stores a population of a type other than \""
+            << typeid(T).name() << "\"\n";
+        return std::nullopt;
+    }
+
+    // Identifier
+    input.read(reinterpret_cast<char*>(&population_identifier_), sizeof(u_int32_t));
+
+    // Fittest
+    /// Size
+    std::size_t size;
+    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    /// Members
+    data.fittest_history.resize(size);
+    input.read(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size); 
+
+    // Current Generation
+    /// Size
+    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
+    /// Members
+    data.current_population.resize(size);
+    input.read(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size); 
+
+    input.close();
+
+    return std::move(data);
+}

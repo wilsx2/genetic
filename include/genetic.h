@@ -6,5 +6,7 @@
 #include "core/member.h"
 #include "encoding/binary_encoding.h"
 #include "operator/selection.h"
+#include "serialization/serializer.h"
+#include "utils/rng.h"
 
 #endif
