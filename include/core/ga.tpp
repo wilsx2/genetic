@@ -235,6 +235,9 @@ const std::vector<Member<T>>& GeneticAlgorithm<T>::getFittestOfEachGeneration() 
 template <typename T>
 float GeneticAlgorithm<T>::getFittestScore() const
 {
+    if (population_.size() == 0)
+        throw std::logic_error("Cannot get fittest of empty population");
+        
     return population_.back().fitness;
 }
 
