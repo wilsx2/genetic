@@ -25,4 +25,5 @@ class PopulationHistory {
         const Member<T>& getFittestScore(std::size_t generation) const;
 };
 
+#include "population_history.tpp"
 #endif
