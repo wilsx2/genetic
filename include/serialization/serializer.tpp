@@ -22,8 +22,13 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(uint32_t 
 }
 
 template <typename T>
-std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std::string& id_prefix) const
+std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std::string& id) const
 {
+    if (id.size() != ID_STRING_SIZE)
+    {
+        return std::nullopt;
+    }
+
     if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
     {
         return std::nullopt;
@@ -35,7 +40,7 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std
             continue;
 
         const auto filename = entry.path().filename().string();
-        if (filename.rfind(id_prefix, 0) == 0)
+        if (filename.rfind(id, 0) == 0)
         {
             return entry.path();
         }
@@ -73,7 +78,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write type id\n"
+        std::cerr << "Failed to write type id\n";
         return false;
     }
 
@@ -81,7 +86,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(&data.id), sizeof(uint32_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write population identifier\n"
+        std::cerr << "Failed to write population identifier\n";
         return false;
     }
     
@@ -91,7 +96,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write fittest history size\n"
+        std::cerr << "Failed to write fittest history size\n";
         return false;
     }
 
@@ -99,7 +104,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size);
     if (!output.good())
     {
-        std::cerr << "Failed to write fittest history data\n"
+        std::cerr << "Failed to write fittest history data\n";
         return false;
     }
     
@@ -109,7 +114,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write current generation size\n"
+        std::cerr << "Failed to write current generation size\n";
         return false;
     }
     
@@ -117,7 +122,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     output.write(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size);
     if (!output.good())
     {
-        std::cerr << "Failed to write current generation data\n"
+        std::cerr << "Failed to write current generation data\n";
         return false;
     }
 
@@ -126,16 +131,16 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
 }
 
 template <typename T>
-std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefix)
+std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id)
 {
     PopulationData<T> data;
 
     // Search for file with id provided
-    std::optional<std::filesystem::path> path = findPopulationFile(id_prefix);
+    std::optional<std::filesystem::path> path = findPopulationFile(id);
     if (!path.has_value())
     {
-        std::cerr << "No file in the \"" << save_directory_ <<
-        "\" directory matches the prefix \"" << id_prefix << "\"\n";
+        std::cerr << "No save file in the \"" << save_directory_ <<
+        "\" directory has the id \"" << id << "\"\n";
         return std::nullopt;
     }
 
@@ -162,7 +167,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     input.read(reinterpret_cast<char*>(&data.id), sizeof(u_int32_t));
     if (!input.good())
     {
-        std::cerr << "Failed to read population identifier"
+        std::cerr << "Failed to read population identifier";
         return std::nullopt;
     }
 
@@ -172,7 +177,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
     if (!input.good())
     {
-        std::cerr << "Failed to read fittest history size\n"
+        std::cerr << "Failed to read fittest history size\n";
         return std::nullopt;
     }
 
@@ -181,7 +186,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     input.read(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size); 
     if (!input.good())
     {
-        std::cerr << "Failed to read fittest history data\n"
+        std::cerr << "Failed to read fittest history data\n";
         return std::nullopt;
     }
 
@@ -190,7 +195,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
     if (!input.good())
     {
-        std::cerr << "Failed to read current population size\n"
+        std::cerr << "Failed to read current population size\n";
         return std::nullopt;
     }
 
@@ -199,11 +204,29 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     input.read(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size); 
     if (!input.good())
     {
-        std::cerr << "Failed to read current population data\n"
+        std::cerr << "Failed to read current population data\n";
         return std::nullopt;
     }
 
     input.close();
 
     return std::move(data);
+}
+
+template <typename T>
+std::vector<std::string> Serializer<T>::listSaves()
+{
+    if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
+    {
+        return {};
+    }
+
+    std::vector<std::string> saves_ids;
+    for (const auto& entry : std::filesystem::directory_iterator(save_directory_))
+    {
+        if (entry.is_regular_file())
+            saves_ids.emplace_back(entry.path().filename().string().substr(ID_STRING_SIZE));
+    }
+
+    return std::move(saves_ids);
 }
