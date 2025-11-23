@@ -12,7 +12,7 @@ Serializer<T>::Serializer(std::string problem_name):
 template <typename T>
 std::string Serializer<T>::formatFilename(uint32_t id, std::size_t generation, float fitness) const
 {
-    return std::format("{:x}_G{}_F{}", id, generation, fitness);
+    return std::format("{:x} G{} F{}", id, generation, fitness);
 }
 
 template <typename T>
@@ -50,7 +50,7 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std
 }
 
 template <typename T>
-bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float fitness)
+bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float fitness) const
 {
     // Check that there is data to save
     if (data.fittest_history.size() == 0) {
@@ -131,7 +131,7 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
 }
 
 template <typename T>
-std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id)
+std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id) const
 {
     PopulationData<T> data;
 
@@ -214,7 +214,7 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id)
 }
 
 template <typename T>
-std::vector<std::string> Serializer<T>::listSaves()
+std::vector<std::string> Serializer<T>::getSaves() const
 {
     if (!std::filesystem::exists(save_directory_) || !std::filesystem::is_directory(save_directory_))
     {
@@ -225,7 +225,7 @@ std::vector<std::string> Serializer<T>::listSaves()
     for (const auto& entry : std::filesystem::directory_iterator(save_directory_))
     {
         if (entry.is_regular_file())
-            saves_ids.emplace_back(entry.path().filename().string().substr(ID_STRING_SIZE));
+            saves_ids.emplace_back(entry.path().filename().string());
     }
 
     return std::move(saves_ids);

@@ -90,33 +90,6 @@ void GeneticAlgorithm<T>::rankAndRecordFittest()
     fittest_of_each_generation_.push_back(population_.back());
 }
 
-
-template <typename T>
-bool GeneticAlgorithm<T>::savePopulation()
-{
-    PopulationData<T> data;
-    data.id = population_identifier_;
-    data.current_population = population_;
-    data.fittest_history = fittest_of_each_generation_;
-    
-    return serializer_.save(data, getGeneration(), getFittestScore());
-}
-
-template <typename T>
-bool GeneticAlgorithm<T>::loadPopulation(std::string id)
-{
-    std::optional<PopulationData<T>> data = serializer_.load(id);
-
-    if (data.has_value())
-    {
-        population_identifier_ = std::move(data->id);
-        population_ = std::move(data->current_population);
-        fittest_of_each_generation_ = std::move(data->fittest_history);
-        return true;
-    }
-    return false;
-}
-
 template <typename T>
 inline std::size_t GeneticAlgorithm<T>::numElites()
 {
@@ -159,4 +132,37 @@ template <typename T>
 const std::string& GeneticAlgorithm<T>::getProblem() const
 {
     return problem_;
+}
+
+
+template <typename T>
+bool GeneticAlgorithm<T>::savePopulation()
+{
+    PopulationData<T> data;
+    data.id = population_identifier_;
+    data.current_population = population_;
+    data.fittest_history = fittest_of_each_generation_;
+    
+    return serializer_.save(data, getGeneration(), getFittestScore());
+}
+
+template <typename T>
+bool GeneticAlgorithm<T>::loadPopulation(std::string id)
+{
+    std::optional<PopulationData<T>> data = serializer_.load(id);
+
+    if (data.has_value())
+    {
+        population_identifier_ = std::move(data->id);
+        population_ = std::move(data->current_population);
+        fittest_of_each_generation_ = std::move(data->fittest_history);
+        return true;
+    }
+    return false;
+}
+
+template <typename T>
+std::vector<std::string> GeneticAlgorithm<T>::getSaves() const
+{
+    return serializer_.getSaves();
 }

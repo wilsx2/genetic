@@ -23,9 +23,9 @@ class Controller
         bool running_;
 
         template <typename V>
-        static V from_string(const std::string& s);
+        static V fromString(const std::string& s);
         template<auto MemberFunc>
-        CommandCallback bind_command();
+        CommandCallback bindCommand();
         void executeCommand(const std::string& input);
     
     public:
@@ -35,6 +35,7 @@ class Controller
         void restart();
         void save();
         void load(std::string id);
+        void listSaves();
 
         void printStats();
         void viewPopulation();

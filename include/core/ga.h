@@ -60,8 +60,10 @@ class GeneticAlgorithm {
         std::string getFormattedId() const;
         const std::string& getProblem() const;
 
+        // Expose serializer functionality
         bool savePopulation();
         bool loadPopulation(std::string id);
+        std::vector<std::string> getSaves() const;
 };
 
 #include "ga.tpp"

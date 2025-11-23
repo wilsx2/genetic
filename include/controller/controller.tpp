@@ -10,25 +10,26 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     , view_function_(view)
 {
     // Zero-argument commands
-    commands_["stats"] = bind_command<&Controller::printStats>();
-    commands_["restart"] = bind_command<&Controller::restart>();
-    commands_["save"] = bind_command<&Controller::save>();
-    commands_["view-population"] = bind_command<&Controller::viewPopulation>();
-    commands_["view-best"] = bind_command<&Controller::viewBest>();
+    commands_["stats"] = bindCommand<&Controller::printStats>();
+    commands_["restart"] = bindCommand<&Controller::restart>();
+    commands_["save"] = bindCommand<&Controller::save>();
+    commands_["list-saves"] = bindCommand<&Controller::listSaves>();
+    commands_["view-population"] = bindCommand<&Controller::viewPopulation>();
+    commands_["view-best"] = bindCommand<&Controller::viewBest>();
     commands_["quit"] = [&](ArgumentList args){ running_ = false; };
     
     // Commands with arguments
-    commands_["load"] = bind_command<&Controller::load>();
-    commands_["evolve"] = bind_command<&Controller::evolveGenerations>();
-    commands_["evolve-seconds"] = bind_command<&Controller::evolveSeconds>();
-    commands_["evolve-until-fitness"] = bind_command<&Controller::evolveUntilFitness>();
-    commands_["evolve-until-generation"] = bind_command<&Controller::evolveUntilGeneration>();
-    commands_["evolve-until-stagnant"] = bind_command<&Controller::evolveUntilStagnant>();
+    commands_["load"] = bindCommand<&Controller::load>();
+    commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
+    commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
+    commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
+    commands_["evolve-until-generation"] = bindCommand<&Controller::evolveUntilGeneration>();
+    commands_["evolve-until-stagnant"] = bindCommand<&Controller::evolveUntilStagnant>();
 }
 
 template <typename T>
 template <typename V>
-V Controller<T>::from_string(const std::string& s) {
+V Controller<T>::fromString(const std::string& s) {
     std::istringstream iss(s);
     V value;
     iss >> value;
@@ -40,7 +41,7 @@ V Controller<T>::from_string(const std::string& s) {
 
 template<typename T>
 template<auto MemberFunc>
-typename Controller<T>::CommandCallback Controller<T>::bind_command()
+typename Controller<T>::CommandCallback Controller<T>::bindCommand()
 {
     // This method was written by AI
     return [this](ArgumentList args)
@@ -65,7 +66,7 @@ typename Controller<T>::CommandCallback Controller<T>::bind_command()
                     // Convert arguments using index sequence
                     auto converted = [&]<size_t... I>(std::index_sequence<I...>)
                     {
-                        return std::tuple{self->template from_string<Args>(args_list[I])...};
+                        return std::tuple{self->template fromString<Args>(args_list[I])...};
                     }(std::make_index_sequence<N>{});
 
                     // Call the member function
@@ -84,7 +85,7 @@ typename Controller<T>::CommandCallback Controller<T>::bind_command()
                             try
                             {
                                 using ArgType = std::tuple_element_t<Idx, std::tuple<Args...>>;
-                                s->template from_string<ArgType>(arg);
+                                s->template fromString<ArgType>(arg);
                             }
                             catch (const std::exception&)
                             {
@@ -153,6 +154,17 @@ template<typename T>
 void Controller<T>::load(std::string id)
 {
     ga_.loadPopulation(std::move(id));
+}
+
+template<typename T>
+void Controller<T>::listSaves()
+{
+    std::vector<std::string> saves = ga_.getSaves();
+
+    for (auto& save : saves)
+    {
+        std::cout << save << "\n";
+    }
 }
 
 template<typename T>
