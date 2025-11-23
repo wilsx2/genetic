@@ -32,9 +32,10 @@ class Serializer
         Serializer(std::string problem_name);
 
         bool save(PopulationData<T>& data, std::size_t generation, float fitness) const;
-        std::optional<PopulationData<T>> load(const std::string& id_prefix) const;
+        std::optional<PopulationData<T>> load(const std::string& id) const;
         std::vector<std::string> getSaves() const;
-        bool deleteSave(const std::string& id_prefix) const;
+        bool deleteSave(const std::string& id) const;
+        bool deleteAllSaves() const;
 };
 
 #include "serializer.tpp"

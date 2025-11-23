@@ -230,3 +230,21 @@ std::vector<std::string> Serializer<T>::getSaves() const
 
     return std::move(saves_ids);
 }
+
+template <typename T>
+bool Serializer<T>::deleteSave(const std::string& id) const
+{
+    std::optional<std::filesystem::path> path = findPopulationFile(id);
+    return path.has_value() && std::filesystem::remove(path.value());
+}
+
+template <typename T>
+bool Serializer<T>::deleteAllSaves() const
+{
+    if (std::filesystem::exists(save_directory_) && !std::filesystem::is_empty(save_directory_))
+    {
+        std::filesystem::remove_all(save_directory_);
+        return false
+    }
+    return true;
+}
