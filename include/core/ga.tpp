@@ -27,12 +27,18 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , selection_function_(std::move(select))
     , elitism_rate_(elitism_rate)
 {
+    if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
+        throw std::invalid_argument("elitism_rate must be in the interval [0, 1]")
+
     newPopulation(population_size);
 }
 
 template <typename T>
 void GeneticAlgorithm<T>::newPopulation(std::size_t size)
 {
+    if (size == 0)
+        throw std::invalid_argument("Population size must be greater than 0");
+
     if (population_.size() != 0 || fittest_of_each_generation_.size() != 0)
     {
         fittest_of_each_generation_.clear();
