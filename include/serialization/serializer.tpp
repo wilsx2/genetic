@@ -64,30 +64,62 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     std::ofstream output (save_directory_+formatFilename(data.id, generation, fitness));
     
     if (!output.is_open()) {
-        std::cerr << "Failed to create save" << std::flush;
+        std::cerr << "Failed to create save file\n";
         return false;
     }
 
     // Tag With Type ID
     std::size_t typeHash = typeid(T).hash_code();
     output.write(reinterpret_cast<char*>(&typeHash), sizeof(std::size_t));
+    if (!output.good())
+    {
+        std::cerr << "Failed to write type id\n"
+        return false;
+    }
 
     // Identifier
     output.write(reinterpret_cast<char*>(&data.id), sizeof(uint32_t));
-
+    if (!output.good())
+    {
+        std::cerr << "Failed to write population identifier\n"
+        return false;
+    }
+    
     // Fittest
     /// Size
     std::size_t size = data.fittest_history.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    if (!output.good())
+    {
+        std::cerr << "Failed to write fittest history size\n"
+        return false;
+    }
+
     /// Members
     output.write(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size);
+    if (!output.good())
+    {
+        std::cerr << "Failed to write fittest history data\n"
+        return false;
+    }
     
     // Current Generation
     /// Size
     size = data.current_population.size();
     output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    if (!output.good())
+    {
+        std::cerr << "Failed to write current generation size\n"
+        return false;
+    }
+    
     /// Members
     output.write(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size);
+    if (!output.good())
+    {
+        std::cerr << "Failed to write current generation data\n"
+        return false;
+    }
 
     output.close();
     return true;
@@ -100,7 +132,8 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
 
     // Search for file with id provided
     std::optional<std::filesystem::path> path = findPopulationFile(id_prefix);
-    if (!path.has_value()) {
+    if (!path.has_value())
+    {
         std::cerr << "No file in the \"" << save_directory_ <<
         "\" directory matches the prefix \"" << id_prefix << "\"\n";
         return std::nullopt;
@@ -108,7 +141,8 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
 
     // Begin loading
     std::ifstream input (path.value().string());
-    if (!input.is_open()) {
+    if (!input.is_open())
+    {
         std::cerr << "Failed to open file \"" << path.value().string() << "\"\n";
         return std::nullopt;
     }
@@ -116,7 +150,8 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
     // Check Type ID tag
     std::size_t inputTypeHash;
     input.read(reinterpret_cast<char*>(&inputTypeHash), sizeof(std::size_t));
-    if (inputTypeHash != typeid(T).hash_code()) {
+    if (inputTypeHash != typeid(T).hash_code())
+    {
         std::cerr << "File \"" << path.value().string()
             << "\" stores a population of a type other than \""
             << typeid(T).name() << "\"\n";
@@ -125,21 +160,48 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id_prefi
 
     // Identifier
     input.read(reinterpret_cast<char*>(&data.id), sizeof(u_int32_t));
+    if (!input.good())
+    {
+        std::cerr << "Failed to read population identifier"
+        return std::nullopt;
+    }
 
     // Fittest
     /// Size
     std::size_t size;
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    if (!input.good())
+    {
+        std::cerr << "Failed to read fittest history size\n"
+        return std::nullopt;
+    }
+
     /// Members
     data.fittest_history.resize(size);
     input.read(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size); 
+    if (!input.good())
+    {
+        std::cerr << "Failed to read fittest history data\n"
+        return std::nullopt;
+    }
 
     // Current Generation
     /// Size
     input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
+    if (!input.good())
+    {
+        std::cerr << "Failed to read current population size\n"
+        return std::nullopt;
+    }
+
     /// Members
     data.current_population.resize(size);
     input.read(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size); 
+    if (!input.good())
+    {
+        std::cerr << "Failed to read current population data\n"
+        return std::nullopt;
+    }
 
     input.close();
 
