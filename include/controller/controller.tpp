@@ -9,17 +9,16 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     : ga_(ga)
     , view_function_(view)
 {
-    // Zero-argument commands
+    commands_["quit"] = [&](ArgumentList args){ running_ = false; };
+    commands_["exit"] = [&](ArgumentList args){ running_ = false; };
     commands_["stats"] = bindCommand<&Controller::printStats>();
     commands_["restart"] = bindCommand<&Controller::restart>();
     commands_["save"] = bindCommand<&Controller::save>();
-    commands_["list-saves"] = bindCommand<&Controller::listSaves>();
+    commands_["load"] = bindCommand<&Controller::load>();
+    commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
+    commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
     commands_["view-population"] = bindCommand<&Controller::viewPopulation>();
     commands_["view-best"] = bindCommand<&Controller::viewBest>();
-    commands_["quit"] = [&](ArgumentList args){ running_ = false; };
-    
-    // Commands with arguments
-    commands_["load"] = bindCommand<&Controller::load>();
     commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
     commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
     commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
@@ -154,6 +153,18 @@ template<typename T>
 void Controller<T>::load(std::string id)
 {
     ga_.loadPopulation(std::move(id));
+}
+
+template<typename T>
+void Controller<T>::deleteSave(std::string id)
+{
+    ga_.deleteSave(id);
+}
+
+template<typename T>
+void Controller<T>::deleteAllSaves()
+{
+    ga_.deleteAllSaves();
 }
 
 template<typename T>

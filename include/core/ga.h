@@ -64,6 +64,8 @@ class GeneticAlgorithm {
         bool savePopulation();
         bool loadPopulation(std::string id);
         std::vector<std::string> getSaves() const;
+        bool deleteSave(const std::string& id) const;
+        bool deleteAllSaves() const;
 };
 
 #include "ga.tpp"

@@ -235,16 +235,37 @@ template <typename T>
 bool Serializer<T>::deleteSave(const std::string& id) const
 {
     std::optional<std::filesystem::path> path = findPopulationFile(id);
-    return path.has_value() && std::filesystem::remove(path.value());
+
+    
+    if (!path.has_value()) 
+    {
+        std::cerr << "No save file in the \"" << save_directory_ <<
+        "\" directory has the id \"" << id << "\"\n";
+        return false;
+    }
+    if (!std::filesystem::remove(path.value()))
+    {
+        std::cerr << "Failed to remove " << path.value().string() << "\n";
+        return false;
+    }
+    return true;
 }
 
 template <typename T>
 bool Serializer<T>::deleteAllSaves() const
 {
-    if (std::filesystem::exists(save_directory_) && !std::filesystem::is_empty(save_directory_))
+    if (!std::filesystem::exists(save_directory_))
     {
-        std::filesystem::remove_all(save_directory_);
-        return false
+        std::cerr << "Directory \"" << save_directory_ << "\" does not exist\n";
+        return false;
     }
-    return true;
+
+    if (std::filesystem::is_empty(save_directory_))
+    {
+        std::cerr << "Directory \"" << save_directory_ << "\" is empty\n";
+        return false;
+    }
+    
+    std::filesystem::remove_all(save_directory_);
+    return false;
 }

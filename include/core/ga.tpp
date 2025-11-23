@@ -166,3 +166,15 @@ std::vector<std::string> GeneticAlgorithm<T>::getSaves() const
 {
     return serializer_.getSaves();
 }
+
+template <typename T>
+bool GeneticAlgorithm<T>::deleteSave(const std::string& id) const
+{
+    return serializer_.deleteSave(id);
+}
+
+template <typename T>
+bool GeneticAlgorithm<T>::deleteAllSaves() const
+{
+    return serializer_.deleteAllSaves();
+}

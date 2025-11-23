@@ -36,6 +36,8 @@ class Controller
         void save();
         void load(std::string id);
         void listSaves();
+        void deleteSave(std::string id);
+        void deleteAllSaves();
 
         void printStats();
         void viewPopulation();
