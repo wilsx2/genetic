@@ -66,6 +66,8 @@ template <typename T>
 template <int R>
 void BinaryEncoding<T>::mutate(BinaryEncoding& bin, RNG& rng)
 {
+    static_assert(R >= 0 && R <= 100, "<R> must be in the interval [0, 100]");
+
     for (int i = 0; i < bin.data_.size(); ++i)
         if(rng.integer(0, 100) < R)
             bin.data_.flip(i);
