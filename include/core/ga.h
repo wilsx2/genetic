@@ -13,7 +13,7 @@
 
 template <typename T>
 class GeneticAlgorithm {
-    static_assert(std::is_trivially_copyable_v<T> == true);
+    static_assert(std::is_trivially_copyable_v<T> == true); // Remove when Serializer is a field
 
     private:
         using FitnessFunction = std::function<float(T&)>;
