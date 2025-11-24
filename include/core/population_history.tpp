@@ -22,7 +22,7 @@ std::size_t PopulationHistory<T>::numGenerations() const
 }
 
 template <typename T>
-const std::vector<std::vector<Member<T>>>& PopulationHistory<T>::getHistory() const
+const std::vector<std::vector<Member<T>>>& PopulationHistory<T>::getGenerations() const
 {
     return generations_;
 }
@@ -37,6 +37,12 @@ const std::vector<Member<T>>& PopulationHistory<T>::getCurrent() const
 }
 
 template <typename T>
+const std::vector<Member<T>>& PopulationHistory<T>::getFittestHistory() const
+{
+    return fittest_history_;
+}
+
+template <typename T>
 void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
 {
     if (next.size() != population_size_)
@@ -44,6 +50,12 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
             + std::to_string(population_size_) " of population history");   
     
     generations_.emplace_back(next);
+
+    std::sort(generations_.back().begin(), generations_.back().end(),
+    [](const Member<T>& a, const Member<T>& b) {
+        return a.fitness < b.fitness;
+    });
+    fittest_of_each_generation_.push_back(generations_.back().back());
 }
 
 template <typename T>
