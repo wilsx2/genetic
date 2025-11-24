@@ -2,8 +2,9 @@
 #include <stdexcept>
 
 template <typename T>
-PopulationHistory<T>::PopulationHistory(std::size_t population_size)
-    : population_size_(population_size)
+PopulationHistory<T>::PopulationHistory(uint32_t id, std::size_t population_size)
+    : id_(id)
+    , population_size_(population_size)
 {
     if (population_.size() == 0)
         throw std::invalid_argument("Population size must be greater than 0");
@@ -59,8 +60,9 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
 }
 
 template <typename T>
-void PopulationHistory<T>::clear(std::size_t new_size)
+void PopulationHistory<T>::restart(uint32_t new_id, std::size_t new_size)
 {
+    id_ = new_id;
     population_size_ = new_size;
     generations_.clear();
 }
