@@ -1,5 +1,4 @@
 #include "ga.h"
-#include <algorithm>
 #include <cassert>
 #include <ctime>
 
@@ -21,50 +20,55 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , selection_function_(std::move(select))
     , elitism_rate_(elitism_rate)
     , serializer_(problem_)
+    , population_(rng_.index(UINT32_MAX), population_size)
 {
     if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
         throw std::invalid_argument("elitism_rate must be in the interval [0, 1]");
     if (problem_.size() == 0)
         throw std::invalid_argument("problem name must be non-empty");
 
-    newPopulation(population_size);
+    restart();
 }
 
 template <typename T>
-void GeneticAlgorithm<T>::newPopulation(std::size_t size)
+void GeneticAlgorithm<T>::restart()
 {
-    if (size == 0)
-        throw std::invalid_argument("Population size must be greater than 0");
+    std::size_t size = population_.populationSize();
 
-    if (population_.size() != 0 || fittest_of_each_generation_.size() != 0)
-    {
-        fittest_of_each_generation_.clear();
-        population_.clear();
-    }
-
-    population_identifier_ = rng_.index(UINT32_MAX);
-    population_.reserve(size);
-    while (population_.size() < size)
+    if (population_.numGenerations() > 0)
+        population_.restart(rng_.index(UINT32_MAX), size);
+    
+    std::vector<Member<T>> next;
+    next.reserve(size);
+    while (next.size() < size)
     {
         T member = birth_function_(rng_);
-        float fitness_score = fitness_function_(member);
-        population_.emplace_back(std::move(member), fitness_score);
+        next.emplace_back(fitness_function_(member), std::move(member));
     }
 
-    rankAndRecordFittest();   
+    population_.pushNext(std::move(next));
 }
 
 template <typename T>
 void GeneticAlgorithm<T>::evolve()
 {
-    std::vector<Member<T>> parents = population_;
-    
-    // Replace non-elites with children
-    for (int i = 0; i < population_.size() - numElites(); ++i)
+    const std::vector<Member<T>>& parents = population_.getCurrent();
+
+    std::vector<Member<T>> next;
+    next.reserve(population_.populationSize());
+
+    // Elitism
+    for (int i = 0; i < numElites(); ++i)
+    {
+        next.push_back(parents[parents.size() - i - 1]);
+    }
+
+    // Mutation & Crossover
+    while (next.size() < population_.populationSize())
     {
         // Select
-        T& parent_a = selection_function_(parents, rng_);
-        T& parent_b = selection_function_(parents, rng_);
+        const T& parent_a = selection_function_(parents, rng_);
+        const T& parent_b = selection_function_(parents, rng_);
 
         // Crossover
         T offspring = crossover_function_(parent_a, parent_b, rng_);
@@ -72,60 +76,18 @@ void GeneticAlgorithm<T>::evolve()
         // Mutate
         mutate_function_(offspring, rng_);
         
-        /// Overwrite old member
-        population_[i].fitness = fitness_function_(offspring);
-        population_[i].value = std::move(offspring);
+        /// Add to new generation
+        next.emplace_back(fitness_function_(offspring), std::move(offspring));
     }
 
-    rankAndRecordFittest();
-}
-
-template <typename T>
-void GeneticAlgorithm<T>::rankAndRecordFittest()
-{
-    std::sort(population_.begin(), population_.end(),
-    [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness < b.fitness;
-    });
-    fittest_of_each_generation_.push_back(population_.back());
+    // Finalize
+    population_.pushNext(std::move(next));
 }
 
 template <typename T>
 inline std::size_t GeneticAlgorithm<T>::numElites()
 {
-    return population_.size() * elitism_rate_;
-}
-
-template <typename T>
-const std::vector<Member<T>>& GeneticAlgorithm<T>::getPopulation() const
-{
-    return population_;
-}
-
-template <typename T>
-const std::vector<Member<T>>& GeneticAlgorithm<T>::getFittestOfEachGeneration() const
-{
-    return fittest_of_each_generation_;
-}
-template <typename T>
-float GeneticAlgorithm<T>::getFittestScore() const
-{
-    if (population_.size() == 0)
-        throw std::logic_error("Cannot get fittest of empty population");
-        
-    return population_.back().fitness;
-}
-
-template <typename T>
-std::size_t GeneticAlgorithm<T>::getGeneration() const
-{
-    return fittest_of_each_generation_.size();
-}
-
-template <typename T>
-std::string GeneticAlgorithm<T>::getFormattedId() const
-{
-    return std::format("{:x}", population_identifier_);
+    return population_.populationSize() * elitism_rate_;
 }
 
 template <typename T>
@@ -134,30 +96,36 @@ const std::string& GeneticAlgorithm<T>::getProblem() const
     return problem_;
 }
 
+template <typename T>
+const PopulationHistory<T>& GeneticAlgorithm<T>::getPopulation() const
+{
+    return population_;
+}
 
 template <typename T>
 bool GeneticAlgorithm<T>::savePopulation()
 {
-    PopulationData<T> data;
-    data.id = population_identifier_;
-    data.current_population = population_;
-    data.fittest_history = fittest_of_each_generation_;
+    // PopulationData<T> data;
+    // data.id = population_identifier_;
+    // data.current_population = population_;
+    // data.fittest_history = fittest_of_each_generation_;
     
-    return serializer_.save(data, getGeneration(), getFittestScore());
+    // return serializer_.save(data, getGeneration(), getFittestScore());
+    return false;
 }
 
 template <typename T>
 bool GeneticAlgorithm<T>::loadPopulation(std::string id)
 {
-    std::optional<PopulationData<T>> data = serializer_.load(id);
+    // std::optional<PopulationData<T>> data = serializer_.load(id);
 
-    if (data.has_value())
-    {
-        population_identifier_ = std::move(data->id);
-        population_ = std::move(data->current_population);
-        fittest_of_each_generation_ = std::move(data->fittest_history);
-        return true;
-    }
+    // if (data.has_value())
+    // {
+    //     population_identifier_ = std::move(data->id);
+    //     population_ = std::move(data->current_population);
+    //     fittest_of_each_generation_ = std::move(data->fittest_history);
+    //     return true;
+    // }
     return false;
 }
 

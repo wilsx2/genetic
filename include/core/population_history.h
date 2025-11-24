@@ -2,6 +2,7 @@
 #define POPULATION_HISTORY_H
 
 #include "member.h"
+#include <string>
 #include <vector>
 #include <cstdint>
 
@@ -15,6 +16,8 @@ class PopulationHistory {
 
     public:
         PopulationHistory(uint32_t id, std::size_t population_size);
+        uint32_t id() const;
+        std::string formattedId() const;
         std::size_t populationSize() const;
         std::size_t numGenerations() const;
         const std::vector<std::vector<Member<T>>>& getGenerations() const;
@@ -25,8 +28,8 @@ class PopulationHistory {
 
         const Member<T>& getFittest() const;
         const Member<T>& getFittest(std::size_t generation) const;
-        const Member<T>& getFittestScore() const;
-        const Member<T>& getFittestScore(std::size_t generation) const;
+        float getFittestScore() const;
+        float getFittestScore(std::size_t generation) const;
 };
 
 #include "population_history.tpp"

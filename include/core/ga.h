@@ -2,6 +2,7 @@
 #define GA_H
 
 #include "member.h"
+#include "population_history.h"
 #include "operator/selection.h"
 #include "serialization/serializer.h"
 
@@ -15,15 +16,13 @@
 template <typename T>
 class GeneticAlgorithm {
     private:
-        using FitnessFunction = std::function<float(T&)>;
+        using FitnessFunction = std::function<float(const T&)>;
         using BirthFunction = std::function<T(RNG&)>;
         using MutationOperator = std::function<void(T&, RNG&)>;
-        using CrossoverOperator = std::function<T(T&,T&, RNG&)>;
+        using CrossoverOperator = std::function<T(const T&, const T&, RNG&)>;
 
         const std::string problem_;
-        std::vector<Member<T>> population_;
-        uint32_t population_identifier_;
-        std::vector<Member<T>> fittest_of_each_generation_;
+        PopulationHistory<T> population_;
         
         const FitnessFunction fitness_function_;
         const BirthFunction birth_function_;
@@ -49,16 +48,11 @@ class GeneticAlgorithm {
             std::size_t population_size,
             float elitism_rate
         );
-        void newPopulation(std::size_t size);
-        void rankAndRecordFittest();
+        void restart();
         void evolve();
         
-        const std::vector<Member<T>>& getPopulation() const;
-        const std::vector<Member<T>>& getFittestOfEachGeneration() const;
-        float getFittestScore() const;
-        std::size_t getGeneration() const;
-        std::string getFormattedId() const;
         const std::string& getProblem() const;
+        const PopulationHistory<T>& getPopulation() const;
 
         // Expose serializer functionality
         bool savePopulation();

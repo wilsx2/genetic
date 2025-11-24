@@ -9,13 +9,13 @@
 namespace selection
 {
 template <typename T>
-using Func = std::function<T&(std::vector<Member<T>>&, RNG& rng)>;
+using Func = std::function<const T&(const std::vector<Member<T>>&, RNG& rng)>;
 
 template<typename T, std::size_t N>
-T& tournament(std::vector<Member<T>>& population, RNG& rng);
+const T& tournament(const std::vector<Member<T>>& population, RNG& rng);
 
 template<typename T>
-T& rankBased(std::vector<Member<T>>& population, RNG& rng);
+const T& rankBased(const std::vector<Member<T>>& population, RNG& rng);
 
 }
 

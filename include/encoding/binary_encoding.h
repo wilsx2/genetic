@@ -19,7 +19,7 @@ class BinaryEncoding {
         const std::bitset<sizeof(T)*8>& data() const;
 
         static BinaryEncoding birth(RNG& rng);
-        static BinaryEncoding crossover(BinaryEncoding& a, BinaryEncoding& b, RNG& rng);
+        static BinaryEncoding crossover(const BinaryEncoding& a, const BinaryEncoding& b, RNG& rng);
         template <int R> static void mutate(BinaryEncoding& bin, RNG& rng);
 };
 

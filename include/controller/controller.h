@@ -15,7 +15,7 @@ class Controller
         using ArgumentList = std::vector<std::string>&;
         using CommandCallback = std::function<void(ArgumentList)>;
         using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
-        using EvolutionCondition = std::function<bool(const GeneticAlgorithm<T>& ga, float time)>;
+        using EvolutionCondition = std::function<bool(const PopulationHistory<T>& pop, float time)>;
 
         GeneticAlgorithm<T> ga_;
         std::map<std::string, CommandCallback> commands_;

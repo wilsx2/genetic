@@ -140,7 +140,7 @@ void Controller<T>::executeCommand(const std::string& input)
 template<typename T>
 void Controller<T>::restart()
 {
-    ga_.newPopulation(ga_.getPopulation().size());
+    ga_.restart();
 }
 
 template<typename T>
@@ -152,7 +152,7 @@ void Controller<T>::save()
 template<typename T>
 void Controller<T>::load(std::string id)
 {
-    ga_.loadPopulation(std::move(id));
+    ga_.loadPopulation(id);
 }
 
 template<typename T>
@@ -181,21 +181,22 @@ void Controller<T>::listSaves()
 template<typename T>
 void Controller<T>::printStats()
 {
-    std::cout   << "Generation:     " << ga_.getGeneration() << "\n"
-                << "Fittest Score:  " << ga_.getFittestScore() << "\n"
-                << "Population ID:  " << ga_.getFormattedId() << "\n";
+    const auto& pop = ga_.getPopulation();
+    std::cout   << "Generation:     " << pop.numGenerations() << "\n"
+                << "Fittest Score:  " << pop.getFittestScore() << "\n"
+                << "Population ID:  " << pop.formattedId() << "\n";
 }
 
 template <typename T>
 void Controller<T>::viewPopulation()
 {
-    view_function_(ga_.getPopulation(), ViewType::Population);
+    view_function_(ga_.getPopulation().getCurrent(), ViewType::Population);
 }
 
 template <typename T>
 void Controller<T>::viewBest()
 {
-    view_function_(ga_.getFittestOfEachGeneration(), ViewType::Generations);
+    view_function_(ga_.getPopulation().getFittestHistory(), ViewType::Generations);
 }
 
 template <typename T>
@@ -209,13 +210,13 @@ void Controller<T>::evolve(EvolutionCondition condition)
         time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() / 1000.f;
     };
 
-    while (condition(ga_, time_elapsed))
+    while (condition(ga_.getPopulation(), time_elapsed))
     {
         ga_.evolve();
         calculate_time_elapsed();
 
-        std::cout << "\033[2K" << "Generation:     " << ga_.getGeneration() << "\n";
-        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getFittestScore() << "\n";
+        std::cout << "\033[2K" << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
+        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getPopulation().getFittestScore() << "\n";
         std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
         std::cout << "\x1b[A\x1b[A\x1b[A";
     }
@@ -225,13 +226,13 @@ void Controller<T>::evolve(EvolutionCondition condition)
 template <typename T>
 void Controller<T>::evolveGenerations(int generations)
 {
-    evolveUntilGeneration(ga_.getGeneration() + generations);
+    evolveUntilGeneration(ga_.getPopulation().numGenerations() + generations);
 }
 
 template <typename T>
 void Controller<T>::evolveSeconds(float seconds)
 {
-    EvolutionCondition cond = [seconds](const GeneticAlgorithm<T>&, float time)
+    EvolutionCondition cond = [seconds](const PopulationHistory<T>&, float time)
     {
         return time < seconds;
     };
@@ -242,9 +243,9 @@ void Controller<T>::evolveSeconds(float seconds)
 template <typename T>
 void Controller<T>::evolveUntilGeneration(int target_generation)
 {
-    EvolutionCondition cond = [target_generation](const GeneticAlgorithm<T>& ga, float)
+    EvolutionCondition cond = [target_generation](const PopulationHistory<T>& pop, float)
     {
-        return ga.getGeneration() < target_generation;
+        return pop.numGenerations() < target_generation;
     };
 
     evolve(cond);
@@ -254,10 +255,10 @@ template <typename T>
 void Controller<T>::evolveUntilFitness(float target_fitness)
 {
     constexpr std::size_t TIMEOUT = 10000;
-    int start = ga_.getGeneration();
-    EvolutionCondition cond = [target_fitness, start](const GeneticAlgorithm<T>& ga, float)
+    int start = ga_.getPopulation().numGenerations();
+    EvolutionCondition cond = [target_fitness, start](const PopulationHistory<T>& pop, float)
     {
-        return ga.getFittestScore() < target_fitness && ga.getGeneration() - start < TIMEOUT;
+        return pop.getFittestScore() < target_fitness && pop.numGenerations() - start < TIMEOUT;
     };
     
     evolve(cond);
@@ -268,13 +269,13 @@ void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_i
 {
     EvolutionCondition cond =
         [generations, minimum_average_improvement]
-        (const GeneticAlgorithm<T>& ga, float)
+        (const PopulationHistory<T>& pop, float)
         {
-            if (ga.getGeneration() < generations)
+            if (pop.numGenerations() < generations)
                 return true;
 
-            float current_fittest = ga.getFittestScore();
-            float fittest_x_generations_ago = ga.getFittestOfEachGeneration()[ga.getGeneration() - generations].fitness;
+            float current_fittest = pop.getFittestScore();
+            float fittest_x_generations_ago = pop.getFittestHistory()[pop.numGenerations() - generations].fitness;
             
             float improvement = (current_fittest / fittest_x_generations_ago) - 1.f;
             float avg_improvement = improvement / static_cast<float>(generations);

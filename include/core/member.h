@@ -4,8 +4,8 @@
 template <typename T>
 struct Member
 {
-    T value;
     float fitness;
+    T value;
 };
 
 #endif

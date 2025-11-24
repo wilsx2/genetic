@@ -1,13 +1,27 @@
 #include "population_history.h"
 #include <stdexcept>
+#include <algorithm>
+#include <format>
 
 template <typename T>
 PopulationHistory<T>::PopulationHistory(uint32_t id, std::size_t population_size)
     : id_(id)
     , population_size_(population_size)
 {
-    if (population_.size() == 0)
+    if (population_size == 0)
         throw std::invalid_argument("Population size must be greater than 0");
+}
+
+template <typename T>
+uint32_t PopulationHistory<T>::id() const
+{
+    return id_;
+}
+
+template <typename T>
+std::string PopulationHistory<T>::formattedId() const
+{
+    return std::format("{:x}", id_);
 }
 
 template <typename T>
@@ -48,7 +62,7 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
 {
     if (next.size() != population_size_)
         throw std::invalid_argument("Size " + std::to_string(next.size()) + "of next generation conflicts with size "
-            + std::to_string(population_size_) " of population history");   
+        + std::to_string(population_size_) + " of population history");   
     
     generations_.emplace_back(next);
 
@@ -56,7 +70,7 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
     [](const Member<T>& a, const Member<T>& b) {
         return a.fitness < b.fitness;
     });
-    fittest_of_each_generation_.push_back(generations_.back().back());
+    fittest_history_.push_back(generations_.back().back());
 }
 
 template <typename T>
@@ -76,20 +90,20 @@ const Member<T>& PopulationHistory<T>::getFittest() const
 template <typename T>
 const Member<T>& PopulationHistory<T>::getFittest(std::size_t generation) const
 {
-    if (next.size() != population_size_)
+    if (generation >= generations_.size())
         throw std::invalid_argument("Generation " + std::to_string(generation) + " does not exist. "
             + "The most recent generation has index " + std::to_string(generations_.size() - 1));
-    return generations_.back();
+    return generations_.back().back();
 }
 
 template <typename T>
-const Member<T>& PopulationHistory<T>::getFittestScore() const
+float PopulationHistory<T>::getFittestScore() const
 {
     return getFittest().fitness;
 }
 
 template <typename T>
-const Member<T>& PopulationHistory<T>::getFittestScore(std::size_t generation) const
+float PopulationHistory<T>::getFittestScore(std::size_t generation) const
 {
     return getFittest(generation).fitness;
 }
