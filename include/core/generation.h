@@ -1,0 +1,23 @@
+#ifndef GENERATION_H
+#define GENERATION_H
+
+#include "member.h"
+
+template <typename T>
+class Generation {
+    friend class Serializer<T>;
+
+    private:
+        std::vector<Member<T>> members_;
+    
+    public:
+        Generation(std::vector<Member<T>>&& members);
+        const Member<T>& operator[](std::size_t index) const;
+        const std::vector<Member<T>>& data() const;
+        std::size_t size() const;
+        const Member<T>& fittest() const;
+        float fittestScore() const;
+};
+
+#include "generation.tpp"
+#endif
