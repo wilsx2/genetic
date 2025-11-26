@@ -1,4 +1,5 @@
 #include "generation.h"
+#include <stdexcept>
 
 template <typename T>
 Generation<T>::Generation(std::vector<Member<T>>&& members)

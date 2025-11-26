@@ -1,5 +1,6 @@
 #include "selection.h"
 #include <utility>
+#include <stdexcept>
 
 template<typename T, std::size_t N>
 const T& selection::tournament(const Generation<T>& generation, RNG& rng)
@@ -29,6 +30,22 @@ const T& selection::rankBased(const Generation<T>& generation, RNG& rng)
     while(spin > i + 1)
     {
         spin -= (i + 1);
+        ++i;
+    }
+    return generation[i].value;
+}
+
+template<typename T>
+const T& selection::roulette(const Generation<T>& generation, RNG& rng)
+{
+    if (generation.lowestScore() < 0.f)
+        throw std::invalid_argument("Generation cannot have negative fitness scores");
+
+    int spin = rng.real(0.f, generation.totalFitness());
+    int i = 0;
+    while(spin > generation[i].fitness)
+    {
+        spin -= generation[i].fitness;
         ++i;
     }
     return generation[i].value;

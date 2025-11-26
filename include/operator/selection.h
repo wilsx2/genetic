@@ -17,6 +17,9 @@ const T& tournament(const Generation<T>& generation, RNG& rng);
 template<typename T>
 const T& rankBased(const Generation<T>& generation, RNG& rng);
 
+template<typename T>
+const T& roulette(const Generation<T>& generation, RNG& rng);
+
 }
 
 #include "selection.tpp"
