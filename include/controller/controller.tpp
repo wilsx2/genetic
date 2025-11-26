@@ -17,7 +17,8 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     commands_["load"] = bindCommand<&Controller::load>();
     commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
     commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
-    commands_["view-population"] = bindCommand<&Controller::viewPopulation>();
+    commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
+    commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
     commands_["view-best"] = bindCommand<&Controller::viewBest>();
     commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
     commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
@@ -188,7 +189,16 @@ void Controller<T>::printStats()
 }
 
 template <typename T>
-void Controller<T>::viewPopulation()
+void Controller<T>::viewGeneration(std::size_t i)
+{
+    if (i < ga_.getPopulation().numGenerations())
+        view_function_(ga_.getPopulation().getGenerations()[i], ViewType::Population);
+    else
+        std::cerr << "Input generation does not exist\n";
+}
+
+template <typename T>
+void Controller<T>::viewCurrent()
 {
     view_function_(ga_.getPopulation().getCurrent(), ViewType::Population);
 }

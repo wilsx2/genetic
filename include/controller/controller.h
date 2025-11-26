@@ -40,7 +40,8 @@ class Controller
         void deleteAllSaves();
 
         void printStats();
-        void viewPopulation();
+        void viewGeneration(std::size_t i);
+        void viewCurrent();
         void viewBest();
 
         void evolve(EvolutionCondition break_condition);
