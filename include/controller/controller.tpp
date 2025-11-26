@@ -200,7 +200,7 @@ template <typename T>
 void Controller<T>::viewGeneration(std::size_t i)
 {
     if (i < ga_.getPopulation().numGenerations())
-        view_function_(ga_.getPopulation().getGenerations()[i], ViewType::Population);
+        view_function_(ga_.getPopulation().getGenerations()[i].members(), ViewType::Population);
     else
         std::cerr << "Input generation does not exist\n";
 }
@@ -208,7 +208,7 @@ void Controller<T>::viewGeneration(std::size_t i)
 template <typename T>
 void Controller<T>::viewCurrent()
 {
-    view_function_(ga_.getPopulation().getCurrent(), ViewType::Population);
+    view_function_(ga_.getPopulation().getCurrent().members(), ViewType::Population);
 }
 
 template <typename T>

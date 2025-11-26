@@ -3,6 +3,7 @@
 
 #include "serialization/serializer.h"
 #include "member.h"
+#include "generation.h"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -14,7 +15,7 @@ class PopulationHistory {
     private:
         uint32_t id_;
         std::size_t population_size_;
-        std::vector<std::vector<Member<T>>> generations_;
+        std::vector<Generation<T>> generations_;
         std::vector<Member<T>> fittest_history_;
 
     public:
@@ -23,8 +24,8 @@ class PopulationHistory {
         std::string formattedId() const;
         std::size_t populationSize() const;
         std::size_t numGenerations() const;
-        const std::vector<std::vector<Member<T>>>& getGenerations() const;
-        const std::vector<Member<T>>& getCurrent() const;
+        const std::vector<Generation<T>>& getGenerations() const;
+        const Generation<T>& getCurrent() const;
         const std::vector<Member<T>>& getFittestHistory() const;
         void pushNext(std::vector<Member<T>>&& next);
         void restart(uint32_t new_id, std::size_t new_size);

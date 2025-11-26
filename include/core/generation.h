@@ -13,7 +13,7 @@ class Generation {
     public:
         Generation(std::vector<Member<T>>&& members);
         const Member<T>& operator[](std::size_t index) const;
-        const std::vector<Member<T>>& data() const;
+        const std::vector<Member<T>>& members() const;
         std::size_t size() const;
         const Member<T>& fittest() const;
         float fittestScore() const;

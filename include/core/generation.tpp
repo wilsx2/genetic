@@ -4,7 +4,7 @@ template <typename T>
 Generation<T>::Generation(std::vector<Member<T>>&& members)
     : members_(members)
 {
-    members_.sort(members.begin(), members.end());
+    std::sort(members.begin(), members.end());
 }
 
 template <typename T>
@@ -14,7 +14,7 @@ const Member<T>& Generation<T>::operator[](std::size_t index) const
 }
 
 template <typename T>
-const std::vector<Member<T>>& Generation<T>::data() const
+const std::vector<Member<T>>& Generation<T>::members() const
 {
     return members_;
 }
@@ -34,5 +34,5 @@ const Member<T>& Generation<T>::fittest() const
 template <typename T>
 float Generation<T>::fittestScore() const
 {
-    fittest().fitness;
+    return fittest().fitness;
 }

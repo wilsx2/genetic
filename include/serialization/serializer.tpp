@@ -112,7 +112,7 @@ bool Serializer<T>::save(PopulationHistory<T>& pop) const
     // Generations
     for (int i = 0; i < num_gens; ++i)
     {
-        output.write(reinterpret_cast<char*>(pop.generations_[i].data()), sizeof(Member<T>)*pop.population_size_);
+        output.write(reinterpret_cast<char*>(pop.generations_[i].members_.data()), sizeof(Member<T>)*pop.population_size_);
         if (!output.good())
         {
             std::cerr << "Failed to write generation " << (i + 1) << "\n";
@@ -181,20 +181,19 @@ std::optional<PopulationHistory<T>> Serializer<T>::load(const std::string& id) c
         std::cerr << "Failed to read number of generations\n";
         return std::nullopt;
     }
-    pop.generations_.resize(num_gens);
         
     // Generations
     for (int i = 0; i < num_gens; ++i)
     {
-        pop.generations_[i].resize(pop.population_size_);
-        input.read(reinterpret_cast<char*>(pop.generations_[i].data()), sizeof(Member<T>)*pop.population_size_);
+        std::vector<Member<T>> next;
+        next.resize(pop.population_size_);
+        input.read(reinterpret_cast<char*>(next.data()), sizeof(Member<T>)*pop.population_size_);
         if (!input.good())
         {
             std::cerr << "Failed to read generation " << (i + 1) << "\n";
             return std::nullopt;
         }
-
-        pop.fittest_history_.push_back(pop.generations_[i].back());
+        pop.pushNext(std::move(next));
     }
 
     input.close();

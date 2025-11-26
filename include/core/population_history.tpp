@@ -37,13 +37,13 @@ std::size_t PopulationHistory<T>::numGenerations() const
 }
 
 template <typename T>
-const std::vector<std::vector<Member<T>>>& PopulationHistory<T>::getGenerations() const
+const std::vector<Generation<T>>& PopulationHistory<T>::getGenerations() const
 {
     return generations_;
 }
 
 template <typename T>
-const std::vector<Member<T>>& PopulationHistory<T>::getCurrent() const
+const Generation<T>& PopulationHistory<T>::getCurrent() const
 {
     if (generations_.size() == 0)
         throw std::logic_error("Cannot get information about a current generation that does not exist");
@@ -64,10 +64,8 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
         throw std::invalid_argument("Size " + std::to_string(next.size()) + "of next generation conflicts with size "
         + std::to_string(population_size_) + " of population history");   
     
-    generations_.emplace_back(next);
-
-    std::sort(generations_.back().begin(), generations_.back().end());
-    fittest_history_.push_back(generations_.back().back());
+    generations_.emplace_back(std::move(next));
+    fittest_history_.push_back(generations_.back().fittest());
 }
 
 template <typename T>
@@ -90,7 +88,7 @@ const Member<T>& PopulationHistory<T>::getFittest(std::size_t generation) const
     if (generation >= generations_.size())
         throw std::invalid_argument("Generation " + std::to_string(generation) + " does not exist. "
             + "The most recent generation has index " + std::to_string(generations_.size() - 1));
-    return generations_.back().back();
+    return getCurrent().fittest();
 }
 
 template <typename T>
