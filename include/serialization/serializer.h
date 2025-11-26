@@ -2,6 +2,7 @@
 #define SERIALIZER_H
 
 #include "core/member.h"
+#include "core/population_history.h"
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -9,11 +10,7 @@
 #include <cstdint>
 
 template <typename T>
-struct PopulationData {
-    uint32_t id;
-    std::vector<Member<T>> current_population;
-    std::vector<Member<T>> fittest_history;
-};
+class PopulationHistory;
 
 template <typename T>
 class Serializer
@@ -31,8 +28,8 @@ class Serializer
     public:
         Serializer(std::string problem_name);
 
-        bool save(PopulationData<T>& data, std::size_t generation, float fitness) const;
-        std::optional<PopulationData<T>> load(const std::string& id) const;
+        bool save(PopulationHistory<T>& pop) const;
+        std::optional<PopulationHistory<T>> load(const std::string& id) const;
         std::vector<std::string> getSaves() const;
         bool deleteSave(const std::string& id) const;
         bool deleteAllSaves() const;

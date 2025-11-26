@@ -4,6 +4,7 @@
 #include "controller/controller.h"
 #include "core/ga.h"
 #include "core/member.h"
+#include "core/population_history.h"
 #include "encoding/binary_encoding.h"
 #include "operator/selection.h"
 #include "serialization/serializer.h"

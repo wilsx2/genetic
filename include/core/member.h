@@ -6,8 +6,8 @@
 template <typename T>
 struct Member
 {
-    T value;
     float fitness;
+    T value;
 
     auto operator<=>(const Member& other) const {
         return fitness <=> other.fitness;

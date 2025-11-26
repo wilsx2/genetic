@@ -7,10 +7,10 @@ int main()
     (
         GeneticAlgorithm<int>(
             "number",
-            [](int& n){return -abs(1000 - n); },
+            [](const int& n){return -abs(1000 - n); },
             [](RNG& rng){return rng.integer(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());},
             [](int& n, RNG& rng){return n += rng.integer(-10000,10000); },
-            [](int& a, int& b, RNG&){return a/2 + b/2; },
+            [](const int& a, const int& b, RNG&){return a/2 + b/2; },
             selection::tournament<int, 5>,
             10000,
             .1f

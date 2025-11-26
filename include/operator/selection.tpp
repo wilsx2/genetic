@@ -2,7 +2,7 @@
 #include <utility>
 
 template<typename T, std::size_t N>
-T& selection::tournament(std::vector<Member<T>>& population, RNG& rng)
+const T& selection::tournament(const std::vector<Member<T>>& population, RNG& rng)
 {
     int i = rng.index(population.size());
 
@@ -19,7 +19,7 @@ T& selection::tournament(std::vector<Member<T>>& population, RNG& rng)
 }
 
 template<typename T>
-T& selection::rankBased(std::vector<Member<T>>& population, RNG& rng)
+const T& selection::rankBased(const std::vector<Member<T>>& population, RNG& rng)
 {
     auto size = population.size();
     int total_rank = size*(size+1)/2;

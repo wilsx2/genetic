@@ -51,7 +51,7 @@ BinaryEncoding<T> BinaryEncoding<T>::birth(RNG& rng)
 }
 
 template <typename T>
-BinaryEncoding<T> BinaryEncoding<T>::crossover(BinaryEncoding<T>& a, BinaryEncoding<T>& b, RNG& rng)
+BinaryEncoding<T> BinaryEncoding<T>::crossover(const BinaryEncoding<T>& a, const BinaryEncoding<T>& b, RNG& rng)
 {
     BinaryEncoding<T> offspring;
 
