@@ -16,6 +16,7 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     commands_["save"] = bindCommand<&Controller::save>();
     commands_["load"] = bindCommand<&Controller::load>();
     commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
+    // TODO: add list-saves
     commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
     commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
     commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
@@ -153,7 +154,14 @@ void Controller<T>::save()
 template<typename T>
 void Controller<T>::load(std::string id)
 {
-    ga_.loadPopulation(id);
+    if (ga_.loadPopulation(id))
+    {
+        std::cout << "Successfully loaded population " << id << "\n";
+    }
+    else
+    {
+        std::cout << "Failed to load population " << id << "\n";
+    }
 }
 
 template<typename T>

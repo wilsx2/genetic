@@ -101,7 +101,7 @@ bool Serializer<T>::save(PopulationHistory<T>& pop) const
 
     // Number of Generations
     std::size_t num_gens = pop.generations_.size();
-    output.write(reinterpret_cast<char*>(&num_gens), sizeof(uint32_t));
+    output.write(reinterpret_cast<char*>(&num_gens), sizeof(std::size_t));
     if (!output.good())
     {
         std::cerr << "Failed to write number of generations\n";
@@ -175,7 +175,7 @@ std::optional<PopulationHistory<T>> Serializer<T>::load(const std::string& id) c
 
     // Number of Generations
     std::size_t num_gens;
-    input.read(reinterpret_cast<char*>(&num_gens), sizeof(uint32_t));
+    input.read(reinterpret_cast<char*>(&num_gens), sizeof(std::size_t));
     if (!input.good())
     {
         std::cerr << "Failed to read number of generations\n";
