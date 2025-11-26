@@ -9,6 +9,7 @@ class Generation {
 
     private:
         std::vector<Member<T>> members_;
+        float total_fitness_; // Relevant to some selection functions
     
     public:
         Generation(std::vector<Member<T>>&& members);
@@ -17,6 +18,7 @@ class Generation {
         std::size_t size() const;
         const Member<T>& fittest() const;
         float fittestScore() const;
+        float totalFitness() const;
 };
 
 #include "generation.tpp"

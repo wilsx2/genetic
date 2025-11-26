@@ -3,8 +3,14 @@
 template <typename T>
 Generation<T>::Generation(std::vector<Member<T>>&& members)
     : members_(members)
+    , total_fitness_(0.f)
 {
     std::sort(members.begin(), members.end());
+
+    for (Member<T>& member : members)
+    {
+        total_fitness_ += member.fitness;
+    }
 }
 
 template <typename T>
@@ -35,4 +41,10 @@ template <typename T>
 float Generation<T>::fittestScore() const
 {
     return fittest().fitness;
+}
+
+template <typename T>
+float Generation<T>::totalFitness() const
+{
+    return total_fitness_;
 }
