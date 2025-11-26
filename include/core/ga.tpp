@@ -21,7 +21,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , elitism_rate_(elitism_rate)
     , serializer_(problem_)
     , rng_()
-    , population_(rng_.index(UINT32_MAX), population_size)
+    , population_(0, population_size)
 {
     if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
         throw std::invalid_argument("elitism_rate must be in the interval [0, 1]");
@@ -35,9 +35,7 @@ template <typename T>
 void GeneticAlgorithm<T>::restart()
 {
     std::size_t size = population_.populationSize();
-
-    if (population_.numGenerations() > 0)
-        population_.restart(rng_.index(UINT32_MAX), size);
+    population_.restart(rng_.index(UINT32_MAX), size);
     
     std::vector<Member<T>> next;
     next.reserve(size);

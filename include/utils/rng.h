@@ -6,7 +6,6 @@
 
 class RNG
 {
-    // TODO: make random seed actually random
     private:
         std::mt19937 gen_;
         
