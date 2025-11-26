@@ -66,10 +66,7 @@ void PopulationHistory<T>::pushNext(std::vector<Member<T>>&& next)
     
     generations_.emplace_back(next);
 
-    std::sort(generations_.back().begin(), generations_.back().end(),
-    [](const Member<T>& a, const Member<T>& b) {
-        return a.fitness < b.fitness;
-    });
+    std::sort(generations_.back().begin(), generations_.back().end());
     fittest_history_.push_back(generations_.back().back());
 }
 
