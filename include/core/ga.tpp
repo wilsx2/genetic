@@ -51,7 +51,7 @@ void GeneticAlgorithm<T>::restart()
 template <typename T>
 void GeneticAlgorithm<T>::evolve()
 {
-    const Generation<T>& parents = population_.getCurrent();
+    const Generation<T>& parents = population_.current();
 
     std::vector<Member<T>> next;
     next.reserve(population_.populationSize());

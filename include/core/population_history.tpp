@@ -43,7 +43,7 @@ const std::vector<Generation<T>>& PopulationHistory<T>::getGenerations() const
 }
 
 template <typename T>
-const Generation<T>& PopulationHistory<T>::getCurrent() const
+const Generation<T>& PopulationHistory<T>::current() const
 {
     if (generations_.size() == 0)
         throw std::logic_error("Cannot get information about a current generation that does not exist");
@@ -52,7 +52,7 @@ const Generation<T>& PopulationHistory<T>::getCurrent() const
 }
 
 template <typename T>
-const std::vector<Member<T>>& PopulationHistory<T>::getFittestHistory() const
+const std::vector<Member<T>>& PopulationHistory<T>::fittestHistory() const
 {
     return fittest_history_;
 }
@@ -79,26 +79,11 @@ void PopulationHistory<T>::restart(uint32_t new_id, std::size_t new_size)
 template <typename T>
 const Member<T>& PopulationHistory<T>::getFittest() const
 {
-    return getFittest(generations_.size() - 1);
-}
-
-template <typename T>
-const Member<T>& PopulationHistory<T>::getFittest(std::size_t generation) const
-{
-    if (generation >= generations_.size())
-        throw std::invalid_argument("Generation " + std::to_string(generation) + " does not exist. "
-            + "The most recent generation has index " + std::to_string(generations_.size() - 1));
-    return getCurrent().fittest();
+    return current().fittest();
 }
 
 template <typename T>
 float PopulationHistory<T>::getFittestScore() const
 {
-    return getFittest().fitness;
-}
-
-template <typename T>
-float PopulationHistory<T>::getFittestScore(std::size_t generation) const
-{
-    return getFittest(generation).fitness;
+    return current().fittestScore();
 }

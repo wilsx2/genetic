@@ -25,15 +25,13 @@ class PopulationHistory {
         std::size_t populationSize() const;
         std::size_t numGenerations() const;
         const std::vector<Generation<T>>& getGenerations() const;
-        const Generation<T>& getCurrent() const;
-        const std::vector<Member<T>>& getFittestHistory() const;
+        const Generation<T>& current() const;
+        const std::vector<Member<T>>& fittestHistory() const;
         void pushNext(std::vector<Member<T>>&& next);
         void restart(uint32_t new_id, std::size_t new_size);
 
         const Member<T>& getFittest() const;
-        const Member<T>& getFittest(std::size_t generation) const;
         float getFittestScore() const;
-        float getFittestScore(std::size_t generation) const;
 };
 
 #include "population_history.tpp"

@@ -208,13 +208,13 @@ void Controller<T>::viewGeneration(std::size_t i)
 template <typename T>
 void Controller<T>::viewCurrent()
 {
-    view_function_(ga_.getPopulation().getCurrent().members(), ViewType::Population);
+    view_function_(ga_.getPopulation().current().members(), ViewType::Population);
 }
 
 template <typename T>
 void Controller<T>::viewBest()
 {
-    view_function_(ga_.getPopulation().getFittestHistory(), ViewType::Generations);
+    view_function_(ga_.getPopulation().fittestHistory(), ViewType::Generations);
 }
 
 template <typename T>
@@ -293,7 +293,7 @@ void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_i
                 return true;
 
             float current_fittest = pop.getFittestScore();
-            float fittest_x_generations_ago = pop.getFittestHistory()[pop.numGenerations() - generations].fitness;
+            float fittest_x_generations_ago = pop.fittestHistory()[pop.numGenerations() - generations].fitness;
             
             float improvement = (current_fittest / fittest_x_generations_ago) - 1.f;
             float avg_improvement = improvement / static_cast<float>(generations);
