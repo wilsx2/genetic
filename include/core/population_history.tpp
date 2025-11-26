@@ -21,7 +21,7 @@ uint32_t PopulationHistory<T>::id() const
 template <typename T>
 std::string PopulationHistory<T>::formattedId() const
 {
-    return std::format("{:x}", id_);
+    return std::format("{:08x}", id_);
 }
 
 template <typename T>

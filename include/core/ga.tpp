@@ -20,6 +20,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     , selection_function_(std::move(select))
     , elitism_rate_(elitism_rate)
     , serializer_(problem_)
+    , rng_()
     , population_(rng_.index(UINT32_MAX), population_size)
 {
     if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
@@ -105,27 +106,19 @@ const PopulationHistory<T>& GeneticAlgorithm<T>::getPopulation() const
 template <typename T>
 bool GeneticAlgorithm<T>::savePopulation()
 {
-    // PopulationData<T> data;
-    // data.id = population_identifier_;
-    // data.current_population = population_;
-    // data.fittest_history = fittest_of_each_generation_;
-    
-    // return serializer_.save(data, getGeneration(), getFittestScore());
-    return false;
+    return serializer_.save(population_);
 }
 
 template <typename T>
 bool GeneticAlgorithm<T>::loadPopulation(std::string id)
 {
-    // std::optional<PopulationData<T>> data = serializer_.load(id);
+    std::optional<PopulationHistory<T>> data = serializer_.load(id);
 
-    // if (data.has_value())
-    // {
-    //     population_identifier_ = std::move(data->id);
-    //     population_ = std::move(data->current_population);
-    //     fittest_of_each_generation_ = std::move(data->fittest_history);
-    //     return true;
-    // }
+    if (data.has_value())
+    { 
+        population_ = data.value();
+        return true;
+    }
     return false;
 }
 

@@ -1,6 +1,7 @@
 #ifndef POPULATION_HISTORY_H
 #define POPULATION_HISTORY_H
 
+#include "serialization/serializer.h"
 #include "member.h"
 #include <string>
 #include <vector>
@@ -8,6 +9,8 @@
 
 template <typename T>
 class PopulationHistory {
+    friend class Serializer<T>;
+
     private:
         uint32_t id_;
         std::size_t population_size_;

@@ -12,13 +12,13 @@ Serializer<T>::Serializer(std::string problem_name):
 template <typename T>
 std::string Serializer<T>::formatFilename(uint32_t id, std::size_t generation, float fitness) const
 {
-    return std::format("{:x} G{} F{}", id, generation, fitness);
+    return std::format("{:08x} G{} F{}", id, generation, fitness);
 }
 
 template <typename T>
 std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(uint32_t id) const
 {
-    return findPopulationFile(std::format("{:x}", id));
+    return findPopulationFile(std::format("{:08x}", id));
 }
 
 template <typename T>
@@ -50,10 +50,11 @@ std::optional<std::filesystem::path> Serializer<T>::findPopulationFile(const std
 }
 
 template <typename T>
-bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float fitness) const
+bool Serializer<T>::save(PopulationHistory<T>& pop) const
 {
+    // TODO: delete created file if write fails
     // Check that there is data to save
-    if (data.fittest_history.size() == 0) {
+    if (pop.numGenerations() == 0) {
         return false;
     } 
 
@@ -61,12 +62,12 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     std::filesystem::create_directories(save_directory_);
 
     // Overwrite previous save of this population, if it exists
-    std::optional<std::filesystem::path> path = findPopulationFile(data.id);
+    std::optional<std::filesystem::path> path = findPopulationFile(pop.id_);
     if (path.has_value())
         std::filesystem::remove(path.value());
 
     // Begin saving
-    std::ofstream output (save_directory_+formatFilename(data.id, generation, fitness));
+    std::ofstream output (save_directory_+formatFilename(pop.id_, pop.numGenerations(), pop.getFittestScore()));
     
     if (!output.is_open()) {
         std::cerr << "Failed to create save file\n";
@@ -83,47 +84,40 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
     }
 
     // Identifier
-    output.write(reinterpret_cast<char*>(&data.id), sizeof(uint32_t));
+    output.write(reinterpret_cast<char*>(&pop.id_), sizeof(uint32_t));
     if (!output.good())
     {
         std::cerr << "Failed to write population identifier\n";
         return false;
     }
-    
-    // Fittest
-    /// Size
-    std::size_t size = data.fittest_history.size();
-    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+
+    // Population Size
+    output.write(reinterpret_cast<char*>(&pop.population_size_), sizeof(uint32_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write fittest history size\n";
+        std::cerr << "Failed to write population size\n";
         return false;
     }
 
-    /// Members
-    output.write(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size);
+    // Number of Generations
+    std::size_t num_gens = pop.generations_.size();
+    output.write(reinterpret_cast<char*>(&num_gens), sizeof(uint32_t));
     if (!output.good())
     {
-        std::cerr << "Failed to write fittest history data\n";
+        std::cerr << "Failed to write number of generations\n";
         return false;
     }
     
-    // Current Generation
-    /// Size
-    size = data.current_population.size();
-    output.write(reinterpret_cast<char*>(&size), sizeof(std::size_t));
-    if (!output.good())
+        
+    // Generations
+    for (int i = 0; i < num_gens; ++i)
     {
-        std::cerr << "Failed to write current generation size\n";
-        return false;
-    }
-    
-    /// Members
-    output.write(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size);
-    if (!output.good())
-    {
-        std::cerr << "Failed to write current generation data\n";
-        return false;
+        output.write(reinterpret_cast<char*>(pop.generations_[i].data()), sizeof(Member<T>)*pop.population_size_);
+        if (!output.good())
+        {
+            std::cerr << "Failed to write generation " << (i + 1) << "\n";
+            return false;
+        }
     }
 
     output.close();
@@ -131,10 +125,8 @@ bool Serializer<T>::save(PopulationData<T>& data, std::size_t generation, float 
 }
 
 template <typename T>
-std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id) const
+std::optional<PopulationHistory<T>> Serializer<T>::load(const std::string& id) const
 {
-    PopulationData<T> data;
-
     // Search for file with id provided
     std::optional<std::filesystem::path> path = findPopulationFile(id);
     if (!path.has_value())
@@ -164,53 +156,50 @@ std::optional<PopulationData<T>> Serializer<T>::load(const std::string& id) cons
     }
 
     // Identifier
-    input.read(reinterpret_cast<char*>(&data.id), sizeof(u_int32_t));
+    PopulationHistory<T> pop (0, 1);
+
+    input.read(reinterpret_cast<char*>(&pop.id_), sizeof(u_int32_t));
     if (!input.good())
     {
         std::cerr << "Failed to read population identifier";
         return std::nullopt;
     }
 
-    // Fittest
-    /// Size
-    std::size_t size;
-    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t));
+    // Population Size
+    input.read(reinterpret_cast<char*>(&pop.population_size_), sizeof(uint32_t));
     if (!input.good())
     {
-        std::cerr << "Failed to read fittest history size\n";
+        std::cerr << "Failed to read population size\n";
         return std::nullopt;
     }
 
-    /// Members
-    data.fittest_history.resize(size);
-    input.read(reinterpret_cast<char*>(data.fittest_history.data()), sizeof(Member<T>)*size); 
+    // Number of Generations
+    std::size_t num_gens;
+    input.read(reinterpret_cast<char*>(&num_gens), sizeof(uint32_t));
     if (!input.good())
     {
-        std::cerr << "Failed to read fittest history data\n";
+        std::cerr << "Failed to read number of generations\n";
         return std::nullopt;
     }
-
-    // Current Generation
-    /// Size
-    input.read(reinterpret_cast<char*>(&size), sizeof(std::size_t)); 
-    if (!input.good())
+    pop.generations_.resize(num_gens);
+        
+    // Generations
+    for (int i = 0; i < num_gens; ++i)
     {
-        std::cerr << "Failed to read current population size\n";
-        return std::nullopt;
-    }
+        pop.generations_[i].resize(pop.population_size_);
+        input.read(reinterpret_cast<char*>(pop.generations_[i].data()), sizeof(Member<T>)*pop.population_size_);
+        if (!input.good())
+        {
+            std::cerr << "Failed to read generation " << (i + 1) << "\n";
+            return std::nullopt;
+        }
 
-    /// Members
-    data.current_population.resize(size);
-    input.read(reinterpret_cast<char*>(data.current_population.data()), sizeof(Member<T>)*size); 
-    if (!input.good())
-    {
-        std::cerr << "Failed to read current population data\n";
-        return std::nullopt;
+        pop.fittest_history_.push_back(pop.generations_[i].back());
     }
 
     input.close();
 
-    return std::move(data);
+    return std::move(pop);
 }
 
 template <typename T>
