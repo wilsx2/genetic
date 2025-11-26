@@ -18,6 +18,7 @@ class Generation {
         std::size_t size() const;
         const Member<T>& fittest() const;
         float fittestScore() const;
+        float lowestScore() const;
         float totalFitness() const;
 };
 

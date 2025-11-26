@@ -44,6 +44,12 @@ float Generation<T>::fittestScore() const
 }
 
 template <typename T>
+float Generation<T>::lowestScore() const
+{
+    return members_[0].fitness;
+}
+
+template <typename T>
 float Generation<T>::totalFitness() const
 {
     return total_fitness_;
