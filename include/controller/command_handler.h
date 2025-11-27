@@ -18,7 +18,7 @@ class CommandHandler
 
     public:
         template<auto MemberFunc, typename C>
-        void bind(const std::string& name, C* instance);
+        void bind(const std::string& name, C& instance);
         void execute(const std::string& input);
 };
 

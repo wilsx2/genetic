@@ -1,4 +1,4 @@
-#include "command_handler.h"
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -17,18 +17,18 @@ V CommandHandler::fromString(const std::string& s)
 }
 
 template<auto MemberFunc, typename C>
-void CommandHandler::bind(const std::string& name, C* instance)
+void CommandHandler::bind(const std::string& name, C& instance)
 {
     // This method was written by AI
     
-    commands_[name] = [instance](ArgumentList args)
+    commands_[name] = [ref = std::ref(instance)](ArgumentList args)
     {
         using Func = decltype(MemberFunc);
         
         // Deduce the argument types from the member function pointer
         constexpr auto invoke_with_args = []<typename R, typename Class, typename... Args>(R (Class::*)(Args...))
         {
-            return [](C* obj, ArgumentList args_list) -> void
+            return [](C& obj, ArgumentList args_list) -> void
             {
                 constexpr size_t N = sizeof...(Args);
                 
@@ -47,9 +47,9 @@ void CommandHandler::bind(const std::string& name, C* instance)
                     }(std::make_index_sequence<N>{});
 
                     // Call the member function
-                    std::apply([obj](auto&&... converted_args)
+                    std::apply([&obj](auto&&... converted_args)
                     {
-                        (obj->*MemberFunc)(std::forward<decltype(converted_args)>(converted_args)...);
+                        (obj.*MemberFunc)(std::forward<decltype(converted_args)>(converted_args)...);
                     }, converted);
                 }
                 catch (const std::exception&)
@@ -74,7 +74,7 @@ void CommandHandler::bind(const std::string& name, C* instance)
             };
         }(MemberFunc);
 
-        invoke_with_args(instance, args);
+        invoke_with_args(ref.get(), args);
     };
 }
 

@@ -12,97 +12,27 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     : ga_(ga)
     , view_function_(view)
 {
-    commands_["quit"] = [&](ArgumentList args){ running_ = false; };
-    commands_["exit"] = [&](ArgumentList args){ running_ = false; };
-    commands_["stats"] = bindCommand<&Controller::printStats>();
-    commands_["restart"] = bindCommand<&Controller::restart>();
-    commands_["save"] = bindCommand<&Controller::save>();
-    commands_["load"] = bindCommand<&Controller::load>();
-    commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
-    // TODO: add list-saves
-    commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
-    commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
-    commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
-    commands_["view-best"] = bindCommand<&Controller::viewBest>();
-    commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
-    commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
-    commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
-    commands_["evolve-until-generation"] = bindCommand<&Controller::evolveUntilGeneration>();
-    commands_["evolve-until-stagnant"] = bindCommand<&Controller::evolveUntilStagnant>();
-}
+    command_handler_.bind<&Controller::stop>("quit", *this);
+    command_handler_.bind<&Controller::stop>("exit", *this);
+    command_handler_.bind<&Controller::stop>("quit", *this);
 
-template <typename T>
-template <typename V>
-V Controller<T>::fromString(const std::string& s) {
-    std::istringstream iss(s);
-    V value;
-    iss >> value;
-    if (iss.fail() || !iss.eof()) {
-        throw std::invalid_argument("Cannot convert string to target type");
-    }
-    return value;
-}
-
-template<typename T>
-template<auto MemberFunc>
-typename Controller<T>::CommandCallback Controller<T>::bindCommand()
-{
-    // This method was written by AI
-    return [this](ArgumentList args)
-    {
-        using Func = decltype(MemberFunc);
-        
-        // Deduce the argument types from the member function pointer
-        constexpr auto invoke_with_args = []<typename R, typename C, typename... Args>(R (C::*)(Args...))
-        {
-            return [](Controller* self, ArgumentList args_list) -> void
-            {
-                constexpr size_t N = sizeof...(Args);
-                
-                if (args_list.size() != N)
-                {
-                    std::cerr << "Expected " << N << " argument(s), received " << args_list.size() << "\n";
-                    return;
-                }
-
-                try
-                {
-                    // Convert arguments using index sequence
-                    auto converted = [&]<size_t... I>(std::index_sequence<I...>)
-                    {
-                        return std::tuple{self->template fromString<Args>(args_list[I])...};
-                    }(std::make_index_sequence<N>{});
-
-                    // Call the member function
-                    std::apply([self](auto&&... converted_args)
-                    {
-                        (self->*MemberFunc)(std::forward<decltype(converted_args)>(converted_args)...);
-                    }, converted);
-                }
-                catch (const std::exception&)
-                {
-                    // Find which argument failed by trying to convert each one
-                    [&]<size_t... I>(std::index_sequence<I...>)
-                    {
-                        (([]<size_t Idx>(Controller* s, const std::string& arg)
-                        {
-                            try
-                            {
-                                using ArgType = std::tuple_element_t<Idx, std::tuple<Args...>>;
-                                s->template fromString<ArgType>(arg);
-                            }
-                            catch (const std::exception&)
-                            {
-                                std::cerr << "Invalid argument \"" << arg << "\"\n";
-                            }
-                        }.template operator()<I>(self, args_list[I])), ...);
-                    }(std::make_index_sequence<N>{});
-                }
-            };
-        }(MemberFunc);
-
-        invoke_with_args(this, args);
-    };
+    // commands_["quit"] = [&](ArgumentList args){ running_ = false; };
+    // commands_["exit"] = [&](ArgumentList args){ running_ = false; };
+    // commands_["stats"] = bindCommand<&Controller::printStats>();
+    // commands_["restart"] = bindCommand<&Controller::restart>();
+    // commands_["save"] = bindCommand<&Controller::save>();
+    // commands_["load"] = bindCommand<&Controller::load>();
+    // commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
+    // // TODO: add list-saves
+    // commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
+    // commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
+    // commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
+    // commands_["view-best"] = bindCommand<&Controller::viewBest>();
+    // commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
+    // commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
+    // commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
+    // commands_["evolve-until-generation"] = bindCommand<&Controller::evolveUntilGeneration>();
+    // commands_["evolve-until-stagnant"] = bindCommand<&Controller::evolveUntilStagnant>();
 }
 
 template<typename T>
@@ -114,32 +44,14 @@ void Controller<T>::run()
     {
         std::cout << "[" << ga_.getProblem() << "]> ";
         if(!std::getline(std::cin, input)) return;
-        executeCommand(input);
+        command_handler_.execute(input);
     }
 }
 
 template<typename T>
-void Controller<T>::executeCommand(const std::string& input)
+void Controller<T>::stop()
 {
-    std::istringstream ss(input);
-    std::string command;
-    std::vector<std::string> args;
-
-    ss >> command;
-
-    std::string arg;
-    while (ss >> arg)
-        args.push_back(arg);
-
-    auto it = commands_.find(command);
-    if (it != commands_.end())
-    {
-        it->second(args);
-    }
-    else
-    {
-        std::cout << "Command \"" << input << "\" not recognized. Try again\n";
-    }
+    running_ = false;
 }
 
 template<typename T>
