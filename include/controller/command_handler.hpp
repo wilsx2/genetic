@@ -5,6 +5,9 @@
 #include <tuple>
 #include <type_traits>
 
+namespace util
+{
+
 template <typename V>
 V CommandHandler::fromString(const std::string& s)
 {
@@ -100,4 +103,6 @@ void CommandHandler::execute(const std::string& input)
     {
         std::cout << "Command \"" << input << "\" not recognized. Try again\n";
     }
+}
+
 }

@@ -20,7 +20,7 @@ class Controller
         using EvolutionCondition = std::function<bool(const PopulationHistory<T>& pop, float time)>;
 
         GeneticAlgorithm<T> ga_;
-        CommandHandler command_handler_;
+        util::CommandHandler command_handler_;
         const ViewCallback view_function_;
         bool running_;
     

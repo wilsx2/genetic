@@ -6,6 +6,9 @@
 #include <functional>
 #include <map>
 
+namespace util
+{
+
 class CommandHandler
 {
     private:
@@ -21,6 +24,8 @@ class CommandHandler
         void bind(const std::string& name, C& instance);
         void execute(const std::string& input);
 };
+
+}
 
 #include "command_handler.hpp"
 #endif
