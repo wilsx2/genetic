@@ -17,7 +17,8 @@ namespace genetic
 {
 
 template <typename T>
-class GeneticAlgorithm {
+class GeneticAlgorithm
+{
     private:
         using FitnessFunction = std::function<float(const T&)>;
         using BirthFunction = std::function<T(util::RNG&)>;
@@ -41,16 +42,19 @@ class GeneticAlgorithm {
         inline std::size_t numElites();
         
     public:
-        GeneticAlgorithm(
-            std::string problem,
-            FitnessFunction fitness,
-            BirthFunction birth,
-            MutationOperator mutate,
-            CrossoverOperator crossover,
-            selection::Function<T> select,
-            std::size_t population_size,
-            float elitism_rate
-        );
+        struct Config
+        {
+            std::string problem;
+            FitnessFunction fitness;
+            BirthFunction birth;
+            MutationOperator mutate;
+            CrossoverOperator crossover;
+            selection::Function<T> select = selection::tournament<int, 5>;
+            std::size_t population_size = 1000;
+            float elitism_rate = .1f;
+        };
+
+        GeneticAlgorithm(Config& config);
         void restart();
         void evolve();
         

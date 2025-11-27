@@ -6,27 +6,19 @@ namespace genetic
 {
 
 template <typename T>
-GeneticAlgorithm<T>::GeneticAlgorithm(
-    std::string problem,
-    FitnessFunction fitness,
-    BirthFunction birth,
-    MutationOperator mutate,
-    CrossoverOperator crossover,
-    selection::Function<T> select,
-    std::size_t population_size,
-    float elitism_rate
-)   : problem_(std::move(problem))
-    , birth_function_(std::move(birth))
-    , fitness_function_(std::move(fitness))
-    , mutate_function_(std::move(mutate))
-    , crossover_function_(std::move(crossover))
-    , selection_function_(std::move(select))
-    , elitism_rate_(elitism_rate)
+GeneticAlgorithm<T>::GeneticAlgorithm(Config& config)
+    : problem_(std::move(config.problem))
+    , birth_function_(std::move(config.birth))
+    , fitness_function_(std::move(config.fitness))
+    , mutate_function_(std::move(config.mutate))
+    , crossover_function_(std::move(config.crossover))
+    , selection_function_(std::move(config.select))
+    , elitism_rate_(config.elitism_rate)
     , serializer_(problem_)
     , rng_()
-    , population_(0, population_size)
+    , population_(0, config.population_size)
 {
-    if (!(elitism_rate >= 0.f && elitism_rate <= 1.f))
+    if (!(elitism_rate_ >= 0.f && elitism_rate_ <= 1.f))
         throw std::invalid_argument("elitism_rate must be in the interval [0, 1]");
     if (problem_.size() == 0)
         throw std::invalid_argument("problem name must be non-empty");
