@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 
 template <typename V>
 V CommandHandler::fromString(const std::string& s)
@@ -43,7 +44,7 @@ void CommandHandler::bind(const std::string& name, C& instance)
                     // Convert arguments using index sequence
                     auto converted = [&]<size_t... I>(std::index_sequence<I...>)
                     {
-                        return std::tuple{CommandHandler::fromString<Args>(args_list[I])...};
+                        return std::tuple{CommandHandler::fromString<std::remove_cvref_t<Args>>(args_list[I])...};
                     }(std::make_index_sequence<N>{});
 
                     // Call the member function
@@ -61,7 +62,7 @@ void CommandHandler::bind(const std::string& name, C& instance)
                         {
                             try
                             {
-                                using ArgType = std::tuple_element_t<Idx, std::tuple<Args...>>;
+                                using ArgType = std::remove_cvref_t<std::tuple_element_t<Idx, std::tuple<Args...>>>;
                                 CommandHandler::fromString<ArgType>(arg);
                             }
                             catch (const std::exception&)

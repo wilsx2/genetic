@@ -1,4 +1,5 @@
 #include "controller.h"
+#include <iostream>
 #include <sstream>
 #include <cctype>
 #include <chrono>
@@ -8,9 +9,10 @@ namespace genetic
 {
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view)
     : ga_(ga)
     , view_function_(view)
+    , running_(false)
 {
     command_handler_.bind<&Controller::stop>("quit", *this);
     command_handler_.bind<&Controller::stop>("exit", *this);
@@ -63,7 +65,7 @@ void Controller<T>::save()
 }
 
 template<typename T>
-void Controller<T>::load(std::string id)
+void Controller<T>::load(const std::string& id)
 {
     if (ga_.loadPopulation(id))
     {
@@ -76,7 +78,7 @@ void Controller<T>::load(std::string id)
 }
 
 template<typename T>
-void Controller<T>::deleteSave(std::string id)
+void Controller<T>::deleteSave(const std::string& id)
 {
     ga_.deleteSave(id);
 }
@@ -92,7 +94,7 @@ void Controller<T>::listSaves()
 {
     std::vector<std::string> saves = ga_.getSaves();
 
-    for (auto& save : saves)
+    for (const auto& save : saves)
     {
         std::cout << save << "\n";
     }
@@ -129,6 +131,21 @@ void Controller<T>::viewBest()
 }
 
 template <typename T>
+void Controller<T>::EvolutionDisplay::update(int generation, float fitness, float time)
+{
+    std::cout << CLEAR_LINE << "Generation:     " << generation << "\n";
+    std::cout << CLEAR_LINE << "Fittest Score:  " << fitness << "\n";
+    std::cout << CLEAR_LINE << "Time Elapsed:   " << time << "s\n";
+    std::cout << MOVE_UP_3;
+}
+
+template <typename T>
+void Controller<T>::EvolutionDisplay::finalize()
+{
+    std::cout << "\n\n\n";
+}
+
+template <typename T>
 void Controller<T>::evolve(EvolutionCondition condition)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -139,17 +156,16 @@ void Controller<T>::evolve(EvolutionCondition condition)
         time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() / 1000.f;
     };
 
+    EvolutionDisplay display;
     while (condition(ga_.getPopulation(), time_elapsed))
     {
         ga_.evolve();
         calculate_time_elapsed();
-
-        std::cout << "\033[2K" << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
-        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getPopulation().currentFittestScore() << "\n";
-        std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
-        std::cout << "\x1b[A\x1b[A\x1b[A";
+        display.update(ga_.getPopulation().numGenerations(), 
+                      ga_.getPopulation().currentFittestScore(), 
+                      time_elapsed);
     }
-    std::cout << "\n\n\n";
+    display.finalize();
 }
 
 template <typename T>

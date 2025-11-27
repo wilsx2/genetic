@@ -19,29 +19,41 @@ class Controller
         using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
         using EvolutionCondition = std::function<bool(const PopulationHistory<T>& pop, float time)>;
 
+        struct EvolutionDisplay {
+            static constexpr const char* CLEAR_LINE = "\033[2K";
+            static constexpr const char* MOVE_UP_3 = "\x1b[A\x1b[A\x1b[A";
+            
+            void update(int generation, float fitness, float time);
+            void finalize();
+        };
+
         GeneticAlgorithm<T> ga_;
         CommandHandler command_handler_;
         const ViewCallback view_function_;
         bool running_;
     
     public:
-        Controller(GeneticAlgorithm<T>&& ga, ViewCallback view);
+        // Lifecycle
+        Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view);
         void run();
         void stop();
 
+        // Save management
         void restart();
         void save();
-        void load(std::string id);
+        void load(const std::string& id);
         void listSaves();
-        void deleteSave(std::string id);
+        void deleteSave(const std::string& id);
         void deleteAllSaves();
 
+        // Viewing
         void printStats();
         void viewGeneration(std::size_t i);
         void viewCurrent();
         void viewBest();
 
-        void evolve(EvolutionCondition break_condition);
+        // Evolution
+        void evolve(EvolutionCondition condition);
         void evolveGenerations(int generations);
         void evolveSeconds(float seconds);
         void evolveUntilFitness(float target_fitness);
