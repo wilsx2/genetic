@@ -1,6 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "command_handler.h"
 #include "core/ga.h"
 #include <string>
 #include <functional>
@@ -15,39 +16,36 @@ template<typename T>
 class Controller
 {
     private:
-        using ArgumentList = std::vector<std::string>&;
-        using CommandCallback = std::function<void(ArgumentList)>;
         using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
         using EvolutionCondition = std::function<bool(const PopulationHistory<T>& pop, float time)>;
 
         GeneticAlgorithm<T> ga_;
-        std::map<std::string, CommandCallback> commands_;
+        CommandHandler command_handler_;
         const ViewCallback view_function_;
         bool running_;
-
-        template <typename V>
-        static V fromString(const std::string& s);
-        template<auto MemberFunc>
-        CommandCallback bindCommand();
-        void executeCommand(const std::string& input);
     
     public:
-        Controller(GeneticAlgorithm<T>&& ga, ViewCallback view);
+        // Lifecycle
+        Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view);
         void run();
+        void stop();
 
+        // Save management
         void restart();
         void save();
-        void load(std::string id);
+        void load(const std::string& id);
         void listSaves();
-        void deleteSave(std::string id);
+        void deleteSave(const std::string& id);
         void deleteAllSaves();
 
+        // Viewing
         void printStats();
         void viewGeneration(std::size_t i);
         void viewCurrent();
         void viewBest();
 
-        void evolve(EvolutionCondition break_condition);
+        // Evolution
+        void evolve(EvolutionCondition condition);
         void evolveGenerations(int generations);
         void evolveSeconds(float seconds);
         void evolveUntilFitness(float target_fitness);

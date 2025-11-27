@@ -1,4 +1,5 @@
 #include "controller.h"
+#include <iostream>
 #include <sstream>
 #include <cctype>
 #include <chrono>
@@ -8,101 +9,28 @@ namespace genetic
 {
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view)
     : ga_(ga)
     , view_function_(view)
+    , running_(false)
 {
-    commands_["quit"] = [&](ArgumentList args){ running_ = false; };
-    commands_["exit"] = [&](ArgumentList args){ running_ = false; };
-    commands_["stats"] = bindCommand<&Controller::printStats>();
-    commands_["restart"] = bindCommand<&Controller::restart>();
-    commands_["save"] = bindCommand<&Controller::save>();
-    commands_["load"] = bindCommand<&Controller::load>();
-    commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
-    // TODO: add list-saves
-    commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
-    commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
-    commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
-    commands_["view-best"] = bindCommand<&Controller::viewBest>();
-    commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
-    commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
-    commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
-    commands_["evolve-until-generation"] = bindCommand<&Controller::evolveUntilGeneration>();
-    commands_["evolve-until-stagnant"] = bindCommand<&Controller::evolveUntilStagnant>();
-}
-
-template <typename T>
-template <typename V>
-V Controller<T>::fromString(const std::string& s) {
-    std::istringstream iss(s);
-    V value;
-    iss >> value;
-    if (iss.fail() || !iss.eof()) {
-        throw std::invalid_argument("Cannot convert string to target type");
-    }
-    return value;
-}
-
-template<typename T>
-template<auto MemberFunc>
-typename Controller<T>::CommandCallback Controller<T>::bindCommand()
-{
-    // This method was written by AI
-    return [this](ArgumentList args)
-    {
-        using Func = decltype(MemberFunc);
-        
-        // Deduce the argument types from the member function pointer
-        constexpr auto invoke_with_args = []<typename R, typename C, typename... Args>(R (C::*)(Args...))
-        {
-            return [](Controller* self, ArgumentList args_list) -> void
-            {
-                constexpr size_t N = sizeof...(Args);
-                
-                if (args_list.size() != N)
-                {
-                    std::cerr << "Expected " << N << " argument(s), received " << args_list.size() << "\n";
-                    return;
-                }
-
-                try
-                {
-                    // Convert arguments using index sequence
-                    auto converted = [&]<size_t... I>(std::index_sequence<I...>)
-                    {
-                        return std::tuple{self->template fromString<Args>(args_list[I])...};
-                    }(std::make_index_sequence<N>{});
-
-                    // Call the member function
-                    std::apply([self](auto&&... converted_args)
-                    {
-                        (self->*MemberFunc)(std::forward<decltype(converted_args)>(converted_args)...);
-                    }, converted);
-                }
-                catch (const std::exception&)
-                {
-                    // Find which argument failed by trying to convert each one
-                    [&]<size_t... I>(std::index_sequence<I...>)
-                    {
-                        (([]<size_t Idx>(Controller* s, const std::string& arg)
-                        {
-                            try
-                            {
-                                using ArgType = std::tuple_element_t<Idx, std::tuple<Args...>>;
-                                s->template fromString<ArgType>(arg);
-                            }
-                            catch (const std::exception&)
-                            {
-                                std::cerr << "Invalid argument \"" << arg << "\"\n";
-                            }
-                        }.template operator()<I>(self, args_list[I])), ...);
-                    }(std::make_index_sequence<N>{});
-                }
-            };
-        }(MemberFunc);
-
-        invoke_with_args(this, args);
-    };
+    command_handler_.bind<&Controller::stop>("quit", *this);
+    command_handler_.bind<&Controller::stop>("exit", *this);
+    command_handler_.bind<&Controller::restart>("restart", *this);
+    command_handler_.bind<&Controller::save>("save", *this);
+    command_handler_.bind<&Controller::load>("load", *this);
+    command_handler_.bind<&Controller::deleteSave>("delete-save", *this);
+    command_handler_.bind<&Controller::deleteAllSaves>("delete-all-saves", *this);
+    command_handler_.bind<&Controller::listSaves>("list-saves", *this);
+    command_handler_.bind<&Controller::printStats>("stats", *this);
+    command_handler_.bind<&Controller::viewGeneration>("view-generation", *this);
+    command_handler_.bind<&Controller::viewCurrent>("view-current", *this);
+    command_handler_.bind<&Controller::viewBest>("view-best", *this);
+    command_handler_.bind<&Controller::evolveGenerations>("evolve-generations", *this);
+    command_handler_.bind<&Controller::evolveSeconds>("evolve-seconds", *this);
+    command_handler_.bind<&Controller::evolveUntilFitness>("evolve-until-fitness", *this);
+    command_handler_.bind<&Controller::evolveUntilGeneration>("evolve-until-generation", *this);
+    command_handler_.bind<&Controller::evolveUntilStagnant>("evolve-until-stagnant", *this);
 }
 
 template<typename T>
@@ -114,32 +42,14 @@ void Controller<T>::run()
     {
         std::cout << "[" << ga_.getProblem() << "]> ";
         if(!std::getline(std::cin, input)) return;
-        executeCommand(input);
+        command_handler_.execute(input);
     }
 }
 
 template<typename T>
-void Controller<T>::executeCommand(const std::string& input)
+void Controller<T>::stop()
 {
-    std::istringstream ss(input);
-    std::string command;
-    std::vector<std::string> args;
-
-    ss >> command;
-
-    std::string arg;
-    while (ss >> arg)
-        args.push_back(arg);
-
-    auto it = commands_.find(command);
-    if (it != commands_.end())
-    {
-        it->second(args);
-    }
-    else
-    {
-        std::cout << "Command \"" << input << "\" not recognized. Try again\n";
-    }
+    running_ = false;
 }
 
 template<typename T>
@@ -155,7 +65,7 @@ void Controller<T>::save()
 }
 
 template<typename T>
-void Controller<T>::load(std::string id)
+void Controller<T>::load(const std::string& id)
 {
     if (ga_.loadPopulation(id))
     {
@@ -168,7 +78,7 @@ void Controller<T>::load(std::string id)
 }
 
 template<typename T>
-void Controller<T>::deleteSave(std::string id)
+void Controller<T>::deleteSave(const std::string& id)
 {
     ga_.deleteSave(id);
 }
@@ -184,7 +94,7 @@ void Controller<T>::listSaves()
 {
     std::vector<std::string> saves = ga_.getSaves();
 
-    for (auto& save : saves)
+    for (const auto& save : saves)
     {
         std::cout << save << "\n";
     }
@@ -231,15 +141,16 @@ void Controller<T>::evolve(EvolutionCondition condition)
         time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() / 1000.f;
     };
 
+    static constexpr const char* CLEAR_LINE = "\033[2K";
+    static constexpr const char* MOVE_UP_3 = "\x1b[A\x1b[A\x1b[A";
     while (condition(ga_.getPopulation(), time_elapsed))
     {
         ga_.evolve();
         calculate_time_elapsed();
-
-        std::cout << "\033[2K" << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
-        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getPopulation().currentFittestScore() << "\n";
-        std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
-        std::cout << "\x1b[A\x1b[A\x1b[A";
+        std::cout << CLEAR_LINE << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
+        std::cout << CLEAR_LINE << "Fittest Score:  " << ga_.getPopulation().currentFittestScore() << "\n";
+        std::cout << CLEAR_LINE << "Time Elapsed:   " << time_elapsed << "s\n";
+        std::cout << MOVE_UP_3;
     }
     std::cout << "\n\n\n";
 }

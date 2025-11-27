@@ -2,6 +2,7 @@
 #define COMMAND_HANDLER_H
 
 #include <string>
+#include <vector>
 #include <functional>
 #include <map>
 
@@ -14,13 +15,12 @@ class CommandHandler
 
         template <typename V>
         static V fromString(const std::string& s);
-        template<auto MemberFunc>
-        CommandCallback bindCommand();
 
     public:
-        template<auto MemberFunc>
-        void assign(const std::string& name);
+        template<auto MemberFunc, typename C>
+        void bind(const std::string& name, C& instance);
         void execute(const std::string& input);
-}
+};
 
+#include "command_handler.hpp"
 #endif
