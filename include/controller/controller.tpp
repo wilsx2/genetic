@@ -192,7 +192,7 @@ void Controller<T>::printStats()
 {
     const auto& pop = ga_.getPopulation();
     std::cout   << "Generation:     " << pop.numGenerations() << "\n"
-                << "Fittest Score:  " << pop.getFittestScore() << "\n"
+                << "Fittest Score:  " << pop.currentFittestScore() << "\n"
                 << "Population ID:  " << pop.formattedId() << "\n";
 }
 
@@ -200,7 +200,7 @@ template <typename T>
 void Controller<T>::viewGeneration(std::size_t i)
 {
     if (i < ga_.getPopulation().numGenerations())
-        view_function_(ga_.getPopulation().getGenerations()[i].members(), ViewType::Population);
+        view_function_(ga_.getPopulation().generation(i).members(), ViewType::Population);
     else
         std::cerr << "Input generation does not exist\n";
 }
@@ -234,7 +234,7 @@ void Controller<T>::evolve(EvolutionCondition condition)
         calculate_time_elapsed();
 
         std::cout << "\033[2K" << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
-        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getPopulation().getFittestScore() << "\n";
+        std::cout << "\033[2K" << "Fittest Score:  " << ga_.getPopulation().currentFittestScore() << "\n";
         std::cout << "\033[2K" << "Time Elapsed:   " << time_elapsed << "s\n";
         std::cout << "\x1b[A\x1b[A\x1b[A";
     }
@@ -276,7 +276,7 @@ void Controller<T>::evolveUntilFitness(float target_fitness)
     int start = ga_.getPopulation().numGenerations();
     EvolutionCondition cond = [target_fitness, start](const PopulationHistory<T>& pop, float)
     {
-        return pop.getFittestScore() < target_fitness && pop.numGenerations() - start < TIMEOUT;
+        return pop.currentFittestScore() < target_fitness && pop.numGenerations() - start < TIMEOUT;
     };
     
     evolve(cond);
@@ -292,7 +292,7 @@ void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_i
             if (pop.numGenerations() < generations)
                 return true;
 
-            float current_fittest = pop.getFittestScore();
+            float current_fittest = pop.currentFittestScore();
             float fittest_x_generations_ago = pop.fittestHistory()[pop.numGenerations() - generations].fitness;
             
             float improvement = (current_fittest / fittest_x_generations_ago) - 1.f;

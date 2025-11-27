@@ -37,9 +37,9 @@ std::size_t PopulationHistory<T>::numGenerations() const
 }
 
 template <typename T>
-const std::vector<Generation<T>>& PopulationHistory<T>::getGenerations() const
+const Generation<T>& PopulationHistory<T>::generation(std::size_t i) const
 {
-    return generations_;
+    return generations_[i];
 }
 
 template <typename T>
@@ -77,13 +77,7 @@ void PopulationHistory<T>::restart(uint32_t new_id, std::size_t new_size)
 }
 
 template <typename T>
-const Member<T>& PopulationHistory<T>::getFittest() const
-{
-    return current().fittest();
-}
-
-template <typename T>
-float PopulationHistory<T>::getFittestScore() const
+float PopulationHistory<T>::currentFittestScore() const
 {
     return current().fittestScore();
 }

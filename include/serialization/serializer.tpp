@@ -67,7 +67,7 @@ bool Serializer<T>::save(PopulationHistory<T>& pop) const
         std::filesystem::remove(path.value());
 
     // Begin saving
-    std::ofstream output (save_directory_+formatFilename(pop.id_, pop.numGenerations(), pop.getFittestScore()));
+    std::ofstream output (save_directory_+formatFilename(pop.id_, pop.numGenerations(), pop.currentFittestScore()));
     
     if (!output.is_open()) {
         std::cerr << "Failed to create save file\n";
