@@ -8,6 +8,9 @@
 #include <vector>
 #include <cstdint>
 
+namespace genetic 
+{
+
 template <typename T>
 class PopulationHistory {
     friend class Serializer<T>;
@@ -32,6 +35,8 @@ class PopulationHistory {
 
         float currentFittestScore() const;
 };
+
+}
 
 #include "population_history.tpp"
 #endif

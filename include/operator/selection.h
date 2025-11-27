@@ -6,19 +6,24 @@
 #include <vector>
 #include <functional>
 
+namespace genetic 
+{
+
 namespace selection
 {
 template <typename T>
-using Func = std::function<const T&(const Generation<T>&, RNG& rng)>;
+using Func = std::function<const T&(const Generation<T>&, util::RNG& rng)>;
 
 template<typename T, std::size_t N>
-const T& tournament(const Generation<T>& generation, RNG& rng);
+const T& tournament(const Generation<T>& generation, util::RNG& rng);
 
 template<typename T>
-const T& rankBased(const Generation<T>& generation, RNG& rng);
+const T& rankBased(const Generation<T>& generation, util::RNG& rng);
 
 template<typename T>
-const T& roulette(const Generation<T>& generation, RNG& rng);
+const T& roulette(const Generation<T>& generation, util::RNG& rng);
+
+}
 
 }
 

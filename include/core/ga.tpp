@@ -2,6 +2,9 @@
 #include <cassert>
 #include <ctime>
 
+namespace genetic 
+{
+
 template <typename T>
 GeneticAlgorithm<T>::GeneticAlgorithm(
     std::string problem,
@@ -136,4 +139,6 @@ template <typename T>
 bool GeneticAlgorithm<T>::deleteAllSaves() const
 {
     return serializer_.deleteAllSaves();
+}
+
 }

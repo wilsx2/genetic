@@ -3,6 +3,9 @@
 
 #include "member.h"
 
+namespace genetic 
+{
+
 template <typename T>
 class Generation {
     friend class Serializer<T>;
@@ -21,6 +24,8 @@ class Generation {
         float lowestScore() const;
         float totalFitness() const;
 };
+
+}
 
 #include "generation.tpp"
 #endif

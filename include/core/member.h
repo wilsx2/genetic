@@ -3,6 +3,9 @@
 
 #include <compare>
 
+namespace genetic 
+{
+
 template <typename T>
 struct Member
 {
@@ -17,5 +20,7 @@ struct Member
         return fitness == other.fitness;
     }
 };
+
+}
 
 #endif

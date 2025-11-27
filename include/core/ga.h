@@ -13,13 +13,16 @@
 #include <filesystem>
 #include "utils/rng.h"
 
+namespace genetic 
+{
+
 template <typename T>
 class GeneticAlgorithm {
     private:
         using FitnessFunction = std::function<float(const T&)>;
-        using BirthFunction = std::function<T(RNG&)>;
-        using MutationOperator = std::function<void(T&, RNG&)>;
-        using CrossoverOperator = std::function<T(const T&, const T&, RNG&)>;
+        using BirthFunction = std::function<T(util::RNG&)>;
+        using MutationOperator = std::function<void(T&, util::RNG&)>;
+        using CrossoverOperator = std::function<T(const T&, const T&, util::RNG&)>;
 
         const std::string problem_;
         PopulationHistory<T> population_;
@@ -33,7 +36,7 @@ class GeneticAlgorithm {
         selection::Func<T> selection_function_;
 
         Serializer<T> serializer_;
-        RNG rng_;
+        util::RNG rng_;
 
         inline std::size_t numElites();
         
@@ -61,6 +64,8 @@ class GeneticAlgorithm {
         bool deleteSave(const std::string& id) const;
         bool deleteAllSaves() const;
 };
+
+}
 
 #include "ga.tpp"
 #endif

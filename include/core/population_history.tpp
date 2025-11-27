@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <format>
 
+namespace genetic 
+{
+
 template <typename T>
 PopulationHistory<T>::PopulationHistory(uint32_t id, std::size_t population_size)
     : id_(id)
@@ -80,4 +83,6 @@ template <typename T>
 float PopulationHistory<T>::currentFittestScore() const
 {
     return current().fittestScore();
+}
+
 }

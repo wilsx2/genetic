@@ -2,8 +2,11 @@
 #include <utility>
 #include <stdexcept>
 
+namespace genetic 
+{
+
 template<typename T, std::size_t N>
-const T& selection::tournament(const Generation<T>& generation, RNG& rng)
+const T& selection::tournament(const Generation<T>& generation, util::RNG& rng)
 {
     int i = rng.index(generation.size());
 
@@ -20,7 +23,7 @@ const T& selection::tournament(const Generation<T>& generation, RNG& rng)
 }
 
 template<typename T>
-const T& selection::rankBased(const Generation<T>& generation, RNG& rng)
+const T& selection::rankBased(const Generation<T>& generation, util::RNG& rng)
 {
     auto size = generation.size();
     int total_rank = size*(size+1)/2;
@@ -36,7 +39,7 @@ const T& selection::rankBased(const Generation<T>& generation, RNG& rng)
 }
 
 template<typename T>
-const T& selection::roulette(const Generation<T>& generation, RNG& rng)
+const T& selection::roulette(const Generation<T>& generation, util::RNG& rng)
 {
     if (generation.lowestScore() < 0.f)
         throw std::invalid_argument("Generation cannot have negative fitness scores");
@@ -49,4 +52,6 @@ const T& selection::roulette(const Generation<T>& generation, RNG& rng)
         ++i;
     }
     return generation[i].value;
+}
+
 }

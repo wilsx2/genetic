@@ -1,6 +1,9 @@
 #include "generation.h"
 #include <stdexcept>
 
+namespace genetic 
+{
+
 template <typename T>
 Generation<T>::Generation(std::vector<Member<T>>&& members)
     : members_(members)
@@ -57,4 +60,6 @@ template <typename T>
 float Generation<T>::totalFitness() const
 {
     return total_fitness_;
+}
+
 }

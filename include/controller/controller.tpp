@@ -4,6 +4,9 @@
 #include <chrono>
 #include <thread>
 
+namespace genetic 
+{
+
 template<typename T>
 Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
     : ga_(ga)
@@ -301,4 +304,6 @@ void Controller<T>::evolveUntilStagnant(int generations, float minimum_average_i
         };
 
     evolve(cond);
+}
+
 }

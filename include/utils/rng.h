@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <random>
 
+namespace util
+{
+
 class RNG
 {
     private:
@@ -37,4 +40,7 @@ class RNG
             return dist(gen_);
         }
 };
+
+}
+
 #endif

@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fstream>
 
+namespace genetic 
+{
+
 template <typename T>
 Serializer<T>::Serializer(std::string problem_name):
     save_directory_("populations/"+problem_name+"/")
@@ -256,4 +259,6 @@ bool Serializer<T>::deleteAllSaves() const
     
     std::filesystem::remove_all(save_directory_);
     return false;
+}
+
 }

@@ -7,6 +7,9 @@
 #include <variant>
 #include <map>
 
+namespace genetic 
+{
+
 enum class ViewType {Generations, Population};
 template<typename T>
 class Controller
@@ -51,6 +54,8 @@ class Controller
         void evolveUntilGeneration(int target_generation);
         void evolveUntilStagnant(int generational_average, float minimum_improvement);
 };
+
+}
 
 #include "controller.tpp"
 #endif

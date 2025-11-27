@@ -1,5 +1,8 @@
 #include "binary_encoding.h"
 
+namespace genetic 
+{
+
 template <typename T>
 BinaryEncoding<T>::BinaryEncoding()
     : data_()
@@ -42,7 +45,7 @@ const std::bitset<sizeof(T)*8>& BinaryEncoding<T>::data() const
 }
 
 template <typename T>
-BinaryEncoding<T> BinaryEncoding<T>::birth(RNG& rng)
+BinaryEncoding<T> BinaryEncoding<T>::birth(util::RNG& rng)
 {
     BinaryEncoding<T> baby;
     for (std::size_t i = 0; i < baby.data_.size(); ++i)
@@ -51,7 +54,7 @@ BinaryEncoding<T> BinaryEncoding<T>::birth(RNG& rng)
 }
 
 template <typename T>
-BinaryEncoding<T> BinaryEncoding<T>::crossover(const BinaryEncoding<T>& a, const BinaryEncoding<T>& b, RNG& rng)
+BinaryEncoding<T> BinaryEncoding<T>::crossover(const BinaryEncoding<T>& a, const BinaryEncoding<T>& b, util::RNG& rng)
 {
     BinaryEncoding<T> offspring;
 
@@ -64,11 +67,13 @@ BinaryEncoding<T> BinaryEncoding<T>::crossover(const BinaryEncoding<T>& a, const
 
 template <typename T>
 template <int R>
-void BinaryEncoding<T>::mutate(BinaryEncoding& bin, RNG& rng)
+void BinaryEncoding<T>::mutate(BinaryEncoding& bin, util::RNG& rng)
 {
     static_assert(R >= 0 && R <= 100, "<R> must be in the interval [0, 100]");
 
     for (int i = 0; i < bin.data_.size(); ++i)
         if(rng.integer(0, 100) < R)
             bin.data_.flip(i);
+}
+
 }

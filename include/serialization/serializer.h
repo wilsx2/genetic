@@ -9,6 +9,9 @@
 #include <optional>
 #include <cstdint>
 
+namespace genetic 
+{
+
 template <typename T>
 class PopulationHistory;
 
@@ -34,6 +37,8 @@ class Serializer
         bool deleteSave(const std::string& id) const;
         bool deleteAllSaves() const;
 };
+
+}
 
 #include "serializer.tpp"
 #endif
