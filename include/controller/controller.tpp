@@ -131,21 +131,6 @@ void Controller<T>::viewBest()
 }
 
 template <typename T>
-void Controller<T>::EvolutionDisplay::update(int generation, float fitness, float time)
-{
-    std::cout << CLEAR_LINE << "Generation:     " << generation << "\n";
-    std::cout << CLEAR_LINE << "Fittest Score:  " << fitness << "\n";
-    std::cout << CLEAR_LINE << "Time Elapsed:   " << time << "s\n";
-    std::cout << MOVE_UP_3;
-}
-
-template <typename T>
-void Controller<T>::EvolutionDisplay::finalize()
-{
-    std::cout << "\n\n\n";
-}
-
-template <typename T>
 void Controller<T>::evolve(EvolutionCondition condition)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -156,16 +141,18 @@ void Controller<T>::evolve(EvolutionCondition condition)
         time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() / 1000.f;
     };
 
-    EvolutionDisplay display;
+    static constexpr const char* CLEAR_LINE = "\033[2K";
+    static constexpr const char* MOVE_UP_3 = "\x1b[A\x1b[A\x1b[A";
     while (condition(ga_.getPopulation(), time_elapsed))
     {
         ga_.evolve();
         calculate_time_elapsed();
-        display.update(ga_.getPopulation().numGenerations(), 
-                      ga_.getPopulation().currentFittestScore(), 
-                      time_elapsed);
+        std::cout << CLEAR_LINE << "Generation:     " << ga_.getPopulation().numGenerations() << "\n";
+        std::cout << CLEAR_LINE << "Fittest Score:  " << ga_.getPopulation().currentFittestScore() << "\n";
+        std::cout << CLEAR_LINE << "Time Elapsed:   " << time_elapsed << "s\n";
+        std::cout << MOVE_UP_3;
     }
-    display.finalize();
+    std::cout << "\n\n\n";
 }
 
 template <typename T>
