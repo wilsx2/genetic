@@ -12,7 +12,7 @@ namespace genetic
 namespace selection
 {
 template <typename T>
-using Func = std::function<const T&(const Generation<T>&, util::RNG& rng)>;
+using Function = std::function<const T&(const Generation<T>&, util::RNG& rng)>;
 
 template<typename T, std::size_t N>
 const T& tournament(const Generation<T>& generation, util::RNG& rng);

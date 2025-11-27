@@ -33,7 +33,7 @@ class GeneticAlgorithm {
         const CrossoverOperator crossover_function_;
         const float elitism_rate_;     
 
-        selection::Func<T> selection_function_;
+        selection::Function<T> selection_function_;
 
         Serializer<T> serializer_;
         util::RNG rng_;
@@ -47,7 +47,7 @@ class GeneticAlgorithm {
             BirthFunction birth,
             MutationOperator mutate,
             CrossoverOperator crossover,
-            selection::Func<T> select,
+            selection::Function<T> select,
             std::size_t population_size,
             float elitism_rate
         );

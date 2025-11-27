@@ -12,7 +12,7 @@ GeneticAlgorithm<T>::GeneticAlgorithm(
     BirthFunction birth,
     MutationOperator mutate,
     CrossoverOperator crossover,
-    selection::Func<T> select,
+    selection::Function<T> select,
     std::size_t population_size,
     float elitism_rate
 )   : problem_(std::move(problem))
