@@ -14,25 +14,21 @@ Controller<T>::Controller(GeneticAlgorithm<T>&& ga, ViewCallback view)
 {
     command_handler_.bind<&Controller::stop>("quit", *this);
     command_handler_.bind<&Controller::stop>("exit", *this);
-    command_handler_.bind<&Controller::stop>("quit", *this);
-
-    // commands_["quit"] = [&](ArgumentList args){ running_ = false; };
-    // commands_["exit"] = [&](ArgumentList args){ running_ = false; };
-    // commands_["stats"] = bindCommand<&Controller::printStats>();
-    // commands_["restart"] = bindCommand<&Controller::restart>();
-    // commands_["save"] = bindCommand<&Controller::save>();
-    // commands_["load"] = bindCommand<&Controller::load>();
-    // commands_["delete-save"] = bindCommand<&Controller::deleteSave>();
-    // // TODO: add list-saves
-    // commands_["delete-all-saves"] = bindCommand<&Controller::deleteAllSaves>();
-    // commands_["view-generation"] = bindCommand<&Controller::viewGeneration>();
-    // commands_["view-current"] = bindCommand<&Controller::viewCurrent>();
-    // commands_["view-best"] = bindCommand<&Controller::viewBest>();
-    // commands_["evolve"] = bindCommand<&Controller::evolveGenerations>();
-    // commands_["evolve-seconds"] = bindCommand<&Controller::evolveSeconds>();
-    // commands_["evolve-until-fitness"] = bindCommand<&Controller::evolveUntilFitness>();
-    // commands_["evolve-until-generation"] = bindCommand<&Controller::evolveUntilGeneration>();
-    // commands_["evolve-until-stagnant"] = bindCommand<&Controller::evolveUntilStagnant>();
+    command_handler_.bind<&Controller::restart>("restart", *this);
+    command_handler_.bind<&Controller::save>("save", *this);
+    command_handler_.bind<&Controller::load>("load", *this);
+    command_handler_.bind<&Controller::deleteSave>("delete-save", *this);
+    command_handler_.bind<&Controller::deleteAllSaves>("delete-all-saves", *this);
+    command_handler_.bind<&Controller::listSaves>("list-saves", *this);
+    command_handler_.bind<&Controller::printStats>("stats", *this);
+    command_handler_.bind<&Controller::viewGeneration>("view-generation", *this);
+    command_handler_.bind<&Controller::viewCurrent>("view-current", *this);
+    command_handler_.bind<&Controller::viewBest>("view-best", *this);
+    command_handler_.bind<&Controller::evolveGenerations>("evolve-generations", *this);
+    command_handler_.bind<&Controller::evolveSeconds>("evolve-seconds", *this);
+    command_handler_.bind<&Controller::evolveUntilFitness>("evolve-until-fitness", *this);
+    command_handler_.bind<&Controller::evolveUntilGeneration>("evolve-until-generation", *this);
+    command_handler_.bind<&Controller::evolveUntilStagnant>("evolve-until-stagnant", *this);
 }
 
 template<typename T>
