@@ -6,13 +6,13 @@ namespace genetic
 {
 
 template <typename T>
-GeneticAlgorithm<T>::GeneticAlgorithm(Config& config)
-    : problem_(std::move(config.problem))
-    , birth_function_(std::move(config.birth))
-    , fitness_function_(std::move(config.fitness))
-    , mutate_function_(std::move(config.mutate))
-    , crossover_function_(std::move(config.crossover))
-    , selection_function_(std::move(config.select))
+GeneticAlgorithm<T>::GeneticAlgorithm(const Config& config)
+    : problem_(config.problem)
+    , birth_function_(config.birth)
+    , fitness_function_(config.fitness)
+    , mutate_function_(config.mutate)
+    , crossover_function_(config.crossover)
+    , selection_function_(config.select)
     , elitism_rate_(config.elitism_rate)
     , serializer_(problem_)
     , rng_()

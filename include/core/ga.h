@@ -54,7 +54,7 @@ class GeneticAlgorithm
             float elitism_rate = .1f;
         };
 
-        GeneticAlgorithm(Config& config);
+        GeneticAlgorithm(const Config& config);
         void restart();
         void evolve();
         
