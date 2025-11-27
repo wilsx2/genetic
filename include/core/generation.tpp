@@ -9,12 +9,12 @@ Generation<T>::Generation(std::vector<Member<T>>&& members)
     : members_(members)
     , total_fitness_(0.f)
 {
-    if (members.size() == 0)
+    if (members_.size() == 0)
         throw std::invalid_argument("Generation size must be greater than 0");
 
-    std::sort(members.begin(), members.end());
+    std::sort(members_.begin(), members_.end());
 
-    for (Member<T>& member : members)
+    for (Member<T>& member : members_)
     {
         total_fitness_ += member.fitness;
     }
