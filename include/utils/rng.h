@@ -33,7 +33,7 @@ class RNG
 
         float real(float low, float high)
         {
-            if (!low <= high)
+            if (low > high)
                 throw std::invalid_argument("low must be <= high");
 
             std::uniform_real_distribution<> dist(low, high);

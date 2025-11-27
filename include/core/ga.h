@@ -49,7 +49,7 @@ class GeneticAlgorithm
             BirthFunction birth;
             MutationOperator mutate;
             CrossoverOperator crossover;
-            selection::Function<T> select = selection::tournament<int, 5>;
+            selection::Function<T> select = selection::tournament<T, 5>;
             std::size_t population_size = 1000;
             float elitism_rate = .1f;
         };
