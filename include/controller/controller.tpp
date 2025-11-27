@@ -42,7 +42,14 @@ void Controller<T>::run()
     {
         std::cout << "[" << ga_.getProblem() << "]> ";
         if(!std::getline(std::cin, input)) return;
-        command_handler_.execute(input);
+        try
+        {
+            command_handler_.execute(input);
+        }
+        catch (std::invalid_argument e)
+        {
+            std::cerr << e.what() << "\n";
+        }
     }
 }
 

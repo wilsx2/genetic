@@ -38,8 +38,7 @@ void CommandHandler::bind(const std::string& name, C& instance)
                 
                 if (args_list.size() != N)
                 {
-                    std::cerr << "Expected " << N << " argument(s), received " << args_list.size() << "\n";
-                    return;
+                    throw std::invalid_argument("Expected " + std::to_string(N) + " argument(s), received " + std::to_string(args_list.size()));
                 }
 
                 try
@@ -70,7 +69,7 @@ void CommandHandler::bind(const std::string& name, C& instance)
                             }
                             catch (const std::exception&)
                             {
-                                std::cerr << "Invalid argument \"" << arg << "\"\n";
+                                throw std::invalid_argument("Invalid argument \"" + arg + "\"");
                             }
                         }.template operator()<I>(args_list[I])), ...);
                     }(std::make_index_sequence<N>{});
@@ -101,7 +100,7 @@ void CommandHandler::execute(const std::string& input)
     }
     else
     {
-        std::cout << "Command \"" << input << "\" not recognized. Try again\n";
+        throw std::invalid_argument("Command \"" + input + "\" not recognized.");
     }
 }
 
