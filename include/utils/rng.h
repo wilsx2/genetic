@@ -39,6 +39,11 @@ class RNG
             std::uniform_real_distribution<> dist(low, high);
             return dist(gen_);
         }
+
+        std::mt19937& generator()
+        {
+            return gen_;
+        }
 };
 
 }
