@@ -1,10 +1,10 @@
-#include <SFML/Graphics.hpp>
 #include "genetic.h"
 #include <array>
 #include <algorithm>
 #include <utility>
 
-namespace tsp {
+namespace tsp
+{
     constexpr int NUM_CITIES = 100;
     
     class Graph
