@@ -102,37 +102,34 @@ namespace tsp
 
         return std::move(path);
     }
+
+    void render(sf::RenderTarget& target, const std::vector<genetic::Member<tsp::Path>>& paths, genetic::ViewType view_type)
+    {
+
+    }
 }
 
+using namespace genetic;
 int main()
 {
     tsp::Graph::instance.init(0);
 
-    genetic::GeneticAlgorithm<tsp::Path>::Config conf;
+    GeneticAlgorithm<tsp::Path>::Config conf;
     conf.problem = "tsp";
     conf.fitness = tsp::fitness;
     conf.birth = tsp::birth;
     conf.mutate = tsp::mutate;
     conf.crossover =  tsp::crossover;
-    conf.select = genetic::selection::rankBased<tsp::Path>;
+    conf.select = selection::rankBased<tsp::Path>;
     conf.population_size = 1000;
     conf.elitism_rate = .1f;
 
-    auto cli = genetic::Controller<tsp::Path>
+    auto ga = GeneticAlgorithm<tsp::Path>(conf);
+    auto view = GraphicView<tsp::Path>("tsp", {100,100}, tsp::render);
+    auto cli = Controller<tsp::Path>
     (
-        genetic::GeneticAlgorithm<tsp::Path>(conf),
-        [](const std::vector<genetic::Member<tsp::Path>>& paths, genetic::ViewType view_type)
-        {
-            for (float i = 0; i < paths.size(); ++i)
-            {
-                if (view_type == genetic::ViewType::Generations)
-                    std::cout << "Generation " << i << ": ";
-                else if (view_type == genetic::ViewType::Population)
-                    std::cout << "Rank " << (paths.size() - i) << ": ";
-                
-                std::cout << "Distance " << paths[i].fitness << "\n";
-            }
-        }
+        std::move(ga),
+        view.callback()
     );
     cli.run();
     return 0;
