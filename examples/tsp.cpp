@@ -8,11 +8,17 @@ namespace tsp {
     
     class Graph
     {
+
         private:
             std::array<std::array<float, NUM_CITIES>, NUM_CITIES> adjacency_matrix;
+            Graph() = default;
+
         public:
-            Graph(util::RNG& rng) 
+            static Graph instance;
+
+            void init(int seed)
             {
+                util::RNG rng (seed);
                 std::array<std::pair<float, float>, NUM_CITIES> positions;
                 for (std::pair<float, float>& position : positions)
                 {
@@ -45,19 +51,19 @@ namespace tsp {
 
     using Path = std::array<int, NUM_CITIES - 1>; // Always starts and ends at 0, ommitted
 
-    float pathDistance(const Path& path, const Graph& graph)
+    float fitness(const Path& path)
     {
         float total_distance = 0.f;
 
         std::size_t prev = 0;
         for (int curr : path)
         {
-            total_distance += graph.weight(prev, curr);
+            total_distance += Graph::instance.weight(prev, curr);
             prev = curr;
         }
-        total_distance += graph.weight(prev, 0);
+        total_distance += Graph::instance.weight(prev, 0);
 
-        return total_distance;
+        return -total_distance;
     }
 
     Path birth(util::RNG& rng)
@@ -98,12 +104,11 @@ namespace tsp {
 
 int main()
 {
-    util::RNG graph_rng(0);
-    tsp::Graph graph(graph_rng);
+    tsp::Graph::instance.init(0);
 
     genetic::GeneticAlgorithm<tsp::Path>::Config conf;
     conf.problem = "tsp";
-    conf.fitness = [graph](const tsp::Path& path){ return -tsp::pathDistance(path, graph); };
+    conf.fitness = tsp::fitness;
     conf.birth = tsp::birth;
     conf.mutate = tsp::mutate;
     conf.crossover =  tsp::crossover;
