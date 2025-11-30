@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include "genetic.h"
 #include <array>
 #include <algorithm>
@@ -48,6 +49,7 @@ namespace tsp {
                 return adjacency_matrix[from][to];
             }
     };
+    Graph Graph::instance;
 
     using Path = std::array<int, NUM_CITIES - 1>; // Always starts and ends at 0, ommitted
 
