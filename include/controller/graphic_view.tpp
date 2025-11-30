@@ -33,7 +33,7 @@ void GraphicView<T>::run(const std::vector<Member<T>>& members, ViewType view_ty
 }
 
 template <typename T>
-GraphicView<T>::ViewCallback GraphicView<T>::callback()
+ViewCallback<T> GraphicView<T>::callback()
 {
     return [this](const std::vector<Member<T>> m, ViewType v){ this->run(m, v); };
 }

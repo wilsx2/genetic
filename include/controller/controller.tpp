@@ -9,7 +9,7 @@ namespace genetic
 {
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, const ViewCallback<T>& view)
     : ga_(ga)
     , view_function_(view)
     , running_(false)

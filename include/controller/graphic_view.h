@@ -16,7 +16,6 @@ template <typename T>
 class GraphicView
 {
     private:
-        using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
         using RenderCallback = std::function<void(sf::RenderTarget&, const std::vector<Member<T>>&, ViewType)>;
         std::string problem_;
         sf::Vector2u dimensions_;
@@ -29,7 +28,7 @@ class GraphicView
             RenderCallback render
         );
         void run(const std::vector<Member<T>>& members, ViewType view_type);
-        ViewCallback callback();
+        ViewCallback<T> callback();
 };
 
 }

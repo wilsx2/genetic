@@ -12,21 +12,23 @@ namespace genetic
 {
 
 enum class ViewType {Generations, Population};
-template<typename T>
+template <typename T>
+using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
+
+template <typename T>
 class Controller
 {
     private:
-        using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
         using EvolutionCondition = std::function<bool(const PopulationHistory<T>& pop, float time)>;
 
         GeneticAlgorithm<T> ga_;
         util::CommandHandler command_handler_;
-        const ViewCallback view_function_;
+        const ViewCallback<T> view_function_;
         bool running_;
     
     public:
         // Lifecycle
-        Controller(GeneticAlgorithm<T>&& ga, const ViewCallback& view);
+        Controller(GeneticAlgorithm<T>&& ga, const ViewCallback<T>& view);
         void run();
         void stop();
 
