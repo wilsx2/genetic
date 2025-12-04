@@ -1,6 +1,23 @@
 #include "genetic.h"
+#include <memory>
 #include <numbers>
 #include <limits>
+
+class NumberView : public genetic::View<float>
+{
+    protected:
+    void run() {
+        for (float i = 0; i < members_.size(); ++i)
+        {
+            if (view_type_ == genetic::ViewType::Generations)
+                std::cout << "Generation " << i << ": ";
+            else if (view_type_ == genetic::ViewType::Population)
+                std::cout << "Rank " << (members_.size() - i) << ": ";
+            
+            std::cout << members_[i].value << " | " << members_[i].fitness << "\n";
+        }
+    }
+};
 
 float rastrigin1D(const float& x)
 {
@@ -22,18 +39,7 @@ int main()
     auto cli = genetic::Controller<float>
     (
         genetic::GeneticAlgorithm<float>(conf),
-        [](const std::vector<genetic::Member<float>>& nums, genetic::ViewType view_type)
-        {
-            for (float i = 0; i < nums.size(); ++i)
-            {
-                if (view_type == genetic::ViewType::Generations)
-                    std::cout << "Generation " << i << ": ";
-                else if (view_type == genetic::ViewType::Population)
-                    std::cout << "Rank " << (nums.size() - i) << ": ";
-                
-                std::cout << nums[i].value << " | " << nums[i].fitness << "\n";
-            }
-        }
+        std::make_unique<NumberView>()
     );
     cli.run();
     return 0;

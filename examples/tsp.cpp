@@ -1,7 +1,10 @@
 #include "genetic.h"
+#include <memory>
 #include <array>
 #include <algorithm>
 #include <utility>
+
+using namespace genetic;
 
 namespace tsp
 {
@@ -11,6 +14,7 @@ namespace tsp
     {
 
         private:
+            std::array<std::pair<float, float>, NUM_CITIES> positions;
             std::array<std::array<float, NUM_CITIES>, NUM_CITIES> adjacency_matrix;
             Graph() = default;
 
@@ -20,7 +24,6 @@ namespace tsp
             void init(int seed)
             {
                 util::RNG rng (seed);
-                std::array<std::pair<float, float>, NUM_CITIES> positions;
                 for (std::pair<float, float>& position : positions)
                 {
                     position.first  = rng.real(0.f, 100.f);
@@ -103,13 +106,19 @@ namespace tsp
         return std::move(path);
     }
 
-    void render(sf::RenderTarget& target, const std::vector<genetic::Member<tsp::Path>>& paths, genetic::ViewType view_type)
+    class CityView : public genetic::GraphicView<Path>
     {
+        private:
+        void render(sf::RenderWindow& target)
+        {
 
-    }
+        }
+
+        public:
+        CityView(): genetic::GraphicView<Path>("Traveling Salesman Problem", {100,100}) {}
+    };
 }
 
-using namespace genetic;
 int main()
 {
     tsp::Graph::instance.init(0);
@@ -125,11 +134,10 @@ int main()
     conf.elitism_rate = .1f;
 
     auto ga = GeneticAlgorithm<tsp::Path>(conf);
-    auto view = GraphicView<tsp::Path>("tsp", {100,100}, tsp::render);
     auto cli = Controller<tsp::Path>
     (
         std::move(ga),
-        view.callback()
+        std::make_unique<tsp::CityView>()
     );
     cli.run();
     return 0;

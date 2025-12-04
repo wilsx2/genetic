@@ -4,6 +4,7 @@
 #include "controller/controller.h"
 #include "controller/command_handler.h"
 #include "controller/graphic_view.h"
+#include "controller/view.h"
 #include "core/ga.h"
 #include "core/member.h"
 #include "core/generation.h"

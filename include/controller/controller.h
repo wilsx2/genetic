@@ -2,7 +2,9 @@
 #define CONTROLLER_H
 
 #include "command_handler.h"
+#include "view.h"
 #include "core/ga.h"
+#include <memory>
 #include <string>
 #include <functional>
 #include <variant>
@@ -11,7 +13,6 @@
 namespace genetic 
 {
 
-enum class ViewType {Generations, Population};
 template <typename T>
 using ViewCallback = std::function<void(const std::vector<Member<T>>&, ViewType)>;
 
@@ -23,12 +24,12 @@ class Controller
 
         GeneticAlgorithm<T> ga_;
         util::CommandHandler command_handler_;
-        const ViewCallback<T> view_function_;
+        std::unique_ptr<View<T>> view_;
         bool running_;
     
     public:
         // Lifecycle
-        Controller(GeneticAlgorithm<T>&& ga, const ViewCallback<T>& view);
+        Controller(GeneticAlgorithm<T>&& ga, std::unique_ptr<View<T>> view);
         void run();
         void stop();
 

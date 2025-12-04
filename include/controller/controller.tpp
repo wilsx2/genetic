@@ -9,9 +9,9 @@ namespace genetic
 {
 
 template<typename T>
-Controller<T>::Controller(GeneticAlgorithm<T>&& ga, const ViewCallback<T>& view)
+Controller<T>::Controller(GeneticAlgorithm<T>&& ga, std::unique_ptr<View<T>> view)
     : ga_(ga)
-    , view_function_(view)
+    , view_(std::move(view))
     , running_(false)
 {
     command_handler_.bind<&Controller::stop>("quit", *this);
@@ -120,21 +120,25 @@ template <typename T>
 void Controller<T>::viewGeneration(std::size_t i)
 {
     if (i < ga_.getPopulation().numGenerations())
-        view_function_(ga_.getPopulation().generation(i).members(), ViewType::Population);
+    {
+        view_->create(ga_.getPopulation().generation(i).members(), ViewType::Population);
+    }
     else
+    {
         std::cerr << "Input generation does not exist\n";
+    }
 }
 
 template <typename T>
 void Controller<T>::viewCurrent()
 {
-    view_function_(ga_.getPopulation().current().members(), ViewType::Population);
+    view_->create(ga_.getPopulation().current().members(), ViewType::Population);
 }
 
 template <typename T>
 void Controller<T>::viewBest()
 {
-    view_function_(ga_.getPopulation().fittestHistory(), ViewType::Generations);
+    view_->create(ga_.getPopulation().fittestHistory(), ViewType::Generations);
 }
 
 template <typename T>

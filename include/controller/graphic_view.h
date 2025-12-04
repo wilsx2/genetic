@@ -1,5 +1,5 @@
-#ifndef VIEW_WINDOW_H
-#define VIEW_WINDOW_H
+#ifndef GRAPHIC_VIEW_H
+#define GRAPHIC_VIEW_H
 
 #include "controller.h"
 #include "core/member.h"
@@ -13,22 +13,19 @@ namespace genetic
 {
 
 template <typename T>
-class GraphicView
+class GraphicView : public View<T>
 {
     private:
-        using RenderCallback = std::function<void(sf::RenderTarget&, const std::vector<Member<T>>&, ViewType)>;
         std::string problem_;
         sf::Vector2u dimensions_;
-        RenderCallback render_callback_;
+        virtual void render(sf::RenderWindow&) = 0;
+        void run();
 
     public:
         GraphicView(
             const std::string& problem,
-            sf::Vector2u dimensions,
-            RenderCallback render
+            sf::Vector2u dimensions
         );
-        void run(const std::vector<Member<T>>& members, ViewType view_type);
-        ViewCallback<T> callback();
 };
 
 }

@@ -6,15 +6,13 @@ namespace genetic
 template <typename T>
 GraphicView<T>::GraphicView(
     const std::string& problem,
-    sf::Vector2u dimensions,
-    RenderCallback render
+    sf::Vector2u dimensions
 )   : problem_(problem)
     , dimensions_(dimensions)
-    , render_callback_(render)
 {}
 
 template <typename T>
-void GraphicView<T>::run(const std::vector<Member<T>>& members, ViewType view_type)
+void GraphicView<T>::run()
 {
     sf::RenderWindow window (sf::VideoMode(dimensions_), problem_+" SFML");
 
@@ -28,14 +26,8 @@ void GraphicView<T>::run(const std::vector<Member<T>>& members, ViewType view_ty
             }
         }
 
-        render_callback_(window, members, view_type);
+        render(window);
     }
-}
-
-template <typename T>
-ViewCallback<T> GraphicView<T>::callback()
-{
-    return [this](const std::vector<Member<T>> m, ViewType v){ this->run(m, v); };
 }
 
 }
