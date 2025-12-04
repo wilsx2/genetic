@@ -9,6 +9,7 @@
 #include "core/member.h"
 #include "core/generation.h"
 #include "core/population_history.h"
+#include "core/scenario.h"
 #include "encoding/binary_encoding.h"
 #include "operator/selection.h"
 #include "serialization/serializer.h"
