@@ -11,7 +11,7 @@ namespace genetic
 template <typename T>
 class Scenario
 {
-    public:
+    public: 
     virtual const std::string& getName() = 0;
     virtual const Serializer<T>& getSerializer() = 0;
     

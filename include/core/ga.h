@@ -5,13 +5,15 @@
 #include "population_history.h"
 #include "operator/selection.h"
 #include "serialization/serializer.h"
+#include "utils/rng.h"
 
 #include <optional>
 #include <vector>
 #include <functional>
 #include <string>
 #include <filesystem>
-#include "utils/rng.h"
+#include <type_traits>
+#include <memory>
 
 namespace genetic 
 {
@@ -20,23 +22,14 @@ template <typename T>
 class GeneticAlgorithm
 {
     private:
-        using FitnessFunction = std::function<float(const T&)>;
-        using BirthFunction = std::function<T(util::RNG&)>;
-        using MutationOperator = std::function<void(T&, util::RNG&)>;
-        using CrossoverOperator = std::function<T(const T&, const T&, util::RNG&)>;
+        std::unique_ptr<Scenario> scenario_;
 
-        const std::string problem_;
-        PopulationHistory<T> population_;
-        
-        const FitnessFunction fitness_function_;
-        const BirthFunction birth_function_;
-        const MutationOperator mutate_function_;
-        const CrossoverOperator crossover_function_;
-        const float elitism_rate_;     
+        const float elitism_rate_;
 
         selection::Function<T> selection_function_;
 
-        Serializer<T> serializer_;
+        PopulationHistory<T> population_;
+
         util::RNG rng_;
 
         inline std::size_t numElites();
@@ -44,11 +37,7 @@ class GeneticAlgorithm
     public:
         struct Config
         {
-            std::string problem;
-            FitnessFunction fitness;
-            BirthFunction birth;
-            MutationOperator mutate;
-            CrossoverOperator crossover;
+            std::unique_ptr<Scenario> 
             selection::Function<T> select = selection::tournament<T, 5>;
             std::size_t population_size = 1000;
             float elitism_rate = .1f;
