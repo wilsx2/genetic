@@ -16,6 +16,8 @@ void GraphicView<T>::run()
 {
     sf::RenderWindow window (sf::VideoMode(dimensions_), problem_+" SFML");
 
+    clock_.stop();
+    clock_.start();
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
@@ -28,6 +30,7 @@ void GraphicView<T>::run()
 
         render(window);
     }
+    clock_.reset();
 }
 
 }

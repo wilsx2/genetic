@@ -15,6 +15,8 @@ namespace genetic
 template <typename T>
 class GraphicView : public View<T>
 {
+    protected:
+        sf::Clock clock_;
     private:
         std::string problem_;
         sf::Vector2u dimensions_;

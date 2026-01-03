@@ -26,8 +26,8 @@ namespace tsp
                 util::RNG rng (seed);
                 for (std::pair<float, float>& position : positions)
                 {
-                    position.first  = rng.real(0.f, 100.f);
-                    position.second = rng.real(0.f, 100.f);
+                    position.first  = rng.real(0.f, 1.f);
+                    position.second = rng.real(0.f, 1.f);
                 }
 
                 for (int i = 0; i < NUM_CITIES - 1; ++i)
@@ -145,18 +145,31 @@ namespace tsp
     class View : public genetic::GraphicView<Path>
     {
         private:
+        static constexpr float SCALE = 800;
+        static constexpr float ANIMATION_DURATION = 20.f;
+
         void render(sf::RenderWindow& target)
         {
+            // Determine current member
+            float percent_completed = clock_.getElapsedTime().asSeconds() / ANIMATION_DURATION;
+            if (percent_completed > 1.f)
+                percent_completed = 1.f;
+
+            std::cout << percent_completed*100 << "%" << "\n";
+
+
+            int i = static_cast<int>((members_.size()-1) * percent_completed);
+            Path path = members_[i].value;
+
+            // Rendering
             target.clear(sf::Color::Black);
 
-            Path path = members_.back().value;
-
-            sf::CircleShape circle (3.f, 30);
-            circle.setOrigin({3.f,3.f});
+            sf::CircleShape circle (.005f * SCALE, 30);
+            circle.setOrigin({.005f * SCALE, .005f * SCALE});
             for(int i = 0; i < path.size(); ++i)
             {
                 std::pair<float,float> position = Graph::instance.getPositions()[path[i]];
-                circle.setPosition({position.first * 5, position.second * 5});
+                circle.setPosition({position.first * SCALE, position.second * SCALE});
                 target.draw(circle);
 
                 std::pair<float,float> next_position;
@@ -172,14 +185,14 @@ namespace tsp
                 graphics::drawLine(
                     target, 
                     {
-                        position.first * 5,
-                        position.second * 5
+                        position.first * SCALE,
+                        position.second * SCALE
                     }, 
                     {
-                        next_position.first * 5,
-                        next_position.second * 5
+                        next_position.first * SCALE,
+                        next_position.second * SCALE
                     }, 
-                    1, 
+                    .0025 * SCALE, 
                     sf::Color::White
                 );
             }
@@ -188,7 +201,13 @@ namespace tsp
         }
 
         public:
-        View(): genetic::GraphicView<Path>("Traveling Salesman Problem", {500,500}) {}
+        View(): genetic::GraphicView<Path>(
+            "Traveling Salesman Problem",
+            {
+                static_cast<unsigned int>(SCALE),
+                static_cast<unsigned int>(SCALE)
+            }
+        ) {}
     };
 }
 
