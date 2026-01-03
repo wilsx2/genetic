@@ -3,15 +3,18 @@
 #include <numbers>
 #include <limits>
 
+using namespace genetic;
+
 float rastrigin1D(const float& x)
 {
     return x*x - 10*std::cos(2*x*std::numbers::pi);
 }
 
-class FunctionOptimizationScenario : public genetic::Scenario<float>{
+class FunctionOptimizationScenario : public Scenario<float>
+{
     private:
     inline static const std::string name = "Function Optimization";
-    genetic::Serializer<float> serializer_; 
+    Serializer<float> serializer_; 
 
     public: 
     FunctionOptimizationScenario()
