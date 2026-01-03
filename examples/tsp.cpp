@@ -111,19 +111,34 @@ namespace tsp
 
         Path crossover(const Path& a, const Path& b, util::RNG& rng)
         {
-            // Path path;
+            Path path;
+            
+            // Ordered crossover
+            /// Copy Segment
+            int crossover_point_a = rng.integer(0, path.size() - 1);
+            int crossover_point_b = rng.integer(crossover_point_a, path.size() - 1);
+            for (int i = crossover_point_a; i <= crossover_point_b; ++i)
+                path[i] = b[i];
 
-            // int crossover_point = rng.integer(1, a.size() - 1);
-            // for (int i = 0; i < crossover_point; ++i)
-            // {
-            //     path[i] = a[i];
-            // }
-            // for (int j = crossover_point; j < b.size(); ++j)
-            // {
-            //     path[j] = b[j];
-            // }
+            // Fill in Remaining Genes
+            int i = (crossover_point_b + 1) % path.size();
+            int j = (crossover_point_b + 1) % path.size();
+            while (i != crossover_point_a) {
+                bool redundant = false;
+                for (int i = crossover_point_a; i <= crossover_point_b; ++i)
+                    if (path[i] == a[j])
+                        redundant = true;
 
-            return a;//std::move(path);
+                if (!redundant)
+                {
+                    path[i] = a[j];
+                    i = (i + 1) % path.size();
+                }
+                j = (j + 1) % path.size();
+            }
+            
+
+            return std::move(path);
         }
     };
 
@@ -144,24 +159,29 @@ namespace tsp
                 circle.setPosition({position.first * 5, position.second * 5});
                 target.draw(circle);
 
+                std::pair<float,float> next_position;
                 if (i < path.size() - 1)
                 {
-                    std::pair<float,float> next_position = Graph::instance.getPositions()[path[i+1]];
-
-                    graphics::drawLine(
-                        target, 
-                        {
-                            position.first * 5,
-                            position.second * 5
-                        }, 
-                        {
-                            next_position.first * 5,
-                            next_position.second * 5
-                        }, 
-                        1, 
-                        sf::Color::White
-                    );
+                    next_position = Graph::instance.getPositions()[path[i+1]];
                 }
+                else
+                {
+                    next_position = Graph::instance.getPositions()[path[0]];
+                }                
+
+                graphics::drawLine(
+                    target, 
+                    {
+                        position.first * 5,
+                        position.second * 5
+                    }, 
+                    {
+                        next_position.first * 5,
+                        next_position.second * 5
+                    }, 
+                    1, 
+                    sf::Color::White
+                );
             }
 
             target.display();
