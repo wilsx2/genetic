@@ -18,7 +18,7 @@ class Scenario
     virtual float evaluateFitness(const T&) = 0;
     virtual T birth(util::RNG&) = 0;
     virtual T crossover(const T&, const T&, util::RNG&) = 0;
-    virtual void mutation(T&, util::RNG&) = 0;
+    virtual void mutate(T&, util::RNG&) = 0;
 };
 
 }

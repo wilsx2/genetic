@@ -10,7 +10,7 @@ namespace genetic
 
 template<typename T>
 Controller<T>::Controller(GeneticAlgorithm<T>&& ga, std::unique_ptr<View<T>> view)
-    : ga_(ga)
+    : ga_(std::move(ga))
     , view_(std::move(view))
     , running_(false)
 {

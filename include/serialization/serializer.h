@@ -2,7 +2,6 @@
 #define SERIALIZER_H
 
 #include "core/member.h"
-#include "core/population_history.h"
 #include <vector>
 #include <string>
 #include <filesystem>

@@ -3,6 +3,47 @@
 #include <numbers>
 #include <limits>
 
+float rastrigin1D(const float& x)
+{
+    return x*x - 10*std::cos(2*x*std::numbers::pi);
+}
+
+class FunctionOptimizationScenario : public genetic::Scenario<float>{
+    private:
+    inline static const std::string name = "Function Optimization";
+    genetic::Serializer<float> serializer_; 
+
+    public: 
+    FunctionOptimizationScenario()
+    : serializer_(name)
+    { }
+    const std::string& getName()
+    {
+        return name;
+    }
+    const genetic::Serializer<float>& getSerializer()
+    {
+        return serializer_;
+    }
+    
+    float evaluateFitness(const float& n)
+    {
+        return rastrigin1D(n);
+    }
+    float birth(util::RNG& rng)
+    {
+        return rng.real(-2.f, 2.f);
+    }
+    float crossover(const float& a, const float& b, util::RNG& rng)
+    {
+        return a/2 + b/2;
+    }
+    void mutate(float& n, util::RNG& rng)
+    {
+        n = std::min(std::max(n + rng.real(-.1f, .1f), -2.f), 2.f);
+    }
+};
+
 class NumberView : public genetic::View<float>
 {
     protected:
@@ -19,26 +60,16 @@ class NumberView : public genetic::View<float>
     }
 };
 
-float rastrigin1D(const float& x)
-{
-    return x*x - 10*std::cos(2*x*std::numbers::pi);
-}
-
 int main()
 {
-    genetic::GeneticAlgorithm<float>::Config conf;
-    conf.problem = "optimization";
-    conf.fitness = rastrigin1D;
-    conf.birth = [](util::RNG& rng){return rng.real(-2.f, 2.f);};
-    conf.mutate = [](float& n, util::RNG& rng){return n = std::min(std::max(n + rng.real(-.1f, .1f), -2.f), 2.f); };
-    conf.crossover = [](const float& a, const float& b, util::RNG&){return a/2 + b/2; };
-    conf.select = genetic::selection::rankBased<float>;
-    conf.population_size = 10;
-    conf.elitism_rate = .1f;
-
     auto cli = genetic::Controller<float>
     (
-        genetic::GeneticAlgorithm<float>(conf),
+        genetic::GeneticAlgorithm<float>(
+            std::make_unique<FunctionOptimizationScenario>(),
+            genetic::selection::rankBased<float>,
+            10,
+            .1f
+        ),
         std::make_unique<NumberView>()
     );
     cli.run();

@@ -1,6 +1,7 @@
 #ifndef GA_H
 #define GA_H
 
+#include "scenario.h"
 #include "member.h"
 #include "population_history.h"
 #include "operator/selection.h"
@@ -22,7 +23,7 @@ template <typename T>
 class GeneticAlgorithm
 {
     private:
-        std::unique_ptr<Scenario> scenario_;
+        std::unique_ptr<Scenario<T>> scenario_;
 
         const float elitism_rate_;
 
@@ -35,15 +36,15 @@ class GeneticAlgorithm
         inline std::size_t numElites();
         
     public:
-        struct Config
-        {
-            std::unique_ptr<Scenario> 
-            selection::Function<T> select = selection::tournament<T, 5>;
-            std::size_t population_size = 1000;
-            float elitism_rate = .1f;
-        };
-
-        GeneticAlgorithm(const Config& config);
+        GeneticAlgorithm(
+            std::unique_ptr<Scenario<T>> scenario,
+            selection::Function<T> select,
+            std::size_t population_size,
+            float elitism_rate
+        );
+        GeneticAlgorithm(
+            std::unique_ptr<Scenario<T>> scenario
+        );
         void restart();
         void evolve();
         

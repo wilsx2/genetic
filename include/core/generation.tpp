@@ -1,5 +1,6 @@
 #include "generation.h"
 #include <stdexcept>
+#include <algorithm>
 
 namespace genetic 
 {

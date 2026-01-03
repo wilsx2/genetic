@@ -7,6 +7,9 @@ namespace genetic
 {
 
 template <typename T>
+class Serializer;
+
+template <typename T>
 class Generation {
     friend class Serializer<T>;
 
