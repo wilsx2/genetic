@@ -18,7 +18,7 @@ all: $(EXES)
 
 $(EXES): $(BUILD_DIR)/%.exe: $(EX_DIR)/%.cpp $(OBJS)
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(DEPS) $(DEPS)
+	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(DEPS)
 
 
 clean:

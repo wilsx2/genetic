@@ -1,4 +1,5 @@
 #include "genetic.h"
+#include "graphics.hpp"
 #include <memory>
 #include <array>
 #include <algorithm>
@@ -7,12 +8,11 @@
 namespace tsp 
 {
 
-    constexpr int NUM_CITIES = 100;
+    constexpr int NUM_CITIES = 50;
     using Path = std::array<int, NUM_CITIES - 1>;
 
     class Graph
     {
-
         private:
             std::array<std::pair<float, float>, NUM_CITIES> positions;
             std::array<std::array<float, NUM_CITIES>, NUM_CITIES> adjacency_matrix;
@@ -50,6 +50,10 @@ namespace tsp
             const float& weight(std::size_t from, std::size_t to) const
             {
                 return adjacency_matrix[from][to];
+            }
+            const std::array<std::pair<float, float>, NUM_CITIES>& getPositions()
+            {
+                return positions;
             }
     };
     Graph Graph::instance;
@@ -102,24 +106,24 @@ namespace tsp
             int j = rng.integer(i + 1, path.size() - 1);
             int temp = path[i];
             path[i] = path[j];
-            path[j] = path[i];
+            path[j] = temp;
         }
 
         Path crossover(const Path& a, const Path& b, util::RNG& rng)
         {
-            Path path;
+            // Path path;
 
-            int crossover_point = rng.integer(1, a.size() - 1);
-            for (int i = 0; i < crossover_point; ++i)
-            {
-                path[i] = a[i];
-            }
-            for (int j = crossover_point; j < b.size(); ++j)
-            {
-                path[j] = b[j];
-            }
+            // int crossover_point = rng.integer(1, a.size() - 1);
+            // for (int i = 0; i < crossover_point; ++i)
+            // {
+            //     path[i] = a[i];
+            // }
+            // for (int j = crossover_point; j < b.size(); ++j)
+            // {
+            //     path[j] = b[j];
+            // }
 
-            return std::move(path);
+            return a;//std::move(path);
         }
     };
 
@@ -128,11 +132,43 @@ namespace tsp
         private:
         void render(sf::RenderWindow& target)
         {
+            target.clear(sf::Color::Black);
 
+            Path path = members_.back().value;
+
+            sf::CircleShape circle (3.f, 30);
+            circle.setOrigin({3.f,3.f});
+            for(int i = 0; i < path.size(); ++i)
+            {
+                std::pair<float,float> position = Graph::instance.getPositions()[path[i]];
+                circle.setPosition({position.first * 5, position.second * 5});
+                target.draw(circle);
+
+                if (i < path.size() - 1)
+                {
+                    std::pair<float,float> next_position = Graph::instance.getPositions()[path[i+1]];
+
+                    graphics::drawLine(
+                        target, 
+                        {
+                            position.first * 5,
+                            position.second * 5
+                        }, 
+                        {
+                            next_position.first * 5,
+                            next_position.second * 5
+                        }, 
+                        1, 
+                        sf::Color::White
+                    );
+                }
+            }
+
+            target.display();
         }
 
         public:
-        View(): genetic::GraphicView<Path>("Traveling Salesman Problem", {100,100}) {}
+        View(): genetic::GraphicView<Path>("Traveling Salesman Problem", {500,500}) {}
     };
 }
 
