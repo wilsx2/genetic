@@ -13,12 +13,15 @@ namespace genetic
 template <typename T>
 class BinaryEncodedScenario : public Scenario<BinaryEncoding<T>>
 {
+    using BinT = BinaryEncoding<T>;
+
     public: 
-    T birth(util::RNG&);
-    T crossover(const T&, const T&, util::RNG&);
-    void mutate(T&, util::RNG&);
+    BinT birth(util::RNG&);
+    BinT crossover(const BinT&, const BinT&, util::RNG&);
+    void mutate(BinT&, util::RNG&);
 };
 
 }
 
+#include "binary_encoding.tpp"
 #endif
