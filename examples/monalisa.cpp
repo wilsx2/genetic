@@ -21,7 +21,9 @@ using BinApprox = genetic::BinaryEncoding<Approximation>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
 
-sf::Image renderApproximation(const Approximation& approx)
+
+
+sf::Texture renderApproximation(const Approximation& approx)
 {
     sf::RenderTexture texture (monalisa.getSize());
     sf::VertexArray va (sf::PrimitiveType::Triangles);
@@ -41,7 +43,7 @@ sf::Image renderApproximation(const Approximation& approx)
     texture.draw(va);
     texture.display();
 
-    return texture.getTexture().copyToImage();
+    return texture.getTexture();
 } 
 
 class Scenario : public genetic::BinaryEncodedScenario<Approximation>
@@ -65,11 +67,11 @@ class Scenario : public genetic::BinaryEncodedScenario<Approximation>
         static const std::size_t NUM_PIXELS = monalisa.getSize().x * monalisa.getSize().y * 4;
         
         float sum = 0.f;
-        sf::Image render = std::move(renderApproximation(approx.get()));
+        sf::Image render = renderApproximation(approx.get()).copyToImage();
         for (int i = 0; i < NUM_PIXELS; ++i)
         {
             if (i % 4 == 0) continue; //Ignore opacity
-            
+
             float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i]);
             float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i]);
             float difference = target_pixel_value - approximated_pixel_value;
@@ -87,7 +89,18 @@ class View : public genetic::GraphicView<BinApprox>
 
     void render(sf::RenderWindow& target)
     {
-        
+        // Determine current member
+        float percent_completed = clock_.getElapsedTime().asSeconds() / ANIMATION_DURATION;
+        if (percent_completed > 1.f)
+            percent_completed = 1.f;
+
+        int i = static_cast<int>((members_.size()-1) * percent_completed);
+        Approximation approx = members_[i].value.get();
+        sf::Texture tex = renderApproximation(approx);
+        // Render
+        target.clear();
+        target.draw(sf::Sprite(tex));
+        target.display();
     }
 
     public:
