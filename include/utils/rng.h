@@ -16,12 +16,12 @@ class RNG
         RNG(): gen_(std::random_device()()) {}
         RNG(int seed): gen_(seed) {}
 
-        int integer(int low, int high)
+        long int integer(long int low, long int high)
         {
             if (low > high)
                 throw std::invalid_argument("low must be <= high");
 
-            std::uniform_int_distribution<int> dist(low, high);
+            std::uniform_int_distribution<long int> dist(low, high);
             return dist(gen_);
         }
 

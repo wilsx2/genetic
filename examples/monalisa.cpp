@@ -11,10 +11,19 @@ namespace img
 
 struct Triangle
 {
-    sf::Vector2u p1;
-    sf::Vector2u p2;
-    sf::Vector2u p3;
+    uint16_t x1,x2,x3,y1,y2,y3;
     sf::Color color;
+
+    Triangle() = default;
+    Triangle(util::RNG rng)
+    : x1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , x2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , x3(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , y1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , y2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , y3(rng.integer(0, std::numeric_limits<uint16_t>::max()))
+    , color(rng.integer(0, std::numeric_limits<uint32_t>::max()))
+    { }
 };
 constexpr unsigned int NUM_TRIANGLES = 64;
 using Approximation = std::array<Triangle, NUM_TRIANGLES>;
@@ -42,9 +51,9 @@ sf::Texture renderApproximation(const Approximation& approx)
         v1.color = triangle.color;
         v2.color = triangle.color;
         v3.color = triangle.color;
-        v1.position = vectorToImageVector(triangle.p1);
-        v2.position = vectorToImageVector(triangle.p2);
-        v3.position = vectorToImageVector(triangle.p3);
+        v1.position = vectorToImageVector({triangle.x1, triangle.y1});
+        v2.position = vectorToImageVector({triangle.x2, triangle.y2});
+        v3.position = vectorToImageVector({triangle.x3, triangle.y3});
         va.append(std::move(v1));
         va.append(std::move(v2));
         va.append(std::move(v3));
@@ -83,7 +92,7 @@ class Scenario : public genetic::Scenario<Approximation>
         sf::Image render = renderApproximation(approx).copyToImage();
         for (int i = 0; i < NUM_PIXELS; ++i)
         {
-            if (i % 4 == 0) continue; //Ignore opacity
+            if (i+1 % 4 == 0) continue; //Ignore opacity
 
             float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i]);
             float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i]);
@@ -96,7 +105,14 @@ class Scenario : public genetic::Scenario<Approximation>
 
     Approximation birth(util::RNG& rng)
     {
-        return genetic::BinaryEncoding<Approximation>::birth(rng).get();
+        Approximation approx;
+
+        for(auto& triangle : approx)
+        {
+            triangle = Triangle(rng);
+        }
+        
+        return std::move(approx);
     }
 
     Approximation crossover(const Approximation& a, const Approximation& b, util::RNG& rng)
@@ -112,7 +128,15 @@ class Scenario : public genetic::Scenario<Approximation>
 
     void mutate(Approximation& approx, util::RNG& rng)
     {
-        return;
+        for(auto& triangle : approx)
+        {
+            auto roll = rng.real(0.f, 1.f);
+
+            if(roll < .1f)
+            {
+                triangle = Triangle(rng);
+            }
+        }
     }
 };
 
