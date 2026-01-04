@@ -101,7 +101,13 @@ class Scenario : public genetic::Scenario<Approximation>
 
     Approximation crossover(const Approximation& a, const Approximation& b, util::RNG& rng)
     {
-        return a;
+        Approximation c;
+
+        std::size_t crossover_point = rng.index(NUM_TRIANGLES);
+        for (int i = 0; i < NUM_TRIANGLES; ++i)
+            c[i] = (i < crossover_point ? a : b)[i];
+        
+        return std::move(c);
     }
 
     void mutate(Approximation& approx, util::RNG& rng)
