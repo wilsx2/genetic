@@ -5,7 +5,7 @@
 #include <numbers>
 
 //TODO: Constrain points within the image
-namespace img_approx
+namespace img
 {
 
 struct Triangle
@@ -17,6 +17,7 @@ struct Triangle
 };
 constexpr unsigned int NUM_TRIANGLES = 64;
 using Approximation = std::array<Triangle, NUM_TRIANGLES>;
+using BinApprox = genetic::BinaryEncoding<Approximation>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
 
@@ -43,7 +44,7 @@ sf::Image renderApproximation(const Approximation& approx)
     return texture.getTexture().copyToImage();
 } 
 
-class ImageApproximationScenario : public genetic::BinaryEncodedScenario<Approximation>
+class Scenario : public genetic::BinaryEncodedScenario<Approximation>
 {
     private:
     using BinApprox = BinT;
@@ -51,7 +52,7 @@ class ImageApproximationScenario : public genetic::BinaryEncodedScenario<Approxi
     inline static const std::string name = "monalisa";
 
     public: 
-    ImageApproximationScenario()
+    Scenario()
     : genetic::BinaryEncodedScenario<Approximation>(name)
     { }
     const std::string& getName()
@@ -59,12 +60,12 @@ class ImageApproximationScenario : public genetic::BinaryEncodedScenario<Approxi
         return name;
     }
     
-    float evaluateFitness(const Approximation& approx)
+    float evaluateFitness(const BinApprox& approx)
     {
         static const std::size_t NUM_PIXELS = monalisa.getSize().x * monalisa.getSize().y * 4;
         
         float sum = 0.f;
-        sf::Image render = std::move(renderApproximation(approx));
+        sf::Image render = std::move(renderApproximation(approx.get()));
         for (int i = 0; i < NUM_PIXELS; ++i)
         {
             float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i]);
@@ -77,4 +78,36 @@ class ImageApproximationScenario : public genetic::BinaryEncodedScenario<Approxi
     }
 };
 
+class View : public genetic::GraphicView<BinApprox>
+{
+    private:
+    static constexpr float ANIMATION_DURATION = 10.f;
+
+    void render(sf::RenderWindow& target)
+    {
+        
+    }
+
+    public:
+    View(): genetic::GraphicView<BinApprox>(
+        "Image Approximation", monalisa.getSize()
+    ) {}
+};
+
+}
+
+int main()
+{
+    auto cli = genetic::Controller<img::BinApprox>
+    (
+        genetic::GeneticAlgorithm<img::BinApprox>(
+            std::make_unique<img::Scenario>(),
+            genetic::selection::rankBased<img::BinApprox>,
+            10,
+            .1f
+        ),
+        std::make_unique<img::View>()
+    );
+    cli.run();
+    return 0;
 }
