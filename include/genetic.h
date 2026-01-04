@@ -5,7 +5,7 @@
 #include "controller/command_handler.h"
 #include "controller/graphic_view.h"
 #include "controller/view.h"
-#include "binary_scenario.h"
+#include "core/binary_scenario.h"
 #include "core/ga.h"
 #include "core/member.h"
 #include "core/generation.h"
