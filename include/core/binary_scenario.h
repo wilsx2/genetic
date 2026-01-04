@@ -13,6 +13,7 @@ namespace genetic
 template <typename T>
 class BinaryEncodedScenario : public Scenario<BinaryEncoding<T>>
 {
+    protected:
     using BinT = BinaryEncoding<T>;
 
     public: 
