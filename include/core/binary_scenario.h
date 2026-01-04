@@ -16,7 +16,15 @@ class BinaryEncodedScenario : public Scenario<BinaryEncoding<T>>
     protected:
     using BinT = BinaryEncoding<T>;
 
+    private: 
+    Serializer<BinT> serializer_; 
+
     public: 
+    BinaryEncodedScenario(std::string name)
+    : serializer_(name)
+    { }
+
+    const Serializer<BinT>& getSerializer();
     BinT birth(util::RNG&);
     BinT crossover(const BinT&, const BinT&, util::RNG&);
     void mutate(BinT&, util::RNG&);

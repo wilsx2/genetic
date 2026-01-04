@@ -4,6 +4,12 @@ namespace genetic
 {
 
 template <typename T>
+const Serializer<BinaryEncoding<T>>& BinaryEncodedScenario<T>::getSerializer()
+{
+    return serializer_;
+}
+
+template <typename T>
 BinaryEncodedScenario<T>::BinT BinaryEncodedScenario<T>::birth(util::RNG& rng)
 {
     return BinT::birth(rng);
