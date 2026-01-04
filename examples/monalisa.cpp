@@ -15,7 +15,7 @@ struct Triangle
     sf::Vector2f p3;
     sf::Color color;
 };
-constexpr unsigned int NUM_TRIANGLES = 64;
+constexpr unsigned int NUM_TRIANGLES = 16;
 using Approximation = std::array<Triangle, NUM_TRIANGLES>;
 using BinApprox = genetic::BinaryEncoding<Approximation>;
 
@@ -68,6 +68,8 @@ class Scenario : public genetic::BinaryEncodedScenario<Approximation>
         sf::Image render = std::move(renderApproximation(approx.get()));
         for (int i = 0; i < NUM_PIXELS; ++i)
         {
+            if (i % 4 == 0) continue; //Ignore opacity
+            
             float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i]);
             float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i]);
             float difference = target_pixel_value - approximated_pixel_value;
