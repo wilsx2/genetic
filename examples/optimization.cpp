@@ -13,7 +13,7 @@ float rastrigin1D(const float& x)
 class FunctionOptimizationScenario : public Scenario<float>
 {
     private:
-    inline static const std::string name = "Function Optimization";
+    inline static const std::string name = "optimization";
     Serializer<float> serializer_; 
 
     public: 

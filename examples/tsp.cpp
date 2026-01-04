@@ -61,7 +61,7 @@ namespace tsp
     class Scenario : public genetic::Scenario<Path>
     {
         private:
-        inline static const std::string name = "TSP";
+        inline static const std::string name = "tsp";
         genetic::Serializer<Path> serializer_; 
 
         public: 
@@ -146,7 +146,7 @@ namespace tsp
     {
         private:
         static constexpr float SCALE = 800;
-        static constexpr float ANIMATION_DURATION = 20.f;
+        static constexpr float ANIMATION_DURATION = 10.f;
 
         void render(sf::RenderWindow& target)
         {
@@ -155,11 +155,17 @@ namespace tsp
             if (percent_completed > 1.f)
                 percent_completed = 1.f;
 
-            std::cout << percent_completed*100 << "%" << "\n";
-
-
             int i = static_cast<int>((members_.size()-1) * percent_completed);
             Path path = members_[i].value;
+
+            // Printing
+            std::cout << "\033[2K";
+            if (view_type_ == genetic::ViewType::Generations)
+                std::cout << "Generation " << i << " ";
+            else if (view_type_ == genetic::ViewType::Population)
+                std::cout << "Rank " << (members_.size() - i) << " ";
+            
+            std::cout << percent_completed*100 << "%\n\033[A";
 
             // Rendering
             target.clear(sf::Color::Black);
@@ -221,7 +227,7 @@ int main()
             std::make_unique<tsp::Scenario>(),
             genetic::selection::rankBased<tsp::Path>,
             1000,
-            .1f
+            .01f
         ),
         std::make_unique<tsp::View>()
     );
