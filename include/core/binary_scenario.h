@@ -23,5 +23,5 @@ class BinaryEncodedScenario : public Scenario<BinaryEncoding<T>>
 
 }
 
-#include "binary_encoding.tpp"
+#include "binary_scenario.tpp"
 #endif
