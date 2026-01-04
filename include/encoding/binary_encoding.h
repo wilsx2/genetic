@@ -23,7 +23,7 @@ class BinaryEncoding {
 
         static BinaryEncoding birth(util::RNG& rng);
         static BinaryEncoding crossover(const BinaryEncoding& a, const BinaryEncoding& b, util::RNG& rng);
-        template <int R> static void mutate(BinaryEncoding& bin, util::RNG& rng);
+        template <int R = 10> static void mutate(BinaryEncoding& bin, util::RNG& rng);
 };
 
 }
