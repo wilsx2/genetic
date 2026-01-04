@@ -90,15 +90,16 @@ class Scenario : public genetic::Scenario<Approximation>
         
         float sum = 0.f;
         sf::Image render = renderApproximation(approx).copyToImage();
-        for (int i = 0; i < NUM_PIXELS; ++i)
+        for (int i = 0; i < NUM_PIXELS; i += 4)
         {
-            if (i+1 % 4 == 0) continue; //Ignore opacity
-
-            float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i]);
-            float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i]);
-            float difference = target_pixel_value - approximated_pixel_value;
-            float squared_difference = difference * difference;
-            sum += squared_difference;
+            for (int c = 0; c < 3; ++c) // R, G, & B only
+            {
+                float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i + c]);
+                float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i + c]);
+                float difference = target_pixel_value - approximated_pixel_value;
+                float squared_difference = difference * difference;
+                sum += squared_difference;
+            }
         }
         return -sum;
     }
