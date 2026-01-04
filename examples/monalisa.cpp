@@ -88,16 +88,16 @@ class Scenario : public genetic::Scenario<Approximation>
     {
         static const std::size_t NUM_PIXELS = monalisa.getSize().x * monalisa.getSize().y * 4;
         
-        float sum = 0.f;
+        int sum = 0;
         sf::Image render = renderApproximation(approx).copyToImage();
         for (int i = 0; i < NUM_PIXELS; i += 4)
         {
             for (int c = 0; c < 3; ++c) // R, G, & B only
             {
-                float target_pixel_value = static_cast<float>(monalisa.getPixelsPtr()[i + c]);
-                float approximated_pixel_value = static_cast<float>(render.getPixelsPtr()[i + c]);
-                float difference = target_pixel_value - approximated_pixel_value;
-                float squared_difference = difference * difference;
+                int target_pixel_value = static_cast<int>(monalisa.getPixelsPtr()[i + c]);
+                int approximated_pixel_value = static_cast<int>(render.getPixelsPtr()[i + c]);
+                int difference = target_pixel_value - approximated_pixel_value;
+                int squared_difference = difference * difference;
                 sum += squared_difference;
             }
         }
