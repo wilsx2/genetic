@@ -2,7 +2,8 @@
 #include "monalisa.h"
 #include <SFML/Graphics.hpp>
 #include <array>
-#include <numbers>
+#include <limits>
+#include <cmath>
 
 //TODO: Constrain points within the image
 namespace img
@@ -10,18 +11,27 @@ namespace img
 
 struct Triangle
 {
-    sf::Vector2f p1;
-    sf::Vector2f p2;
-    sf::Vector2f p3;
+    sf::Vector2u p1;
+    sf::Vector2u p2;
+    sf::Vector2u p3;
     sf::Color color;
 };
-constexpr unsigned int NUM_TRIANGLES = 16;
+constexpr unsigned int NUM_TRIANGLES = 64;
 using Approximation = std::array<Triangle, NUM_TRIANGLES>;
 using BinApprox = genetic::BinaryEncoding<Approximation>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
 
-
+sf::Vector2f vectorToImageVector(sf::Vector2u v)
+{
+    static const float max_value = static_cast<float>(std::numeric_limits<unsigned int>::max());
+    static const float img_width = monalisa.getSize().x;
+    static const float img_height = monalisa.getSize().y;
+    return {
+        (static_cast<float>(v.x) / max_value) * img_width,
+        (static_cast<float>(v.y) / max_value) * img_height
+    };
+}
 
 sf::Texture renderApproximation(const Approximation& approx)
 {
@@ -33,13 +43,14 @@ sf::Texture renderApproximation(const Approximation& approx)
         v1.color = triangle.color;
         v2.color = triangle.color;
         v3.color = triangle.color;
-        v1.position = triangle.p1;
-        v2.position = triangle.p2;
-        v3.position = triangle.p3;
+        v1.position = vectorToImageVector(triangle.p1);
+        v2.position = vectorToImageVector(triangle.p2);
+        v3.position = vectorToImageVector(triangle.p3);
         va.append(std::move(v1));
         va.append(std::move(v2));
         va.append(std::move(v3));
     }
+    texture.clear();
     texture.draw(va);
     texture.display();
 
