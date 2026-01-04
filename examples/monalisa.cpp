@@ -30,14 +30,14 @@ using Approximation = std::array<Triangle, NUM_TRIANGLES>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
 
-sf::Vector2f vectorToImageVector(sf::Vector2u v)
+sf::Vector2f vectorToImageVector(uint16_t x, uint16_t y)
 {
-    static const float max_value = static_cast<float>(std::numeric_limits<unsigned int>::max());
+    static const float max_value = static_cast<float>(std::numeric_limits<uint16_t>::max());
     static const float img_width = monalisa.getSize().x;
     static const float img_height = monalisa.getSize().y;
     return {
-        (static_cast<float>(v.x) / max_value) * img_width,
-        (static_cast<float>(v.y) / max_value) * img_height
+        (static_cast<float>(x) / max_value) * img_width,
+        (static_cast<float>(y) / max_value) * img_height
     };
 }
 
@@ -51,9 +51,9 @@ sf::Texture renderApproximation(const Approximation& approx)
         v1.color = triangle.color;
         v2.color = triangle.color;
         v3.color = triangle.color;
-        v1.position = vectorToImageVector({triangle.x1, triangle.y1});
-        v2.position = vectorToImageVector({triangle.x2, triangle.y2});
-        v3.position = vectorToImageVector({triangle.x3, triangle.y3});
+        v1.position = vectorToImageVector(triangle.x1, triangle.y1);
+        v2.position = vectorToImageVector(triangle.x2, triangle.y2);
+        v3.position = vectorToImageVector(triangle.x3, triangle.y3);
         va.append(std::move(v1));
         va.append(std::move(v2));
         va.append(std::move(v3));
