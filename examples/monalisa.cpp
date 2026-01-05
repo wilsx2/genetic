@@ -111,17 +111,19 @@ class Scenario : public genetic::Scenario<Approximation>
     Renderer renderer_;
     genetic::Serializer<Approximation> serializer_;
 
-    uint8_t perturbInt16(uint8_t c, int magnitude, util::RNG& rng)
+    uint16_t perturbInt16(uint8_t c, util::RNG& rng)
     {
+        static constexpr int MAGNITUDE = 12000;
         static constexpr int MIN = 0;
         static constexpr int MAX = static_cast<int>(std::numeric_limits<uint16_t>::max());
-        return static_cast<uint16_t>(std::clamp(static_cast<int>(c + rng.integer(-magnitude/2, magnitude)), MIN, MAX));
+        return static_cast<uint16_t>(std::clamp(static_cast<int>(c + rng.integer(-MAGNITUDE/2, MAGNITUDE/2)), MIN, MAX));
     }
-    uint8_t perturbInt8(uint8_t c, int magnitude, util::RNG& rng)
+    uint8_t perturbInt8(uint8_t c, util::RNG& rng)
     {
+        static constexpr int MAGNITUDE = 40;
         static constexpr int MIN = 0;
         static constexpr int MAX = static_cast<int>(std::numeric_limits<uint8_t>::max());
-        return static_cast<uint8_t>(std::clamp(static_cast<int>(c + rng.integer(-magnitude/2, magnitude)), MIN, MAX));
+        return static_cast<uint8_t>(std::clamp(static_cast<int>(c + rng.integer(-MAGNITUDE/2, MAGNITUDE/2)), MIN, MAX));
     }
 
     public: 
@@ -187,23 +189,34 @@ class Scenario : public genetic::Scenario<Approximation>
         {
             auto roll = rng.real(0.f, 1.f);
 
-            if(roll < .1f)
+            if(roll < .15f)
             {
                 rect = Rectangle(rng);
             }
             else if (roll < .4f)
             {
+                rect.x1 = perturbInt16(rect.x1, rng);
+                rect.x2 = perturbInt16(rect.x2, rng);
+                rect.y1 = perturbInt16(rect.y1, rng);
+                rect.y2 = perturbInt16(rect.y2, rng);
+                rect.color.r = perturbInt8(rect.color.r, rng);
+                rect.color.g = perturbInt8(rect.color.g, rng);
+                rect.color.b = perturbInt8(rect.color.b, rng);
+                rect.color.a = perturbInt8(rect.color.a, rng);
+            }
+            else if (roll < .7f)
+            {
                 int property = rng.integer(1, 8);
                 switch (property)
                 {
-                    case 1: rect.x1 = perturbInt16(rect.x1, 3000, rng); break;
-                    case 2: rect.x2 = perturbInt16(rect.x2, 3000, rng); break;
-                    case 3: rect.y1 = perturbInt16(rect.y1, 3000, rng); break;
-                    case 4: rect.y2 = perturbInt16(rect.y2, 3000, rng); break;
-                    case 5: rect.color.r = perturbInt8(rect.color.r, 10, rng); break;
-                    case 6: rect.color.g = perturbInt8(rect.color.g, 10, rng); break;
-                    case 7: rect.color.b = perturbInt8(rect.color.b, 10, rng); break;
-                    case 8: rect.color.a = perturbInt8(rect.color.a, 10, rng); break;
+                    case 1: rect.x1 = perturbInt16(rect.x1, rng); break;
+                    case 2: rect.x2 = perturbInt16(rect.x2, rng); break;
+                    case 3: rect.y1 = perturbInt16(rect.y1, rng); break;
+                    case 4: rect.y2 = perturbInt16(rect.y2, rng); break;
+                    case 5: rect.color.r = perturbInt8(rect.color.r, rng); break;
+                    case 6: rect.color.g = perturbInt8(rect.color.g, rng); break;
+                    case 7: rect.color.b = perturbInt8(rect.color.b, rng); break;
+                    case 8: rect.color.a = perturbInt8(rect.color.a, rng); break;
                 }
             }
         }
@@ -248,9 +261,9 @@ int main()
     (
         genetic::GeneticAlgorithm<img::Approximation>(
             std::make_unique<img::Scenario>(img::monalisa),
-            genetic::selection::rankBased<img::Approximation>,
-            200,
-            .05f
+            genetic::selection::tournament<img::Approximation, 5>,
+            500,
+            .0025f
         ),
         std::make_unique<img::View>()
     );
