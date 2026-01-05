@@ -15,15 +15,20 @@ struct Rectangle
     sf::Color color;
 
     Rectangle() = default;
-    Rectangle(util::RNG rng)
+    Rectangle(util::RNG& rng)
     : x1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , x2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , y1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , y2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
-    , color(rng.integer(0, std::numeric_limits<uint32_t>::max()))
+    , color({
+        static_cast<uint8_t>(rng.integer(0, std::numeric_limits<uint8_t>::max())),
+        static_cast<uint8_t>(rng.integer(0, std::numeric_limits<uint8_t>::max())),
+        static_cast<uint8_t>(rng.integer(0, std::numeric_limits<uint8_t>::max())),
+        static_cast<uint8_t>(rng.integer(64, std::numeric_limits<uint8_t>::max()))
+    })
     { }
 };
-constexpr unsigned int NUM_RECTS = 64;
+constexpr unsigned int NUM_RECTS = 16;
 using Approximation = std::array<Rectangle, NUM_RECTS>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
@@ -111,7 +116,7 @@ class Scenario : public genetic::Scenario<Approximation>
     Renderer renderer_;
     genetic::Serializer<Approximation> serializer_;
 
-    uint16_t perturbInt16(uint8_t c, util::RNG& rng)
+    uint16_t perturbInt16(uint16_t c, util::RNG& rng)
     {
         static constexpr int MAGNITUDE = 12000;
         static constexpr int MIN = 0;
@@ -189,22 +194,11 @@ class Scenario : public genetic::Scenario<Approximation>
         {
             auto roll = rng.real(0.f, 1.f);
 
-            if(roll < .15f)
+            if(roll < .02f)
             {
                 rect = Rectangle(rng);
             }
-            else if (roll < .4f)
-            {
-                rect.x1 = perturbInt16(rect.x1, rng);
-                rect.x2 = perturbInt16(rect.x2, rng);
-                rect.y1 = perturbInt16(rect.y1, rng);
-                rect.y2 = perturbInt16(rect.y2, rng);
-                rect.color.r = perturbInt8(rect.color.r, rng);
-                rect.color.g = perturbInt8(rect.color.g, rng);
-                rect.color.b = perturbInt8(rect.color.b, rng);
-                rect.color.a = perturbInt8(rect.color.a, rng);
-            }
-            else if (roll < .7f)
+            else if (roll < .15f)
             {
                 int property = rng.integer(1, 8);
                 switch (property)
@@ -262,8 +256,8 @@ int main()
         genetic::GeneticAlgorithm<img::Approximation>(
             std::make_unique<img::Scenario>(img::monalisa),
             genetic::selection::tournament<img::Approximation, 5>,
-            500,
-            .0025f
+            200, // Population Size
+            .05f // Elitism Rate
         ),
         std::make_unique<img::View>()
     );
