@@ -51,13 +51,19 @@ class Renderer {
     { }
     Renderer(sf::Image img, float scale)
     {
+        // Resize image in a render texture
         sf::Texture img_tex (img);
         sf::Sprite sprite (img_tex);
         sprite.setScale({scale, scale});
-        sf::RenderTexture temp;
+        sf::RenderTexture temp ({
+            static_cast<unsigned int>(img.getSize().x * scale),
+            static_cast<unsigned int>(img.getSize().y * scale)
+        });
         temp.clear();
         temp.draw(sprite);
         temp.display();
+
+        // Save to image
         img_ = temp.getTexture().copyToImage();
         (void)texture_.resize(img_.getSize());
     }
@@ -92,13 +98,14 @@ class Renderer {
 class Scenario : public genetic::Scenario<Approximation>
 {
     private:
+    static constexpr float SCALING_FACTOR = .25f;
     inline static const std::string name = "approx";
     Renderer renderer_;
     genetic::Serializer<Approximation> serializer_;
 
     public: 
     Scenario(sf::Image image)
-    : renderer_(image)
+    : renderer_(image, SCALING_FACTOR)
     , serializer_(name)
     { }
     const std::string& getName()
@@ -112,7 +119,7 @@ class Scenario : public genetic::Scenario<Approximation>
     
     float evaluateFitness(const Approximation& approx)
     {
-        static const std::size_t NUM_PIXELS = monalisa.getSize().x * monalisa.getSize().y * 4;
+        static const std::size_t NUM_PIXELS = renderer_.getImage().getSize().x * renderer_.getImage().getSize().y * 4;
         
         int sum = 0;
         sf::Image render = renderer_.renderApproximation(approx).copyToImage();
@@ -171,7 +178,7 @@ class View : public genetic::GraphicView<Approximation>
 {
     private:
     static constexpr float ANIMATION_DURATION = 10.f;
-    Renderer renderer_ {monalisa};
+    Renderer renderer_;
 
     void render(sf::RenderWindow& target)
     {
@@ -190,8 +197,10 @@ class View : public genetic::GraphicView<Approximation>
     }
 
     public:
-    View(): genetic::GraphicView<Approximation>(
-        "Image Approximation", renderer_.getImage().getSize()
+    View()
+    : renderer_(monalisa)
+    , genetic::GraphicView<Approximation>(
+        "Image Approximation", monalisa.getSize()
     ) {}
 };
 
