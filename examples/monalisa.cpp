@@ -9,24 +9,22 @@
 namespace img
 {
 
-struct Triangle
+struct Rectangle
 {
-    uint16_t x1,x2,x3,y1,y2,y3;
+    uint16_t x1,x2,y1,y2;
     sf::Color color;
 
-    Triangle() = default;
-    Triangle(util::RNG rng)
+    Rectangle() = default;
+    Rectangle(util::RNG rng)
     : x1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , x2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
-    , x3(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , y1(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , y2(rng.integer(0, std::numeric_limits<uint16_t>::max()))
-    , y3(rng.integer(0, std::numeric_limits<uint16_t>::max()))
     , color(rng.integer(0, std::numeric_limits<uint32_t>::max()))
     { }
 };
-constexpr unsigned int NUM_TRIANGLES = 64;
-using Approximation = std::array<Triangle, NUM_TRIANGLES>;
+constexpr unsigned int NUM_RECTS = 64;
+using Approximation = std::array<Rectangle, NUM_RECTS>;
 
 const sf::Image monalisa {monalisa_jpg, monalisa_jpg_len};
 
@@ -74,18 +72,27 @@ class Renderer {
     const sf::Texture& renderApproximation(const Approximation& approx)
     {
         sf::VertexArray va (sf::PrimitiveType::Triangles);
-        for (const auto& triangle : approx)
+        for (const auto& rect : approx)
         {
-            sf::Vertex v1, v2, v3;
-            v1.color = triangle.color;
-            v2.color = triangle.color;
-            v3.color = triangle.color;
-            v1.position = pointToVector(triangle.x1, triangle.y1);
-            v2.position = pointToVector(triangle.x2, triangle.y2);
-            v3.position = pointToVector(triangle.x3, triangle.y3);
+            sf::Vertex v1, v2, v3, v4, v5, v6;
+            v1.color = rect.color;
+            v2.color = rect.color;
+            v3.color = rect.color;
+            v4.color = rect.color;
+            v5.color = rect.color;
+            v6.color = rect.color;
+            v1.position = pointToVector(rect.x1, rect.y1);
+            v2.position = pointToVector(rect.x2, rect.y1);
+            v3.position = pointToVector(rect.x1, rect.y2);
+            v4.position = pointToVector(rect.x2, rect.y1);
+            v5.position = pointToVector(rect.x2, rect.y2);
+            v6.position = pointToVector(rect.x1, rect.y2);
             va.append(std::move(v1));
             va.append(std::move(v2));
             va.append(std::move(v3));
+            va.append(std::move(v4));
+            va.append(std::move(v5));
+            va.append(std::move(v6));
         }
         texture_.clear();
         texture_.draw(va);
@@ -155,9 +162,9 @@ class Scenario : public genetic::Scenario<Approximation>
     {
         Approximation approx;
 
-        for(auto& triangle : approx)
+        for(auto& rect : approx)
         {
-            triangle = Triangle(rng);
+            rect = Rectangle(rng);
         }
         
         return std::move(approx);
@@ -167,8 +174,8 @@ class Scenario : public genetic::Scenario<Approximation>
     {
         Approximation c;
 
-        std::size_t crossover_point = rng.index(NUM_TRIANGLES);
-        for (int i = 0; i < NUM_TRIANGLES; ++i)
+        std::size_t crossover_point = rng.index(NUM_RECTS);
+        for (int i = 0; i < NUM_RECTS; ++i)
             c[i] = (i < crossover_point ? a : b)[i];
         
         return std::move(c);
@@ -176,29 +183,27 @@ class Scenario : public genetic::Scenario<Approximation>
 
     void mutate(Approximation& approx, util::RNG& rng)
     {
-        for(auto& triangle : approx)
+        for(auto& rect : approx)
         {
             auto roll = rng.real(0.f, 1.f);
 
             if(roll < .1f)
             {
-                triangle = Triangle(rng);
+                rect = Rectangle(rng);
             }
             else if (roll < .4f)
             {
-                int property = rng.integer(1, 10);
+                int property = rng.integer(1, 8);
                 switch (property)
                 {
-                    case 1: triangle.x1 = perturbInt16(triangle.x1, 3000, rng); break;
-                    case 2: triangle.x2 = perturbInt16(triangle.x2, 3000, rng); break;
-                    case 3: triangle.x3 = perturbInt16(triangle.x3, 3000, rng); break;
-                    case 4: triangle.y1 = perturbInt16(triangle.y1, 3000, rng); break;
-                    case 5: triangle.y2 = perturbInt16(triangle.y2, 3000, rng); break;
-                    case 6: triangle.y3 = perturbInt16(triangle.y3, 3000, rng); break;
-                    case 7: triangle.color.r = perturbInt8(triangle.color.r, 10, rng); break;
-                    case 8: triangle.color.g = perturbInt8(triangle.color.g, 10, rng); break;
-                    case 9: triangle.color.b = perturbInt8(triangle.color.b, 10, rng); break;
-                    case 10: triangle.color.a = perturbInt8(triangle.color.a, 10, rng); break;
+                    case 1: rect.x1 = perturbInt16(rect.x1, 3000, rng); break;
+                    case 2: rect.x2 = perturbInt16(rect.x2, 3000, rng); break;
+                    case 3: rect.y1 = perturbInt16(rect.y1, 3000, rng); break;
+                    case 4: rect.y2 = perturbInt16(rect.y2, 3000, rng); break;
+                    case 5: rect.color.r = perturbInt8(rect.color.r, 10, rng); break;
+                    case 6: rect.color.g = perturbInt8(rect.color.g, 10, rng); break;
+                    case 7: rect.color.b = perturbInt8(rect.color.b, 10, rng); break;
+                    case 8: rect.color.a = perturbInt8(rect.color.a, 10, rng); break;
                 }
             }
         }
@@ -244,8 +249,8 @@ int main()
         genetic::GeneticAlgorithm<img::Approximation>(
             std::make_unique<img::Scenario>(img::monalisa),
             genetic::selection::rankBased<img::Approximation>,
-            10,
-            .1f
+            200,
+            .05f
         ),
         std::make_unique<img::View>()
     );
