@@ -150,7 +150,7 @@ class Scenario : public genetic::Scenario<Approximation>
         {
             for (int c = 0; c < 3; ++c) // R, G, & B only
             {
-                int target_pixel_value = static_cast<int>(monalisa.getPixelsPtr()[i + c]);
+                int target_pixel_value = static_cast<int>(renderer_.getImage().getPixelsPtr()[i + c]);
                 int approximated_pixel_value = static_cast<int>(render.getPixelsPtr()[i + c]);
                 int difference = target_pixel_value - approximated_pixel_value;
                 int squared_difference = difference * difference;
