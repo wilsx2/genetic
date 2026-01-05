@@ -98,6 +98,7 @@ class Renderer {
 class Scenario : public genetic::Scenario<Approximation>
 {
     private:
+    static constexpr int PIXEL_STRIDE = 3;
     static constexpr float SCALING_FACTOR = .25f;
     inline static const std::string name = "approx";
     Renderer renderer_;
@@ -123,7 +124,7 @@ class Scenario : public genetic::Scenario<Approximation>
         
         int sum = 0;
         sf::Image render = renderer_.renderApproximation(approx).copyToImage();
-        for (int i = 0; i < NUM_PIXELS; i += 4)
+        for (int i = 0; i < NUM_PIXELS; i += 4 * PIXEL_STRIDE)
         {
             for (int c = 0; c < 3; ++c) // R, G, & B only
             {
