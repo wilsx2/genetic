@@ -104,6 +104,19 @@ class Scenario : public genetic::Scenario<Approximation>
     Renderer renderer_;
     genetic::Serializer<Approximation> serializer_;
 
+    uint8_t perturbInt16(uint8_t c, int magnitude, util::RNG& rng)
+    {
+        static constexpr int MIN = 0;
+        static constexpr int MAX = static_cast<int>(std::numeric_limits<uint16_t>::max());
+        return static_cast<uint16_t>(std::clamp(static_cast<int>(c + rng.integer(-magnitude/2, magnitude)), MIN, MAX));
+    }
+    uint8_t perturbInt8(uint8_t c, int magnitude, util::RNG& rng)
+    {
+        static constexpr int MIN = 0;
+        static constexpr int MAX = static_cast<int>(std::numeric_limits<uint8_t>::max());
+        return static_cast<uint8_t>(std::clamp(static_cast<int>(c + rng.integer(-magnitude/2, magnitude)), MIN, MAX));
+    }
+
     public: 
     Scenario(sf::Image image)
     : renderer_(image, SCALING_FACTOR)
@@ -170,6 +183,23 @@ class Scenario : public genetic::Scenario<Approximation>
             if(roll < .1f)
             {
                 triangle = Triangle(rng);
+            }
+            else if (roll < .4f)
+            {
+                int property = rng.integer(1, 10);
+                switch (property)
+                {
+                    case 1: triangle.x1 = perturbInt16(triangle.x1, 3000, rng); break;
+                    case 2: triangle.x2 = perturbInt16(triangle.x2, 3000, rng); break;
+                    case 3: triangle.x3 = perturbInt16(triangle.x3, 3000, rng); break;
+                    case 4: triangle.y1 = perturbInt16(triangle.y1, 3000, rng); break;
+                    case 5: triangle.y2 = perturbInt16(triangle.y2, 3000, rng); break;
+                    case 6: triangle.y3 = perturbInt16(triangle.y3, 3000, rng); break;
+                    case 7: triangle.color.r = perturbInt8(triangle.color.r, 10, rng); break;
+                    case 8: triangle.color.g = perturbInt8(triangle.color.g, 10, rng); break;
+                    case 9: triangle.color.b = perturbInt8(triangle.color.b, 10, rng); break;
+                    case 10: triangle.color.a = perturbInt8(triangle.color.a, 10, rng); break;
+                }
             }
         }
     }
